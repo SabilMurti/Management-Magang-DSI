@@ -24,6 +24,44 @@
                 @csrf
                 @method('PUT')
                 
+                <!-- Avatar Upload Section -->
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label">Foto Profil</label>
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <!-- Current Avatar Preview -->
+                        <div id="avatar-preview-container" style="position: relative;">
+                            @if($user->avatar)
+                                <img id="avatar-preview" src="{{ asset('storage/avatars/' . $user->avatar) }}" 
+                                    alt="Avatar" 
+                                    style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-primary);">
+                            @else
+                                <div id="avatar-placeholder" 
+                                    style="width: 100px; height: 100px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; color: white; border: 3px solid var(--accent-primary);">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                                <img id="avatar-preview" src="" alt="Preview" style="display: none; width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-primary);">
+                            @endif
+                        </div>
+                        
+                        <!-- Upload Controls -->
+                        <div style="flex: 1;">
+                            <label for="avatar-input" class="btn btn-secondary" style="cursor: pointer; margin-bottom: 8px;">
+                                <i class="fas fa-camera"></i> Pilih Foto
+                            </label>
+                            <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display: none;">
+                            <p class="text-muted" style="font-size: 12px; margin: 0;">
+                                Format: JPG, PNG, GIF. Maksimal 2MB.<br>
+                                Rekomendasi: Foto persegi 200x200 piksel.
+                            </p>
+                            @if($user->avatar)
+                                <p style="color: var(--success); font-size: 12px; margin-top: 4px;">
+                                    <i class="fas fa-check-circle"></i> Foto profil sudah diupload
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap *</label>
                     <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
@@ -32,12 +70,6 @@
                 <div class="form-group">
                     <label class="form-label">Email *</label>
                     <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Avatar (Opsional)</label>
-                    <input type="file" name="avatar" class="form-control" accept="image/*">
-                    <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB</small>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
@@ -79,3 +111,52 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Avatar Preview
+    document.getElementById('avatar-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Terlalu Besar',
+                    text: 'Ukuran file maksimal 2MB',
+                    confirmButtonColor: '#ef4444'
+                });
+                e.target.value = '';
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Format Tidak Valid',
+                    text: 'Pilih file gambar (JPG, PNG, GIF)',
+                    confirmButtonColor: '#ef4444'
+                });
+                e.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('avatar-preview');
+                const placeholder = document.getElementById('avatar-placeholder');
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+@endpush
+
