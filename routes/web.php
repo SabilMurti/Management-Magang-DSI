@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.checkIn');
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.checkOut');
+    Route::post('/attendance/permission', [AttendanceController::class, 'submitPermission'])->name('attendance.permission');
 
     // Admin/Pembimbing only routes
     Route::middleware(['role:admin,pembimbing'])->group(function () {
