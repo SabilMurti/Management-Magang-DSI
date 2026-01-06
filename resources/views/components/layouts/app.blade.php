@@ -199,9 +199,7 @@
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Logout</span>
                             </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -309,6 +307,9 @@
     </script>
     @livewireScripts
     @stack('scripts')
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;" wire:ignore>
+        @csrf
+    </form>
 </body>
 
 </html>
