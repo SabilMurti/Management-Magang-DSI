@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
         // Reports
         Route::resource('reports', ReportController::class);
         Route::post('/reports/{report}/feedback', [ReportController::class, 'addFeedback'])->name('reports.feedback');
+        Route::get('/interns/{intern}/download-report', [ReportController::class, 'downloadInternReport'])->name('interns.downloadReport');
 
         // Assessments - Index uses Livewire
         Route::get('/assessments', \App\Livewire\Assessments\AssessmentIndex::class)->name('assessments.index');

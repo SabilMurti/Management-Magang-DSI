@@ -102,6 +102,10 @@
                                             title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <a href="{{ route('interns.downloadReport', $intern) }}" class="btn btn-sm btn-success"
+                                            title="Download Laporan PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
                                         <button wire:click="deleteIntern({{ $intern->id }})"
                                             wire:confirm="Yakin ingin menghapus anggota ini?" class="btn btn-sm btn-danger"
                                             title="Hapus">
