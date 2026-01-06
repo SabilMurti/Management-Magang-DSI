@@ -28,6 +28,9 @@ class Task extends Model
         'github_link',
         'submission_file',
         'submission_notes',
+        'score',
+        'admin_feedback',
+        'approved_at',
     ];
 
     protected $casts = [
@@ -35,6 +38,7 @@ class Task extends Model
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'submitted_at' => 'datetime',
+        'approved_at' => 'datetime',
         'is_late' => 'boolean',
     ];
 
@@ -71,7 +75,8 @@ class Task extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'completed' => $this->is_late ? 'warning' : 'success',
+            'completed' => 'success',
+            'submitted' => 'info',
             'in_progress' => 'primary',
             'revision' => 'warning',
             'pending' => 'secondary',
@@ -82,17 +87,18 @@ class Task extends Model
     public function getStatusLabelAttribute()
     {
         $label = match($this->status) {
-            'completed' => 'Selesai',
+            'completed' => 'Disetujui',
+            'submitted' => 'Menunggu Review',
             'in_progress' => 'Dikerjakan',
-            'revision' => 'Revisi',
+            'revision' => 'Perlu Revisi',
             'pending' => 'Belum Mulai',
             default => 'Unknown',
         };
-        
+
         if ($this->status === 'completed' && $this->is_late) {
             $label .= ' (Terlambat)';
         }
-        
+
         return $label;
     }
 
@@ -126,16 +132,33 @@ class Task extends Model
     {
         $now = now();
         $this->submitted_at = $now;
-        $this->completed_at = $now;
-        $this->status = 'completed';
-        
+        // Don't set completed_at yet, only when approved
+        $this->status = 'submitted';
+
         // Check if late
         $deadlineDatetime = $this->deadline_datetime;
         if ($deadlineDatetime && $now->isAfter($deadlineDatetime)) {
             $this->is_late = true;
         }
-        
+
         $this->save();
         return $this;
+    }
+
+    public function approve($score, $feedback = null)
+    {
+        $this->status = 'completed';
+        $this->completed_at = now();
+        $this->approved_at = now();
+        $this->score = $score;
+        $this->admin_feedback = $feedback;
+        $this->save();
+    }
+
+    public function requestRevision($feedback)
+    {
+        $this->status = 'revision';
+        $this->admin_feedback = $feedback;
+        $this->save();
     }
 }

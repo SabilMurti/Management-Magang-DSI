@@ -80,6 +80,14 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">Catatan Revisi / Feedback Admin</label>
+                    <textarea name="admin_feedback" class="form-control" rows="3"
+                        placeholder="Tambahkan catatan untuk revisi atau feedback penilaian... win">{{ old('admin_feedback', $task->admin_feedback) }}</textarea>
+                    <small class="text-muted">Catatan ini akan tampil jika status tugas adalah "Revisi" atau
+                        "Selesai".</small>
+                </div>
+
                 <div class="grid-2">
                     <div class="form-group">
                         <label class="form-label">Deadline Tanggal</label>

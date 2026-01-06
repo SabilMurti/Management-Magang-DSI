@@ -204,9 +204,10 @@ class TaskController extends Controller
             'deadline_time' => 'nullable|date_format:H:i',
             'estimated_hours' => 'nullable|integer|min:1',
             'submission_type' => 'nullable|in:github,file,both',
+            'admin_feedback' => 'nullable|string',
         ]);
 
-        $data = $request->only(['title', 'description', 'intern_id', 'priority', 'status', 'deadline', 'deadline_time', 'estimated_hours', 'submission_type']);
+        $data = $request->only(['title', 'description', 'intern_id', 'priority', 'status', 'deadline', 'deadline_time', 'estimated_hours', 'submission_type', 'admin_feedback']);
 
         // Handle empty intern_id (set to null)
         if (empty($data['intern_id'])) {
@@ -281,8 +282,7 @@ class TaskController extends Controller
         }
 
         $data = [
-            'status' => 'completed',
-            'completed_at' => now(),
+            'status' => 'submitted',
             'submitted_at' => now(),
             'submission_notes' => $request->submission_notes,
         ];
@@ -316,10 +316,35 @@ class TaskController extends Controller
         $task->update($data);
 
         $message = $data['is_late']
-            ? 'Tugas dikumpulkan (Terlambat)!'
-            : 'Tugas dikumpulkan tepat waktu! 🎉';
+            ? 'Tugas dikumpulkan (Terlambat)! Menunggu review pembimbing.'
+            : 'Tugas dikumpulkan tepat waktu! 🎉 Menunggu review pembimbing.';
 
         return redirect()->route('tasks.show', $task)->with('success', $message);
+    }
+
+    // Review task by admin/pembimbing
+    public function review(Request $request, Task $task)
+    {
+        // Check permission
+        if (!Auth::user()->canManage()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'action' => 'required|in:approve,revision',
+            'score' => 'required_if:action,approve|nullable|integer|between:0,100',
+            'feedback' => 'nullable|string|max:1000',
+        ]);
+
+        if ($request->action === 'approve') {
+            $task->approve($request->score, $request->feedback);
+            $message = 'Tugas berhasil disetujui dan dinilai!';
+        } else {
+            $task->requestRevision($request->feedback);
+            $message = 'Tugas dikembalikan untuk revisi.';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     // Update status by intern (simple status change without submission)

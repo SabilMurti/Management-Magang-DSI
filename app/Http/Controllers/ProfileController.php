@@ -83,11 +83,11 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             // Delete old avatar
             if ($user->avatar) {
-                Storage::delete('public/avatars/' . $user->avatar);
+                Storage::disk('public')->delete('avatars/' . $user->avatar);
             }
             
             $avatarName = time() . '.' . $request->avatar->extension();
-            $request->avatar->storeAs('public/avatars', $avatarName);
+            $request->avatar->storeAs('avatars', $avatarName, 'public');
             $validated['avatar'] = $avatarName;
         }
 

@@ -7,9 +7,16 @@
     <!-- Profile Header -->
     <div class="card mb-6" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border-color: rgba(99, 102, 241, 0.3);">
         <div class="d-flex align-center gap-4" style="flex-wrap: wrap;">
-            <div class="user-avatar" style="width: 100px; height: 100px; font-size: 40px; flex-shrink: 0;">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
-            </div>
+            @if($user->avatar)
+                <img src="{{ asset('storage/avatars/' . $user->avatar) }}" 
+                    alt="Avatar" 
+                    class="user-avatar"
+                    style="width: 100px; height: 100px; font-size: 40px; flex-shrink: 0; object-fit: cover;">
+            @else
+                <div class="user-avatar" style="width: 100px; height: 100px; font-size: 40px; flex-shrink: 0;">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+            @endif
             <div style="flex: 1;">
                 <h2 style="font-size: 28px; margin-bottom: 4px;">{{ $user->name }}</h2>
                 <p class="text-muted">{{ $user->email }}</p>
