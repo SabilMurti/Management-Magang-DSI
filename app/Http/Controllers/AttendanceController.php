@@ -268,4 +268,57 @@ class AttendanceController extends Controller
 
         return back()->with('success', 'Check-out berhasil pada ' . $currentTime . '! Hati-hati di jalan.');
     }
+
+    public function submitPermission(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user->isIntern() || !$user->intern) {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:sick,permission',
+            'notes' => 'required|string|max:500',
+            'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+        ]);
+
+        $intern = $user->intern;
+        $today = Carbon::today();
+
+        // Check if already exist
+        $existing = Attendance::where('intern_id', $intern->id)
+            ->whereDate('date', $today)
+            ->first();
+        
+        if ($existing) {
+            return back()->with('error', 'Anda sudah mengisi presensi untuk hari ini.');
+        }
+
+        $filePath = null;
+        if ($request->hasFile('proof_file')) {
+            $file = $request->file('proof_file');
+            $filename = time() . '_' . $intern->id . '.' . $file->getClientOriginalExtension();
+            
+            // Simpan menggunakan disk 'public' (storage/app/public)
+            // Hasilnya path = 'attendance_proofs/filename.ext'
+            $filePath = $file->storeAs('attendance_proofs', $filename, 'public');
+        }
+
+        Attendance::create([
+            'intern_id' => $intern->id,
+            'date' => $today,
+            'check_in' => null,
+            'check_out' => null,
+            'status' => $request->status,
+            'notes' => $request->notes,
+            'proof_file' => $filePath,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+        ]);
+
+        return back()->with('success', 'Izin berhasil diajukan.');
+    }
 }
