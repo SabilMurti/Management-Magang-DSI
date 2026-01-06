@@ -34,7 +34,7 @@ class ReportController extends Controller
 
         $reports = $query->latest()->paginate(10);
         $interns = Intern::with('user')->where('status', 'active')->get();
-        
+
         return view('reports.index', compact('reports', 'interns'));
     }
 
@@ -150,7 +150,7 @@ class ReportController extends Controller
         // Calculate attendance percentage
         if ($attendanceStats['total'] > 0) {
             $attendanceStats['percentage'] = round(
-                (($attendanceStats['present'] + $attendanceStats['late']) / $attendanceStats['total']) * 100, 
+                (($attendanceStats['present'] + $attendanceStats['late']) / $attendanceStats['total']) * 100,
                 1
             );
         } else {
@@ -169,8 +169,8 @@ class ReportController extends Controller
 
         // Calculate overall score
         $assessmentStats['overall'] = round(
-            ($assessmentStats['quality'] + $assessmentStats['speed'] + 
-             $assessmentStats['initiative'] + $assessmentStats['teamwork'] + 
+            ($assessmentStats['quality'] + $assessmentStats['speed'] +
+             $assessmentStats['initiative'] + $assessmentStats['teamwork'] +
              $assessmentStats['communication']) / 5,
             1
         );
@@ -197,9 +197,20 @@ class ReportController extends Controller
         // Prepare avatar URL
         $avatarUrl = null;
         if ($intern->user->avatar) {
-            $avatarPath = public_path('storage/' . $intern->user->avatar);
+            // Use storage_path for direct file access (storage/app/public/avatars/)
+            $avatarPath = storage_path('app/public/avatars/' . $intern->user->avatar);
             if (file_exists($avatarPath)) {
-                $avatarUrl = 'data:image/' . pathinfo($avatarPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($avatarPath));
+                $extension = strtolower(pathinfo($avatarPath, PATHINFO_EXTENSION));
+                // Map common extensions to MIME types
+                $mimeTypes = [
+                    'jpg' => 'jpeg',
+                    'jpeg' => 'jpeg',
+                    'png' => 'png',
+                    'gif' => 'gif',
+                    'webp' => 'webp',
+                ];
+                $mimeType = $mimeTypes[$extension] ?? $extension;
+                $avatarUrl = 'data:image/' . $mimeType . ';base64,' . base64_encode(file_get_contents($avatarPath));
             }
         }
 
