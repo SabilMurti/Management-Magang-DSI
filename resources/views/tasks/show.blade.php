@@ -138,20 +138,36 @@
 
         <!-- Revision Alert -->
         @if($task->status === 'revision')
-            <div class="card mt-6 border-warning" style="background: rgba(245, 158, 11, 0.1);">
-                <div class="card-header border-0">
-                    <h3 class="card-title text-warning"><i class="fas fa-exclamation-circle"></i> Perlu Revisi</h3>
+            <div class="mt-6" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); background: #fff; border: 1px solid #fed7aa;">
+                <!-- Header Status -->
+                <div style="background: linear-gradient(to right, #fff7ed, #fff); padding: 24px; border-bottom: 1px dashed #fed7aa; display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="background: #fffbeb; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #fde68a;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 24px; color: #d97706;"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #9a3412; font-weight: 700; margin-bottom: 6px; font-size: 18px;">Kompetensi Belum Terpenuhi</h3>
+                        <p style="color: #c2410c; margin: 0; font-size: 14px; line-height: 1.5;">
+                            Tugas Anda memerlukan revisi. Silakan perbaiki bagian-bagian yang disebutkan oleh pembimbing di bawah ini sebelum mengumpulkannya kembali.
+                        </p>
+                    </div>
                 </div>
-                <div class="p-4">
-                    <h5 class="mb-2">Catatan dari Pembimbing:</h5>
-                    <div class="p-3 bg-white rounded border border-warning mb-4">
-                        {{ $task->admin_feedback ?? 'Tidak ada catatan.' }}
+
+                <!-- Evaluator Feedback Area -->
+                <div style="padding: 24px; background: #fff;">
+                    <div style="margin-bottom: 8px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fas fa-comment-dots me-1"></i> Catatan Pembimbing
+                    </div>
+                    
+                    <div style="background: #f8fafc; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 20px; color: #334155; font-size: 15px; line-height: 1.6;">
+                        "{{ $task->admin_feedback ?? 'Mohon perbaiki tugas sesuai dengan instruksi awal.' }}"
                     </div>
 
                     @if(auth()->user()->isIntern())
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Silakan perbaiki tugas Anda dan kumpulkan kembali pada form di bawah
-                            ini.
+                        <div style="margin-top: 24px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px;">
+                            <i class="fas fa-info-circle text-danger"></i>
+                            <span style="color: #be123c; font-size: 14px; font-weight: 500;">
+                                Silakan perbaiki sesuai catatan di atas, lalu upload ulang file/link revisi Anda pada form di bawah.
+                            </span>
                         </div>
                     @endif
                 </div>
