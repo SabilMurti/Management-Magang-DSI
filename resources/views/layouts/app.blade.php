@@ -162,12 +162,6 @@
                 </div>
 
                 <div class="header-actions">
-                    <!-- Theme Toggle -->
-                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
-                        <i class="fas fa-moon"></i>
-                        <i class="fas fa-sun"></i>
-                    </button>
-
                     <div class="user-menu">
                         @if(auth()->user()->avatar)
                             <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" 
@@ -226,23 +220,7 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
 
-        // Theme Toggle
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        // Load saved theme
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-
-        loadTheme();
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function (e) {
