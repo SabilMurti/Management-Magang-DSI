@@ -63,9 +63,15 @@
                             <tr wire:key="intern-{{ $intern->id }}">
                                 <td>
                                     <div class="d-flex align-center gap-2">
-                                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">
-                                            {{ strtoupper(substr($intern->user->name ?? 'N', 0, 1)) }}
-                                        </div>
+                                        @if($intern->user->avatar)
+                                            <img src="{{ asset('storage/avatars/' . $intern->user->avatar) }}"
+                                                 alt="{{ $intern->user->name }}"
+                                                 style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);">
+                                        @else
+                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">
+                                                {{ strtoupper(substr($intern->user->name ?? 'N', 0, 1)) }}
+                                            </div>
+                                        @endif
                                         <div>
                                             <strong>{{ $intern->user->name ?? 'N/A' }}</strong>
                                             <div class="text-muted" style="font-size: 12px;">{{ $intern->user->email ?? '' }}
