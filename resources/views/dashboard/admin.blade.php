@@ -408,6 +408,7 @@
                                     <th>Nama</th>
                                     <th>Waktu</th>
                                     <th>Status</th>
+                                    <th>Bukti</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -420,6 +421,17 @@
                                             <span class="badge badge-{{ $attendance->status_color }}">
                                                 {{ $attendance->status_label }}
                                             </span>
+                                        </td>
+                                        <td>
+                                            @if($attendance->proof_file)
+                                                <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank" style="color: #6366f1;">
+                                                    <i class="fas fa-paperclip"></i> Lihat
+                                                </a>
+                                            @elseif($attendance->status == 'sick' || $attendance->status == 'permission')
+                                                <span style="color: #ef4444; font-size: 11px;">-</span>
+                                            @else
+                                                <span style="color: #94a3b8;">-</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

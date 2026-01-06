@@ -20,6 +20,7 @@ class Attendance extends Model
         'latitude',
         'longitude',
         'distance_meters',
+        'proof_file',
     ];
 
     protected $casts = [
