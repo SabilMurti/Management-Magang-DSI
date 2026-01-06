@@ -316,10 +316,10 @@
         </div>
     </div>
 
-    <!-- Performance Chart -->
+    <!-- Performance Line Chart -->
     <div class="card mt-6">
         <div class="card-header border-0">
-            <h3 class="card-title"><i class="fas fa-chart-bar" style="color: #f43f5e; margin-right: 8px;"></i> Performa Siswa</h3>
+            <h3 class="card-title"><i class="fas fa-chart-line" style="color: #f43f5e; margin-right: 8px;"></i> Performa Siswa</h3>
         </div>
         <div class="chart-container" style="height: 350px;">
             <canvas id="performanceChart"></canvas>
@@ -375,42 +375,99 @@
     ];
 
     new Chart(document.getElementById('performanceChart').getContext('2d'), {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: interns.map(i => i.name),
             datasets: [
                 {
                     label: 'Tepat Waktu',
                     data: interns.map(i => i.on_time),
-                    backgroundColor: '#4ade80',
-                    borderRadius: 4,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#22c55e',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#16a34a',
                 },
                 {
                     label: 'Terlambat',
                     data: interns.map(i => i.late),
-                    backgroundColor: '#fbbf24',
-                    borderRadius: 4,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#d97706',
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#64748b', font: { family: 'Inter' } }
+                    ticks: { 
+                        color: '#64748b', 
+                        font: { family: 'Inter', size: 12, weight: 500 },
+                        padding: 8
+                    }
                 },
                 y: {
                     beginAtZero: true,
-                    grid: { color: '#f1f5f9', borderDash: [5, 5] },
-                    ticks: { color: '#64748b', font: { family: 'Inter' } },
+                    grid: { 
+                        color: 'rgba(226, 232, 240, 0.6)', 
+                        drawBorder: false,
+                    },
+                    ticks: { 
+                        color: '#64748b', 
+                        font: { family: 'Inter', size: 12 },
+                        padding: 12,
+                        stepSize: 1
+                    },
                     border: { display: false }
                 }
             },
             plugins: {
                 legend: {
-                    labels: { color: '#64748b', usePointStyle: true, padding: 20 }
+                    position: 'top',
+                    align: 'end',
+                    labels: { 
+                        color: '#64748b', 
+                        usePointStyle: true, 
+                        pointStyle: 'circle',
+                        padding: 20,
+                        font: { family: 'Inter', size: 13, weight: 500 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#e2e8f0',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    padding: 14,
+                    titleFont: { family: 'Inter', size: 14, weight: 600 },
+                    bodyFont: { family: 'Inter', size: 13 },
+                    displayColors: true,
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    boxPadding: 4
                 }
             }
         }
