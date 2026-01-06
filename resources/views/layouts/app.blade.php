@@ -70,6 +70,16 @@
                             </li>
                         @endif
 
+                        @if(auth()->user()->role === 'admin')
+                            <li class="nav-item">
+                                <a href="{{ route('supervisors.index') }}"
+                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Anggota Pembimbing</span>
+                                </a>
+                            </li>
+                        @endif
+
                         <li class="nav-item">
                             <a href="{{ route('tasks.index') }}"
                                 class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
@@ -159,9 +169,16 @@
                     </button>
 
                     <div class="user-menu">
-                        <div class="user-avatar">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        </div>
+                        @if(auth()->user()->avatar)
+                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" 
+                                alt="Avatar" 
+                                class="user-avatar"
+                                style="object-fit: cover;">
+                        @else
+                            <div class="user-avatar">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                        @endif
                         <div class="user-info">
                             <div class="user-name">{{ auth()->user()->name }}</div>
                             <div class="user-role">{{ auth()->user()->role }}</div>

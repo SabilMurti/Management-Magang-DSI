@@ -322,6 +322,12 @@ body {
     justify-content: center;
     font-weight: 600;
     color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+img.user-avatar {
+    object-fit: cover;
 }
 
 .user-info {

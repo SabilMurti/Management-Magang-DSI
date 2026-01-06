@@ -72,6 +72,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/assessments/{assessment}/edit', [AssessmentController::class, 'edit'])->name('assessments.edit');
         Route::put('/assessments/{assessment}', [AssessmentController::class, 'update'])->name('assessments.update');
         Route::delete('/assessments/{assessment}', [AssessmentController::class, 'destroy'])->name('assessments.destroy');
+    });
+
+    // Admin only routes
+    Route::middleware(['role:admin'])->group(function () {
+        // Supervisors CRUD - Admin only
+        Route::get('/supervisors', \App\Livewire\Supervisors\SupervisorIndex::class)->name('supervisors.index');
+        Route::get('/supervisors/create', \App\Livewire\Supervisors\SupervisorForm::class)->name('supervisors.create');
+        Route::get('/supervisors/{supervisor}/edit', \App\Livewire\Supervisors\SupervisorForm::class)->name('supervisors.edit');
 
         // Settings
         Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
