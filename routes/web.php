@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::post('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
     Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->name('tasks.submit');
+    Route::post('/tasks/{task}/review', [TaskController::class, 'review'])->name('tasks.review');
 
     // Attendance (accessible by all authenticated users) - Index uses Livewire
     Route::get('/attendances', \App\Livewire\Attendances\AttendanceIndex::class)->name('attendances.index');

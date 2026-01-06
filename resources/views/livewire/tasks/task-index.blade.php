@@ -86,7 +86,10 @@
                     </thead>
                     <tbody>
                         @foreach($tasks as $task)
-                            <tr wire:key="task-{{ $task->id }}">
+                            <tr wire:key="task-{{ $task->id }}" @if($task->status === 'revision')
+                            style="background-color: #fffbeb !important; border-left: 3px solid #f59e0b;" @endif
+                                @if($task->status === 'submitted')
+                                style="background-color: #f0f9ff !important; border-left: 3px solid #0ea5e9;" @endif>
                                 <td>
                                     <div class="d-flex align-center gap-2">
                                         <strong>{{ Str::limit($task->title, 30) }}</strong>
@@ -96,6 +99,10 @@
                                         @elseif($task->status === 'completed' && !$task->is_late)
                                             <span class="badge badge-success" style="font-size: 10px;"><i
                                                     class="fas fa-check"></i></span>
+                                        @elseif($task->status === 'revision')
+                                            <span class="badge badge-warning" style="font-size: 10px;">Perlu Revisi</span>
+                                        @elseif($task->status === 'submitted')
+                                            <span class="badge badge-info" style="font-size: 10px;">Menunggu Review</span>
                                         @elseif($task->isOverdue())
                                             <span class="badge badge-danger" style="font-size: 10px;">Lewat!</span>
                                         @endif
