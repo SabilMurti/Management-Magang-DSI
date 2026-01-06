@@ -9,6 +9,15 @@
                 <a href="{{ route('interns.index') }}" class="btn btn-secondary btn-icon">
                     <i class="fas fa-arrow-left"></i>
                 </a>
+                @if($intern->user->avatar)
+                    <img src="{{ asset('storage/avatars/' . $intern->user->avatar) }}"
+                         alt="{{ $intern->user->name }}"
+                         style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid var(--success);">
+                @else
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold; border: 3px solid var(--success);">
+                        {{ strtoupper(substr($intern->user->name, 0, 1)) }}
+                    </div>
+                @endif
                 <div>
                     <h2 style="margin-bottom: 4px;">{{ $intern->user->name }}</h2>
                     <p class="text-muted">{{ $intern->school }} - {{ $intern->department }}</p>
