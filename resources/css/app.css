@@ -731,256 +731,222 @@ textarea.form-control {
 }
 
 /* ========================================
-   PAGINATION
+   PAGINATION - Complete Rewrite
    ======================================== */
+   
+/* Main pagination container */
 .pagination {
     display: flex;
-    gap: 8px;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
-    list-style: none;
-    padding: 16px;
+    gap: 12px;
+    padding: 20px 24px;
     margin-top: 24px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
 }
 
-/* Standard page-item/page-link structure */
+/* Reset all Livewire/Tailwind pagination elements */
+.pagination nav,
+.pagination nav > div,
+.pagination nav > div > div,
+.pagination nav > div > span,
+.pagination nav span {
+    display: contents;
+}
+
+/* Wrapper for all clickable elements */
+.pagination nav {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+/* Hide the "Showing 1 to 10 of X results" text */
+.pagination nav > div:first-child > p,
+.pagination nav p.text-sm,
+.pagination nav .text-sm.text-gray-700,
+.pagination nav .text-gray-700,
+.pagination nav > div > p {
+    display: none !important;
+}
+
+/* Style for ALL links (Previous, Next, Page numbers) */
+.pagination a,
+.pagination button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 16px;
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+/* Hover state */
+.pagination a:hover,
+.pagination button:hover:not(:disabled) {
+    background: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+/* Current/Active page - fix for Livewire structure */
+.pagination span[aria-current="page"],
+.pagination span[aria-current="page"] span {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 16px;
+    background: var(--accent-primary) !important;
+    border: 1px solid var(--accent-primary) !important;
+    border-radius: var(--radius-md) !important;
+    color: white !important;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* Disabled buttons (like Previous on first page) */
+.pagination span[aria-disabled="true"],
+.pagination span[aria-disabled="true"] span,
+.pagination button:disabled,
+.pagination span.cursor-default {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 16px;
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-muted) !important;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* SVG icons styling */
+.pagination svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Dots/ellipsis between pages */
+.pagination span:not([aria-current]):not([aria-disabled]) > span:only-child {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 8px;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-muted) !important;
+    font-size: 14px;
+    cursor: default;
+}
+
+/* Hide the extra mobile/desktop wrappers */
+.pagination nav > div.flex.flex-1,
+.pagination nav > div.hidden,
+.pagination nav > .hidden {
+    display: contents !important;
+}
+
+/* Ensure proper gap between flexed children */
+.pagination nav > div,
+.pagination nav > span {
+    display: flex !important;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Fix the inline-flex wrapper containing page numbers */
+.pagination .inline-flex,
+.pagination span.relative.z-0.inline-flex {
+    display: inline-flex !important;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Page item/link for standard pagination (non-Livewire) */
 .page-item .page-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 40px;
-    height: 40px;
-    padding: 0 12px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 16px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     text-decoration: none;
-    transition: all var(--transition-fast);
     font-size: 14px;
     font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.page-item:first-child .page-link,
-.page-item:last-child .page-link {
-    border-radius: var(--radius-md);
+.page-item .page-link:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.page-item.active .page-link {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 .page-item.disabled .page-link {
     opacity: 0.5;
     cursor: not-allowed;
     background: var(--bg-secondary);
+    pointer-events: none;
 }
 
-.page-item .page-link:hover {
-    background: var(--bg-hover);
-    border-color: var(--accent-primary);
-    color: var(--text-primary);
-    z-index: 2;
-}
-
-.page-item.active .page-link {
-    background: var(--accent-gradient);
-    border-color: transparent;
-    color: white;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.page-link svg {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-}
-
-/* ========================================
-   LIVEWIRE PAGINATION STYLES
-   ======================================== */
-/* Livewire Pagination Container */
-.pagination nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    width: 100%;
-}
-
-/* Pagination info text */
-.pagination nav > div:first-child {
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.pagination nav p.text-sm {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin: 0;
-}
-
-/* Hide desktop only in mobile, show on larger */
-.pagination nav .hidden.sm\:flex-1,
-.pagination nav .hidden.sm\:flex {
-    display: flex !important;
-    flex: 1;
-}
-
-/* Pagination links container */
-.pagination nav span.relative {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-/* All pagination buttons and links */
-.pagination nav a,
-.pagination nav button,
-.pagination nav span[aria-current="page"] span,
-.pagination nav span.relative > span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    height: 40px;
-    padding: 0 14px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-/* Hover state for pagination buttons */
-.pagination nav a:hover,
-.pagination nav button:hover:not([disabled]) {
-    background: var(--accent-primary);
-    border-color: var(--accent-primary);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-/* Active/Current page */
-.pagination nav span[aria-current="page"] span {
-    background: var(--accent-gradient) !important;
-    border-color: transparent !important;
-    color: white !important;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-}
-
-/* Disabled state */
-.pagination nav span[aria-disabled="true"] span,
-.pagination nav button[disabled],
-.pagination nav span.cursor-default {
-    opacity: 0.4;
-    cursor: not-allowed !important;
-    background: var(--bg-secondary) !important;
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-/* SVG icons in pagination */
-.pagination nav svg {
-    width: 18px;
-    height: 18px;
-    color: currentColor;
-}
-
-/* Mobile pagination (simple) */
-.pagination nav > div.flex.justify-between {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-}
-
-/* Results text styling */
-.pagination nav .leading-5 {
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-.pagination nav .font-medium {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-/* Ensure proper spacing for navigation items */
-.pagination nav > span {
-    display: inline-flex;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-/* Fix for inline-flex items */
-.pagination nav .inline-flex {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-}
-
-/* Override Tailwind purple/indigo colors */
-.pagination nav a.bg-indigo-500,
-.pagination nav a.bg-purple-500,
-.pagination nav a[style*="background-color"] {
-    background: var(--accent-gradient) !important;
-}
-
-/* Dots/ellipsis */
-.pagination nav span.relative > span:not([aria-current]):not([aria-disabled]) {
-    background: transparent;
-    border: none;
-    min-width: auto;
-    padding: 0 8px;
-    cursor: default;
-}
-
-/* Fix double-wrapper issues */
-.pagination > nav > div > div {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Previous/Next button text on mobile */
-.pagination nav a.relative,
-.pagination nav span.relative a {
-    gap: 8px;
-}
-
+/* Mobile responsive */
 @media (max-width: 640px) {
     .pagination {
-        padding: 12px;
+        padding: 16px;
+        gap: 8px;
     }
-
-    .pagination nav a,
-    .pagination nav button,
-    .pagination nav span[aria-current="page"] span,
-    .pagination nav span.relative > span {
-        min-width: 36px;
-        height: 36px;
-        padding: 0 10px;
+    
+    .pagination a,
+    .pagination button,
+    .pagination span[aria-current="page"],
+    .pagination span[aria-current="page"] span,
+    .pagination span[aria-disabled="true"],
+    .pagination span[aria-disabled="true"] span {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 12px;
         font-size: 13px;
-    }
-
-    .pagination nav .hidden.sm\:flex-1,
-    .pagination nav .hidden.sm\:flex {
-        display: none !important;
-    }
-
-    .pagination nav > div.flex.justify-between {
-        width: 100%;
     }
 }
 
