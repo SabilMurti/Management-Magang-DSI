@@ -42,6 +42,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->name('tasks.submit');
     Route::post('/tasks/{task}/review', [TaskController::class, 'review'])->name('tasks.review');
 
+    // Task Assignments (Grouped Task View)
+    Route::get('/task-assignments', [TaskController::class, 'assignmentsIndex'])->name('task-assignments.index');
+    Route::get('/task-assignments/{taskAssignment}', [TaskController::class, 'assignmentShow'])->name('task-assignments.show');
+
+    // Calendar View
+    Route::get('/calendar', \App\Livewire\Calendar::class)->name('calendar');
+
     // Attendance (accessible by all authenticated users) - Index uses Livewire
     Route::get('/attendances', \App\Livewire\Attendances\AttendanceIndex::class)->name('attendances.index');
     Route::get('/attendances/create', [AttendanceController::class, 'create'])->name('attendances.create');
@@ -52,6 +59,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.checkIn');
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.checkOut');
+    Route::post('/attendance/permission', [AttendanceController::class, 'submitPermission'])->name('attendance.permission');
+
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Admin/Pembimbing only routes
     Route::middleware(['role:admin,pembimbing'])->group(function () {
@@ -64,6 +78,9 @@ Route::middleware(['auth'])->group(function () {
         // Reports
         Route::resource('reports', ReportController::class);
         Route::post('/reports/{report}/feedback', [ReportController::class, 'addFeedback'])->name('reports.feedback');
+        Route::get('/interns/{intern}/download-report', [ReportController::class, 'downloadInternReport'])->name('interns.downloadReport');
+        // Certificate
+        Route::get('/interns/{intern}/certificate', [\App\Http\Controllers\CertificateController::class, 'generate'])->name('interns.certificate');
 
         // Assessments - Index uses Livewire
         Route::get('/assessments', \App\Livewire\Assessments\AssessmentIndex::class)->name('assessments.index');
@@ -73,6 +90,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/assessments/{assessment}/edit', [AssessmentController::class, 'edit'])->name('assessments.edit');
         Route::put('/assessments/{assessment}', [AssessmentController::class, 'update'])->name('assessments.update');
         Route::delete('/assessments/{assessment}', [AssessmentController::class, 'destroy'])->name('assessments.destroy');
+
+        // Export Routes
+        Route::get('/export/interns', [\App\Http\Controllers\ExportImportController::class, 'exportInterns'])->name('export.interns');
+        Route::get('/export/attendances', [\App\Http\Controllers\ExportImportController::class, 'exportAttendances'])->name('export.attendances');
+        Route::get('/export/tasks', [\App\Http\Controllers\ExportImportController::class, 'exportTasks'])->name('export.tasks');
+
+        // Import Routes
+        Route::get('/import/interns', [\App\Http\Controllers\ExportImportController::class, 'showImportForm'])->name('import.interns.form');
+        Route::post('/import/interns', [\App\Http\Controllers\ExportImportController::class, 'importInterns'])->name('import.interns');
+        Route::get('/import/template', [\App\Http\Controllers\ExportImportController::class, 'downloadTemplate'])->name('import.template');
     });
 
     // Admin only routes

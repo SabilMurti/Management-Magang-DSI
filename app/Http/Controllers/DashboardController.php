@@ -56,6 +56,26 @@ class DashboardController extends Controller
 
         $interns = Intern::with(['user', 'tasks', 'attendances', 'assessments'])->where('status', 'active')->get();
 
+        // Chart Data: Today's Attendance Breakdown
+        $attendanceToday = [
+            'present' => Attendance::whereDate('date', today())->where('status', 'present')->count(),
+            'late' => Attendance::whereDate('date', today())->where('status', 'late')->count(),
+            'permission' => Attendance::whereDate('date', today())->where('status', 'permission')->count(),
+            'sick' => Attendance::whereDate('date', today())->where('status', 'sick')->count(),
+            'absent' => $totalInterns - Attendance::whereDate('date', today())->count(),
+        ];
+
+        // Chart Data: Monthly Attendance Trend (Last 7 days)
+        $attendanceTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $attendanceTrend[] = [
+                'date' => $date->format('d M'),
+                'present' => Attendance::whereDate('date', $date)->whereIn('status', ['present', 'late'])->count(),
+                'absent' => $totalInterns - Attendance::whereDate('date', $date)->count(),
+            ];
+        }
+
         return view('dashboard.admin', compact(
             'totalInterns',
             'totalTasks',
@@ -68,7 +88,9 @@ class DashboardController extends Controller
             'recentTasks',
             'recentAttendances',
             'submittedTasks',
-            'interns'
+            'interns',
+            'attendanceToday',
+            'attendanceTrend'
         ));
     }
 
@@ -102,6 +124,26 @@ class DashboardController extends Controller
         $officeLon = \App\Models\Setting::get('office_longitude', 110.469375);
         $maxDist = \App\Models\Setting::get('max_checkin_distance', 100);
 
+        // Chart Data: Weekly Attendance (Last 7 days)
+        $weeklyAttendance = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $att = $intern->attendances()->whereDate('date', $date)->first();
+            $weeklyAttendance[] = [
+                'date' => $date->format('D'),
+                'status' => $att ? $att->status : 'absent',
+            ];
+        }
+
+        // Chart Data: Task Status Breakdown
+        $taskBreakdown = [
+            'pending' => $intern->tasks()->where('status', 'pending')->count(),
+            'in_progress' => $intern->tasks()->where('status', 'in_progress')->count(),
+            'submitted' => $intern->tasks()->where('status', 'submitted')->count(),
+            'completed' => $intern->tasks()->where('status', 'completed')->count(),
+            'revision' => $intern->tasks()->where('status', 'revision')->count(),
+        ];
+
         return view('dashboard.intern', compact(
             'intern',
             'tasks',
@@ -117,7 +159,9 @@ class DashboardController extends Controller
             'overallScore',
             'officeLat',
             'officeLon',
-            'maxDist'
+            'maxDist',
+            'weeklyAttendance',
+            'taskBreakdown'
         ));
     }
 }

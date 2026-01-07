@@ -206,8 +206,10 @@
         <!-- Header tanpa gradien -->
         <div style="margin-bottom: 30px;">
             <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 700; color: #1e293b;">Selamat Datang,
-                {{ auth()->user()->name }}! 👋</h2>
-            <p style="color: #64748b; font-size: 15px;">Dashboard ringkas dan bersih untuk memantau aktivitas magang.</p>
+                {{ auth()->user()->name }}! 👋
+            </h2>
+            {{-- <p style="color: #64748b; font-size: 15px;">Dashboard ringkas dan bersih untuk memantau aktivitas magang.
+            </p> --}}
         </div>
 
         <!-- Stats Grid -->
@@ -408,6 +410,7 @@
                                     <th>Nama</th>
                                     <th>Waktu</th>
                                     <th>Status</th>
+                                    <th>Bukti</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -421,12 +424,49 @@
                                                 {{ $attendance->status_label }}
                                             </span>
                                         </td>
+                                        <td>
+                                            @if($attendance->proof_file)
+                                                <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank"
+                                                    style="color: #6366f1;">
+                                                    <i class="fas fa-paperclip"></i> Lihat
+                                                </a>
+                                            @elseif($attendance->status == 'sick' || $attendance->status == 'permission')
+                                                <span style="color: #ef4444; font-size: 11px;">-</span>
+                                            @else
+                                                <span style="color: #94a3b8;">-</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Attendance Charts Row -->
+        <div class="grid-2 mt-6">
+            <!-- Attendance Today - Donut Chart -->
+            <div class="card">
+                <div class="card-header border-0">
+                    <h3 class="card-title"><i class="fas fa-user-check" style="color: #10b981; margin-right: 8px;"></i>
+                        Kehadiran Hari Ini</h3>
+                </div>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="attendanceTodayChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Weekly Attendance Trend - Bar Chart -->
+            <div class="card">
+                <div class="card-header border-0">
+                    <h3 class="card-title"><i class="fas fa-chart-bar" style="color: #6366f1; margin-right: 8px;"></i> Tren
+                        Kehadiran 7 Hari</h3>
+                </div>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="attendanceTrendChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -481,16 +521,16 @@
             // Performance Chart
             const interns = [
                 @foreach($interns as $intern)
-                    {
+                                            {
                         name: "{{ $intern->user->name }}",
                         on_time: {{ $intern->getCompletedOnTimeCount() }},
                         late: {{ $intern->getCompletedLateCount() }},
                     },
                 @endforeach
-            ];
+                            ];
 
             new Chart(document.getElementById('performanceChart').getContext('2d'), {
-                type: 'line',
+                type: 'line', // Reverted to line chart as requested
                 data: {
                     labels: interns.map(i => i.name),
                     datasets: [
@@ -498,10 +538,10 @@
                             label: 'Tepat Waktu',
                             data: interns.map(i => i.on_time),
                             borderColor: '#22c55e',
-                            backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.15)', // Light green gradient feel
                             borderWidth: 3,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.4, // Smooth curves
                             pointRadius: 6,
                             pointBackgroundColor: '#22c55e',
                             pointBorderColor: '#fff',
@@ -513,10 +553,10 @@
                             label: 'Terlambat',
                             data: interns.map(i => i.late),
                             borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                            backgroundColor: 'rgba(245, 158, 11, 0.15)', // Light orange gradient feel
                             borderWidth: 3,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.4, // Smooth curves
                             pointRadius: 6,
                             pointBackgroundColor: '#f59e0b',
                             pointBorderColor: '#fff',
@@ -590,6 +630,96 @@
 
             // Panggil SweetAlert test jika diperlukan (hanya untuk debug)
             // Swal.fire('Dashboard Siap!', 'Tampilan baru tanpa gradient.', 'success');
+            // Attendance Today Donut Chart
+            new Chart(document.getElementById('attendanceTodayChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadir', 'Terlambat', 'Izin', 'Sakit', 'Belum Absen'],
+                    datasets: [{
+                        data: [
+                                            {{ $attendanceToday['present'] }},
+                                            {{ $attendanceToday['late'] }},
+                                            {{ $attendanceToday['permission'] }},
+                                            {{ $attendanceToday['sick'] }},
+                            {{ $attendanceToday['absent'] }}
+                        ],
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#a855f7', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#64748b',
+                                font: { family: 'Inter', size: 11 },
+                                padding: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Attendance Trend Bar Chart
+            const trendData = @json($attendanceTrend);
+            new Chart(document.getElementById('attendanceTrendChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: trendData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Hadir',
+                            data: trendData.map(d => d.present),
+                            backgroundColor: '#10b981',
+                            borderRadius: 6,
+                            barThickness: 20
+                        },
+                        {
+                            label: 'Tidak Hadir',
+                            data: trendData.map(d => d.absent),
+                            backgroundColor: '#ef4444',
+                            borderRadius: 6,
+                            barThickness: 20
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 11 } }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                            ticks: { color: '#64748b', stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                color: '#64748b',
+                                usePointStyle: true,
+                                padding: 16,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
         </script>
     @endpush
 @endsection

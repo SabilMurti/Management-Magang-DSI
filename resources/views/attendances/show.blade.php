@@ -149,6 +149,43 @@
                 @endif
             </div>
         </div>
+
+        <!-- Proof File Card (if exists) -->
+        @if($attendance->proof_file)
+        <div class="card mt-6">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-paperclip text-primary"></i> Bukti Lampiran
+                </h3>
+            </div>
+            <div style="padding: 20px; text-align: center;">
+                @php
+                    $extension = pathinfo($attendance->proof_file, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                @endphp
+
+                @if($isImage)
+                    <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; display: inline-block;">
+                        <img src="{{ asset('storage/' . $attendance->proof_file) }}" alt="Bukti Izin" style="max-width: 100%; max-height: 400px; display: block;">
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank" class="btn btn-sm btn-primary">
+                            <i class="fas fa-expand"></i> Lihat Ukuran Penuh
+                        </a>
+                    </div>
+                @else
+                    <div style="padding: 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #d1d5db;">
+                        <i class="fas fa-file-pdf text-danger" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <h4 style="margin: 0 0 8px;">Dokumen Lampiran</h4>
+                        <p class="text-muted mb-4">File bertipe {{ strtoupper($extension) }}</p>
+                        <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Unduh / Lihat Dokumen
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Location Map Card -->

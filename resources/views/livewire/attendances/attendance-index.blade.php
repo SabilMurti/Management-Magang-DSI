@@ -4,11 +4,17 @@
             <h2 style="margin-bottom: 4px;">Presensi Magang</h2>
             <p class="text-muted">Kelola kehadiran siswa magang</p>
         </div>
-        @if(auth()->user()->canManage())
-            <a href="{{ route('attendances.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Presensi
-            </a>
-        @endif
+        <div class="d-flex gap-3">
+            @if(auth()->user()->canManage())
+                <button class="btn btn-secondary"
+                    onclick="window.location.href='{{ route('export.attendances', array_filter(['date' => $date, 'status' => $status !== '' ? $status : null])) }}'">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <a href="{{ route('attendances.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Presensi
+                </a>
+            @endif
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -47,6 +53,36 @@
         @endif
     </div>
 
+    <!-- Bulk Actions Bar -->
+    @if(auth()->user()->canManage() && count($selectedAttendances) > 0)
+        <div class="bulk-action-bar card"
+            style="margin-bottom: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); border: none;">
+            <div style="color: white; font-weight: 600;">
+                <i class="fas fa-check-square"></i> {{ count($selectedAttendances) }} item dipilih
+            </div>
+            <div class="d-flex gap-2" style="flex: 1;">
+                <select wire:model="bulkAction" class="form-control"
+                    style="max-width: 200px; background: rgba(255,255,255,0.95);">
+                    <option value="">-- Pilih Aksi --</option>
+                    <option value="present">✅ Set Hadir</option>
+                    <option value="late">⏰ Set Terlambat</option>
+                    <option value="absent">❌ Set Tidak Hadir</option>
+                    <option value="sick">🏥 Set Sakit</option>
+                    <option value="permission">📝 Set Izin</option>
+                    <option value="delete">🗑️ Hapus</option>
+                </select>
+                <button wire:click="executeBulkAction"
+                    wire:confirm="Yakin ingin melakukan aksi ini pada {{ count($selectedAttendances) }} data?" class="btn"
+                    style="background: white; color: var(--accent-primary); font-weight: 600;">
+                    <i class="fas fa-play"></i> Jalankan
+                </button>
+            </div>
+            <button wire:click="resetBulkSelection" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-times"></i> Batal
+            </button>
+        </div>
+    @endif
+
     <div class="card">
         @if($attendances->isEmpty())
             <div class="empty-state">
@@ -67,6 +103,10 @@
                     <thead>
                         <tr>
                             @if(auth()->user()->canManage())
+                                <th style="width: 50px;">
+                                    <input type="checkbox" wire:model.live="selectAll" class="form-checkbox"
+                                        style="width: 18px; height: 18px; cursor: pointer;">
+                                </th>
                                 <th>Siswa</th>
                             @endif
                             <th>Tanggal</th>
@@ -79,8 +119,13 @@
                     </thead>
                     <tbody>
                         @foreach($attendances as $attendance)
-                            <tr wire:key="attendance-{{ $attendance->id }}">
+                            <tr wire:key="attendance-{{ $attendance->id }}"
+                                class="{{ in_array((string) $attendance->id, $selectedAttendances) ? 'selected-row' : '' }}">
                                 @if(auth()->user()->canManage())
+                                    <td>
+                                        <input type="checkbox" wire:model.live="selectedAttendances" value="{{ $attendance->id }}"
+                                            class="form-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                                    </td>
                                     <td>
                                         @if($attendance->intern)
                                             <div class="d-flex align-center gap-2">
@@ -145,8 +190,38 @@
             </div>
 
             <div class="pagination">
-                {{ $attendances->links() }}
+                {{ $attendances->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>
+
+    <style>
+        .selected-row {
+            background: rgba(167, 139, 250, 0.1) !important;
+        }
+
+        .selected-row:hover {
+            background: rgba(167, 139, 250, 0.15) !important;
+        }
+
+        .form-checkbox {
+            accent-color: var(--accent-primary);
+        }
+
+        .bulk-action-bar {
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </div>

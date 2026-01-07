@@ -6,7 +6,6 @@ use App\Models\Intern;
 use App\Models\Task;
 use Livewire\Component;
 use Livewire\WithPagination;
-
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
@@ -21,6 +20,11 @@ class TaskIndex extends Component
     public $priority = '';
     public $intern_id = '';
 
+    // Bulk action properties
+    public $selectedTasks = [];
+    public $selectAll = false;
+    public $bulkAction = '';
+
     protected $queryString = [
         'search' => ['except' => ''],
         'status' => ['except' => ''],
@@ -31,21 +35,41 @@ class TaskIndex extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
     }
 
     public function updatingStatus()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
     }
 
     public function updatingPriority()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
     }
 
     public function updatingInternId()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedTasks = $this->getFilteredQuery()->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        } else {
+            $this->selectedTasks = [];
+        }
+    }
+
+    public function resetBulkSelection()
+    {
+        $this->selectedTasks = [];
+        $this->selectAll = false;
+        $this->bulkAction = '';
     }
 
     public function deleteTask($id)
@@ -56,7 +80,85 @@ class TaskIndex extends Component
         session()->flash('success', 'Tugas berhasil dihapus!');
     }
 
-    public function render()
+    public function executeBulkAction()
+    {
+        if (empty($this->selectedTasks)) {
+            session()->flash('error', 'Pilih minimal satu data terlebih dahulu!');
+            return;
+        }
+
+        switch ($this->bulkAction) {
+            case 'delete':
+                $this->bulkDelete();
+                break;
+            case 'pending':
+                $this->bulkUpdateStatus('pending');
+                break;
+            case 'in_progress':
+                $this->bulkUpdateStatus('in_progress');
+                break;
+            case 'completed':
+                $this->bulkUpdateStatus('completed');
+                break;
+            case 'priority_high':
+                $this->bulkUpdatePriority('high');
+                break;
+            case 'priority_medium':
+                $this->bulkUpdatePriority('medium');
+                break;
+            case 'priority_low':
+                $this->bulkUpdatePriority('low');
+                break;
+            default:
+                session()->flash('error', 'Pilih aksi yang valid!');
+                return;
+        }
+
+        $this->resetBulkSelection();
+    }
+
+    public function bulkDelete()
+    {
+        $count = Task::whereIn('id', $this->selectedTasks)->delete();
+        session()->flash('success', "{$count} tugas berhasil dihapus!");
+    }
+
+    public function bulkUpdateStatus($status)
+    {
+        $statusLabels = [
+            'pending' => 'Belum Mulai',
+            'in_progress' => 'Dikerjakan',
+            'completed' => 'Selesai',
+        ];
+
+        $updateData = ['status' => $status];
+
+        // If completing, set completed_at
+        if ($status === 'completed') {
+            $updateData['completed_at'] = now();
+        }
+
+        $count = Task::whereIn('id', $this->selectedTasks)->update($updateData);
+        $label = $statusLabels[$status] ?? $status;
+
+        session()->flash('success', "{$count} tugas berhasil diubah ke status {$label}!");
+    }
+
+    public function bulkUpdatePriority($priority)
+    {
+        $priorityLabels = [
+            'high' => 'Tinggi',
+            'medium' => 'Sedang',
+            'low' => 'Rendah',
+        ];
+
+        $count = Task::whereIn('id', $this->selectedTasks)->update(['priority' => $priority]);
+        $label = $priorityLabels[$priority] ?? $priority;
+
+        session()->flash('success', "{$count} tugas berhasil diubah ke prioritas {$label}!");
+    }
+
+    private function getFilteredQuery()
     {
         $user = auth()->user();
         $query = Task::with(['intern.user', 'assignedBy']);
@@ -82,7 +184,12 @@ class TaskIndex extends Component
             $query->where('intern_id', $this->intern_id);
         }
 
-        $tasks = $query->latest()->paginate(10);
+        return $query;
+    }
+
+    public function render()
+    {
+        $tasks = $this->getFilteredQuery()->latest()->paginate(10);
         $interns = Intern::with('user')->where('status', 'active')->get();
 
         return view('livewire.tasks.task-index', compact('tasks', 'interns'));

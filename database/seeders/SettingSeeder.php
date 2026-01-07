@@ -33,13 +33,13 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'office_latitude',
-                'value' => '-7.052683',
+                'value' => '-7.035368603360663',
                 'type' => 'string',
                 'description' => 'Latitude lokasi kantor'
             ],
             [
                 'key' => 'office_longitude',
-                'value' => '110.469375',
+                'value' => '110.47448805140671',
                 'type' => 'string',
                 'description' => 'Longitude lokasi kantor'
             ],

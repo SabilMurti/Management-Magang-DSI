@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Report;
 use App\Models\Intern;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -32,7 +34,7 @@ class ReportController extends Controller
 
         $reports = $query->latest()->paginate(10);
         $interns = Intern::with('user')->where('status', 'active')->get();
-        
+
         return view('reports.index', compact('reports', 'interns'));
     }
 
@@ -114,5 +116,123 @@ class ReportController extends Controller
         ]);
 
         return back()->with('success', 'Feedback berhasil ditambahkan!');
+    }
+
+    /**
+     * Generate and download PDF report for an intern
+     */
+    public function downloadInternReport(Intern $intern)
+    {
+        $intern->load(['user', 'supervisor', 'tasks', 'attendances', 'assessments']);
+
+        // Calculate task statistics
+        $taskStats = [
+            'total' => $intern->tasks->count(),
+            'completed' => $intern->tasks->where('status', 'completed')->count(),
+            'in_progress' => $intern->tasks->where('status', 'in_progress')->count(),
+            'pending' => $intern->tasks->where('status', 'pending')->count(),
+            'revision' => $intern->tasks->where('status', 'revision')->count(),
+            'on_time' => $intern->tasks->where('status', 'completed')->where('is_late', false)->count(),
+            'late' => $intern->tasks->where('status', 'completed')->where('is_late', true)->count(),
+            'average_score' => $intern->tasks->where('status', 'completed')->whereNotNull('score')->avg('score') ?? 0,
+        ];
+
+        // Calculate attendance statistics
+        $attendanceStats = [
+            'total' => $intern->attendances->count(),
+            'present' => $intern->attendances->where('status', 'present')->count(),
+            'late' => $intern->attendances->where('status', 'late')->count(),
+            'absent' => $intern->attendances->where('status', 'absent')->count(),
+            'sick' => $intern->attendances->where('status', 'sick')->count(),
+            'permission' => $intern->attendances->where('status', 'permission')->count(),
+        ];
+
+        // Calculate attendance percentage
+        if ($attendanceStats['total'] > 0) {
+            $attendanceStats['percentage'] = round(
+                (($attendanceStats['present'] + $attendanceStats['late']) / $attendanceStats['total']) * 100,
+                1
+            );
+        } else {
+            $attendanceStats['percentage'] = 0;
+        }
+
+        // Calculate assessment scores
+        $assessmentStats = [
+            'count' => $intern->assessments->count(),
+            'quality' => round($intern->assessments->avg('quality_score') ?? 0, 1),
+            'speed' => round($intern->assessments->avg('speed_score') ?? 0, 1),
+            'initiative' => round($intern->assessments->avg('initiative_score') ?? 0, 1),
+            'teamwork' => round($intern->assessments->avg('teamwork_score') ?? 0, 1),
+            'communication' => round($intern->assessments->avg('communication_score') ?? 0, 1),
+        ];
+
+        // Calculate overall score
+        $assessmentStats['overall'] = round(
+            ($assessmentStats['quality'] + $assessmentStats['speed'] +
+             $assessmentStats['initiative'] + $assessmentStats['teamwork'] +
+             $assessmentStats['communication']) / 5,
+            1
+        );
+
+        // Get recent tasks (last 10)
+        $recentTasks = $intern->tasks()
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        // Get recent attendances (last 10)
+        $recentAttendances = $intern->attendances()
+            ->orderBy('date', 'desc')
+            ->take(10)
+            ->get();
+
+        // Calculate internship duration
+        $startDate = $intern->start_date;
+        $endDate = $intern->end_date ?? Carbon::now();
+        $duration = $startDate->diffInDays($endDate);
+        $daysCompleted = $startDate->diffInDays(Carbon::now());
+        $progress = min(100, round(($daysCompleted / max(1, $duration)) * 100, 1));
+
+        // Prepare avatar URL
+        $avatarUrl = null;
+        if ($intern->user->avatar) {
+            // Use storage_path for direct file access (storage/app/public/avatars/)
+            $avatarPath = storage_path('app/public/avatars/' . $intern->user->avatar);
+            if (file_exists($avatarPath)) {
+                $extension = strtolower(pathinfo($avatarPath, PATHINFO_EXTENSION));
+                // Map common extensions to MIME types
+                $mimeTypes = [
+                    'jpg' => 'jpeg',
+                    'jpeg' => 'jpeg',
+                    'png' => 'png',
+                    'gif' => 'gif',
+                    'webp' => 'webp',
+                ];
+                $mimeType = $mimeTypes[$extension] ?? $extension;
+                $avatarUrl = 'data:image/' . $mimeType . ';base64,' . base64_encode(file_get_contents($avatarPath));
+            }
+        }
+
+        $data = [
+            'intern' => $intern,
+            'taskStats' => $taskStats,
+            'attendanceStats' => $attendanceStats,
+            'assessmentStats' => $assessmentStats,
+            'recentTasks' => $recentTasks,
+            'recentAttendances' => $recentAttendances,
+            'duration' => $duration,
+            'daysCompleted' => $daysCompleted,
+            'progress' => $progress,
+            'avatarUrl' => $avatarUrl,
+            'generatedAt' => Carbon::now()->format('d F Y H:i'),
+        ];
+
+        $pdf = PDF::loadView('reports.intern-pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = 'Laporan_' . str_replace(' ', '_', $intern->user->name) . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
