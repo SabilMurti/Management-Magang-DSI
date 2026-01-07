@@ -42,6 +42,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->name('tasks.submit');
     Route::post('/tasks/{task}/review', [TaskController::class, 'review'])->name('tasks.review');
 
+    // Task Assignments (Grouped Task View)
+    Route::get('/task-assignments', [TaskController::class, 'assignmentsIndex'])->name('task-assignments.index');
+    Route::get('/task-assignments/{taskAssignment}', [TaskController::class, 'assignmentShow'])->name('task-assignments.show');
+
     // Calendar View
     Route::get('/calendar', \App\Livewire\Calendar::class)->name('calendar');
 
