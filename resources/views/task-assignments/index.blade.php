@@ -4,17 +4,19 @@
 
 @section('content')
     <div class="slide-up">
-        <div class="d-flex justify-between align-center mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-                <h2 style="margin-bottom: 4px;">Kelola Tugas Grup</h2>
-                <p class="text-muted">Lihat dan kelola tugas yang diberikan ke banyak siswa sekaligus</p>
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Kelola Tugas Grup</h2>
+                <p class="text-slate-400 text-sm">Lihat dan kelola tugas yang diberikan ke banyak siswa sekaligus</p>
             </div>
-            <div class="d-flex gap-4">
-                <a href="{{ route('tasks.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-list"></i> Lihat Per Siswa
+            <div class="flex gap-2 w-full sm:w-auto">
+                <a href="{{ route('tasks.index') }}" class="btn btn-secondary flex-1 sm:flex-none">
+                    <i class="fas fa-list"></i>
+                    <span class="hidden sm:inline">Lihat Per Siswa</span>
                 </a>
-                <a href="{{ route('tasks.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Buat Tugas Baru
+                <a href="{{ route('tasks.create') }}" class="btn btn-primary flex-1 sm:flex-none">
+                    <i class="fas fa-plus"></i>
+                    <span class="hidden sm:inline">Buat Tugas Baru</span>
                 </a>
             </div>
         </div>

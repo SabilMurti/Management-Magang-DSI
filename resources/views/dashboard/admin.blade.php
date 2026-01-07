@@ -204,11 +204,11 @@
 
     <div class="dashboard-container slide-up">
         <!-- Header tanpa gradien -->
-        <div style="margin-bottom: 30px;">
-            <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 700; color: #1e293b;">Selamat Datang,
+        <div class="mb-6 md:mb-8">
+            <h2 class="text-xl sm:text-2xl font-bold mb-1 text-slate-800">Selamat Datang,
                 {{ auth()->user()->name }}! 👋
             </h2>
-            <p style="color: #64748b; font-size: 15px;">Dashboard ringkas dan bersih untuk memantau aktivitas magang.</p>
+            <p class="text-slate-500 text-sm sm:text-base">Dashboard ringkas dan bersih untuk memantau aktivitas magang.</p>
         </div>
 
         <!-- Stats Grid -->
@@ -255,25 +255,25 @@
                     <i class="fas fa-plus"></i> Buat Tugas
                 </a>
             </div>
-            <div class="grid-2" style="align-items: center;">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5" style="align-items: center;">
                 <div class="chart-container" style="height: 250px;">
                     <canvas id="taskPieChart"></canvas>
                 </div>
-                <div>
+                <div class="space-y-3">
                     <div class="task-stat-item"
-                        style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        style="display: flex; align-items: center; gap: 16px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
                         <div style="width: 10px; height: 10px; background-color: #4ade80; border-radius: 50%;"></div>
                         <div style="flex: 1; color: #475569; font-weight: 500; font-size: 14px;">Tepat Waktu</div>
                         <strong style="color: #1e293b; font-size: 16px;">{{ $completedOnTime }}</strong>
                     </div>
                     <div class="task-stat-item"
-                        style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        style="display: flex; align-items: center; gap: 16px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
                         <div style="width: 10px; height: 10px; background-color: #fbbf24; border-radius: 50%;"></div>
                         <div style="flex: 1; color: #475569; font-weight: 500; font-size: 14px;">Terlambat</div>
                         <strong style="color: #1e293b; font-size: 16px;">{{ $completedLate }}</strong>
                     </div>
                     <div class="task-stat-item"
-                        style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        style="display: flex; align-items: center; gap: 16px; padding: 12px 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
                         <div style="width: 10px; height: 10px; background-color: #a78bfa; border-radius: 50%;"></div>
                         <div style="flex: 1; color: #475569; font-weight: 500; font-size: 14px;">Dalam Proses</div>
                         <strong style="color: #1e293b; font-size: 16px;">{{ $pendingTasks }}</strong>
@@ -520,13 +520,13 @@
             // Performance Chart
             const interns = [
                 @foreach($interns as $intern)
-                                            {
+                                                                    {
                         name: "{{ $intern->user->name }}",
                         on_time: {{ $intern->getCompletedOnTimeCount() }},
                         late: {{ $intern->getCompletedLateCount() }},
                     },
                 @endforeach
-                            ];
+                                            ];
 
             new Chart(document.getElementById('performanceChart').getContext('2d'), {
                 type: 'line', // Reverted to line chart as requested
@@ -636,10 +636,10 @@
                     labels: ['Hadir', 'Terlambat', 'Izin', 'Sakit', 'Belum Absen'],
                     datasets: [{
                         data: [
-                                            {{ $attendanceToday['present'] }},
-                                            {{ $attendanceToday['late'] }},
-                                            {{ $attendanceToday['permission'] }},
-                                            {{ $attendanceToday['sick'] }},
+                                                            {{ $attendanceToday['present'] }},
+                                                            {{ $attendanceToday['late'] }},
+                                                            {{ $attendanceToday['permission'] }},
+                                                            {{ $attendanceToday['sick'] }},
                             {{ $attendanceToday['absent'] }}
                         ],
                         backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#a855f7', '#ef4444'],
