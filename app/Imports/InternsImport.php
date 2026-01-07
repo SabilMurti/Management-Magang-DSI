@@ -40,10 +40,15 @@ class InternsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
             return null;
         }
 
+        // Check if email already exists - skip if duplicate
+        if (User::where('email', $row['email'])->exists()) {
+            return null; // Skip this row, email already exists
+        }
+
         // Try to find supervisor by name if provided in Excel and not set via form
         $resolvedSupervisorId = $this->supervisorId;
         if (!$resolvedSupervisorId && !empty($row['pembimbing'])) {
-            $supervisor = \App\Models\User::where('name', 'like', '%' . $row['pembimbing'] . '%')
+            $supervisor = User::where('name', 'like', '%' . $row['pembimbing'] . '%')
                 ->whereIn('role', ['admin', 'pembimbing', 'supervisor'])
                 ->first();
             if ($supervisor) {
@@ -52,7 +57,7 @@ class InternsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
         }
 
         // Create User first
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => $row['nama'],
             'email' => $row['email'],
             'password' => Hash::make($row['password'] ?? 'password123'),
@@ -89,18 +94,18 @@ class InternsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
     {
         return [
             // Core fields - truly required
-            'nama' => 'nullable|required_without:email|string|max:255',
-            'email' => 'nullable|required_without:nama|email|unique:users,email',
+            '*.nama' => 'nullable|string|max:255',
+            '*.email' => 'nullable|email',
 
-            // Other fields - only required if we have nama or email (meaning this is a real data row)
-            'nis' => 'nullable|string|max:50',
-            'sekolah' => 'required_with:nama,email|string|max:255',
-            'jurusan' => 'required_with:nama,email|string|max:255',
-            'no_telepon' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string',
-            'tanggal_mulai' => 'required_with:nama,email',
-            'tanggal_selesai' => 'required_with:nama,email',
-            'status' => 'nullable|string',
+            // Other fields - optional
+            '*.nis' => 'nullable|string|max:50',
+            '*.sekolah' => 'nullable|string|max:255',
+            '*.jurusan' => 'nullable|string|max:255',
+            '*.no_telepon' => 'nullable|string|max:20',
+            '*.alamat' => 'nullable|string',
+            '*.tanggal_mulai' => 'nullable',
+            '*.tanggal_selesai' => 'nullable',
+            '*.status' => 'nullable|string',
         ];
     }
 

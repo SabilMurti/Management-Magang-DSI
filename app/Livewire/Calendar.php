@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Attendance;
 use App\Models\Task;
+use App\Models\TaskAssignment;
+use App\Models\Intern;
 use Carbon\Carbon;
 
 class Calendar extends Component
@@ -14,6 +16,11 @@ class Calendar extends Component
     public $days = [];
     public $events = [];
     public $viewMode = 'attendance'; // 'attendance' or 'tasks'
+
+    // Modal state
+    public $showModal = false;
+    public $selectedDate = null;
+    public $modalData = [];
 
     public function mount($mode = 'attendance')
     {
@@ -102,30 +109,107 @@ class Calendar extends Component
 
     public function loadTaskEvents($user, $start, $end)
     {
-        $query = Task::whereBetween('deadline', [$start, $end]);
+        if ($user->canManage()) {
+            // For admin: show task assignments grouped by deadline
+            $assignments = TaskAssignment::with('tasks')
+                ->whereBetween('deadline', [$start, $end])
+                ->get();
 
-        if ($user->isIntern() && $user->intern) {
-            $query->where('intern_id', $user->intern->id);
-        }
+            foreach ($assignments as $assignment) {
+                if (!$assignment->deadline) continue;
 
-        $tasks = $query->get();
+                $day = Carbon::parse($assignment->deadline)->day;
+                if (!isset($this->events[$day])) {
+                    $this->events[$day] = [];
+                }
 
-        foreach ($tasks as $task) {
-            if (!$task->deadline) continue;
+                $completedCount = $assignment->tasks->where('status', 'completed')->count();
+                $totalCount = $assignment->tasks->count();
 
-            $day = Carbon::parse($task->deadline)->day;
-            if (!isset($this->events[$day])) {
-                $this->events[$day] = [];
+                $this->events[$day][] = [
+                    'type' => 'task_assignment',
+                    'id' => $assignment->id,
+                    'title' => $assignment->title,
+                    'priority' => $assignment->priority,
+                    'completed' => $completedCount,
+                    'total' => $totalCount,
+                ];
+            }
+        } else {
+            // For interns: show individual tasks
+            $query = Task::whereBetween('deadline', [$start, $end]);
+
+            if ($user->isIntern() && $user->intern) {
+                $query->where('intern_id', $user->intern->id);
             }
 
-            $this->events[$day][] = [
-                'type' => 'task',
-                'id' => $task->id,
-                'title' => $task->title,
-                'status' => $task->status,
-                'priority' => $task->priority,
-            ];
+            $tasks = $query->get();
+
+            foreach ($tasks as $task) {
+                if (!$task->deadline) continue;
+
+                $day = Carbon::parse($task->deadline)->day;
+                if (!isset($this->events[$day])) {
+                    $this->events[$day] = [];
+                }
+
+                $this->events[$day][] = [
+                    'type' => 'task',
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'status' => $task->status,
+                    'priority' => $task->priority,
+                ];
+            }
         }
+    }
+
+    // Open modal with attendance stats for a specific date
+    public function openAttendanceModal($day)
+    {
+        $user = auth()->user();
+        $this->selectedDate = Carbon::createFromDate($this->currentYear, $this->currentMonth, $day);
+        $this->modalData = [];
+
+        if ($user->canManage()) {
+            // Get detailed attendance for that day
+            $attendances = Attendance::with('intern.user')
+                ->whereDate('date', $this->selectedDate)
+                ->get();
+
+            $totalInterns = Intern::where('status', 'active')->count();
+            $present = $attendances->where('status', 'present')->count();
+            $late = $attendances->where('status', 'late')->count();
+            $permission = $attendances->where('status', 'permission')->count();
+            $sick = $attendances->where('status', 'sick')->count();
+            $absent = $totalInterns - $attendances->count();
+
+            $this->modalData = [
+                'date' => $this->selectedDate->format('d F Y'),
+                'total' => $totalInterns,
+                'present' => $present,
+                'late' => $late,
+                'permission' => $permission,
+                'sick' => $sick,
+                'absent' => max(0, $absent),
+                'attendances' => $attendances->map(function($a) {
+                    return [
+                        'name' => $a->intern->user->name ?? 'N/A',
+                        'status' => $a->status,
+                        'check_in' => $a->check_in,
+                        'check_out' => $a->check_out,
+                    ];
+                })->toArray(),
+            ];
+
+            $this->showModal = true;
+        }
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->modalData = [];
     }
 
     public function previousMonth()
@@ -166,3 +250,4 @@ class Calendar extends Component
         return view('livewire.calendar');
     }
 }
+
