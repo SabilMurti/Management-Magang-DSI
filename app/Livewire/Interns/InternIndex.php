@@ -14,10 +14,13 @@ class InternIndex extends Component
 {
     use WithPagination;
 
-
-
     public $search = '';
     public $status = '';
+
+    // Bulk action properties
+    public $selectedInterns = [];
+    public $selectAll = false;
+    public $bulkAction = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -27,11 +30,29 @@ class InternIndex extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
     }
 
     public function updatingStatus()
     {
         $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedInterns = $this->getFilteredQuery()->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        } else {
+            $this->selectedInterns = [];
+        }
+    }
+
+    public function resetBulkSelection()
+    {
+        $this->selectedInterns = [];
+        $this->selectAll = false;
+        $this->bulkAction = '';
     }
 
     public function deleteIntern($id)
@@ -44,24 +65,87 @@ class InternIndex extends Component
         session()->flash('success', 'Anggota magang berhasil dihapus!');
     }
 
-    public function render()
+    public function executeBulkAction()
+    {
+        if (empty($this->selectedInterns)) {
+            session()->flash('error', 'Pilih minimal satu data terlebih dahulu!');
+            return;
+        }
+
+        switch ($this->bulkAction) {
+            case 'delete':
+                $this->bulkDelete();
+                break;
+            case 'activate':
+                $this->bulkUpdateStatus('active');
+                break;
+            case 'complete':
+                $this->bulkUpdateStatus('completed');
+                break;
+            case 'cancel':
+                $this->bulkUpdateStatus('cancelled');
+                break;
+            default:
+                session()->flash('error', 'Pilih aksi yang valid!');
+                return;
+        }
+
+        $this->resetBulkSelection();
+    }
+
+    public function bulkDelete()
+    {
+        $interns = Intern::whereIn('id', $this->selectedInterns)->get();
+        $count = $interns->count();
+
+        foreach ($interns as $intern) {
+            $user = $intern->user;
+            $intern->delete();
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        session()->flash('success', "{$count} anggota magang berhasil dihapus!");
+    }
+
+    public function bulkUpdateStatus($status)
+    {
+        $statusLabels = [
+            'active' => 'Aktif',
+            'completed' => 'Selesai',
+            'cancelled' => 'Dibatalkan',
+        ];
+
+        $count = Intern::whereIn('id', $this->selectedInterns)->update(['status' => $status]);
+        $label = $statusLabels[$status] ?? $status;
+
+        session()->flash('success', "{$count} anggota magang berhasil diubah ke status {$label}!");
+    }
+
+    private function getFilteredQuery()
     {
         $query = Intern::with(['user', 'supervisor']);
 
         if ($this->search) {
             $search = $this->search;
-            $query->whereHas('user', function($q) use ($search) {
+            $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })->orWhere('school', 'like', "%{$search}%")
-              ->orWhere('department', 'like', "%{$search}%");
+                ->orWhere('department', 'like', "%{$search}%");
         }
 
         if ($this->status) {
             $query->where('status', $this->status);
         }
 
-        $interns = $query->latest()->paginate(10);
+        return $query;
+    }
+
+    public function render()
+    {
+        $interns = $this->getFilteredQuery()->latest()->paginate(10);
 
         return view('livewire.interns.intern-index', compact('interns'));
     }

@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Intern;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Mpdf\Mpdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateController extends Controller
 {
     /**
-     * Generate internship certificate PDF using mPDF
+     * Generate internship certificate PDF using DomPDF
      */
     public function generate(Intern $intern)
     {
-        // Check if intern is eligible (e.g., completed)
+        // Check if intern is eligible (completed)
         if ($intern->status !== 'completed') {
             return back()->with('error', 'Sertifikat hanya dapat dibuat untuk siswa magang yang sudah menyelesaikan masa magang.');
         }
@@ -29,35 +29,17 @@ class CertificateController extends Controller
             ]);
         }
 
-        // Create mPDF instance with A4 Landscape
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4-L', // A4 Landscape
-            'margin_left' => 0,
-            'margin_right' => 0,
-            'margin_top' => 0,
-            'margin_bottom' => 0,
-            'margin_header' => 0,
-            'margin_footer' => 0,
-            'dpi' => 80,
-        ]);
-
-        // Enable CSS better support
-        $mpdf->showImageErrors = true;
-        $mpdf->useSubstitutions = false;
-        
-        // Render the blade view to HTML
-        $html = view('pdf.certificate', [
+        $data = [
             'intern' => $intern,
-            'title' => 'Sertifikat Magang'
-        ])->render();
+            'title' => 'Sertifikat Magang',
+            'generatedAt' => Carbon::now()->format('d F Y'),
+        ];
 
-        // Write HTML to PDF
-        $mpdf->WriteHTML($html);
+        $pdf = PDF::loadView('pdf.certificate', $data);
+        $pdf->setPaper('a4', 'landscape');
 
-        // Output PDF inline (display in browser)
-        return response($mpdf->Output('', 'S'))
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="Sertifikat-' . $intern->user->name . '.pdf"');
+        $filename = 'Sertifikat_' . str_replace(' ', '_', $intern->user->name) . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->stream($filename);
     }
 }
