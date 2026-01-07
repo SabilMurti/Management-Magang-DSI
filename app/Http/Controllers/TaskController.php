@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\Intern;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -101,7 +102,7 @@ class TaskController extends Controller
 
             // Create individual tasks for each intern
             foreach ($interns as $intern) {
-                Task::create([
+                $task = Task::create([
                     'task_assignment_id' => $taskAssignment->id,
                     'title' => $request->title,
                     'description' => $request->description,
@@ -114,6 +115,16 @@ class TaskController extends Controller
                     'submission_type' => $request->submission_type,
                     'status' => 'pending',
                 ]);
+
+                // Send notification to intern
+                Notification::notify(
+                    $intern->user_id,
+                    Notification::TYPE_TASK_ASSIGNED,
+                    'Tugas Baru: ' . $request->title,
+                    'Anda mendapat tugas baru dari ' . Auth::user()->name . '. Deadline: ' . ($request->deadline ? \Carbon\Carbon::parse($request->deadline)->format('d M Y') : 'Tidak ada'),
+                    route('tasks.show', $task),
+                    ['task_id' => $task->id]
+                );
             }
 
             DB::commit();
@@ -339,9 +350,29 @@ class TaskController extends Controller
         if ($request->action === 'approve') {
             $task->approve($request->score, $request->feedback);
             $message = 'Tugas berhasil disetujui dan dinilai!';
+
+            // Notify intern about approval
+            Notification::notify(
+                $task->intern->user_id,
+                Notification::TYPE_TASK_APPROVED,
+                'Tugas Disetujui: ' . $task->title,
+                'Tugas Anda telah disetujui dengan nilai ' . $request->score . '/100. ' . ($request->feedback ? 'Feedback: ' . $request->feedback : ''),
+                route('tasks.show', $task),
+                ['task_id' => $task->id, 'score' => $request->score]
+            );
         } else {
             $task->requestRevision($request->feedback);
             $message = 'Tugas dikembalikan untuk revisi.';
+
+            // Notify intern about revision request
+            Notification::notify(
+                $task->intern->user_id,
+                Notification::TYPE_TASK_REVISION,
+                'Revisi Diperlukan: ' . $task->title,
+                'Tugas Anda memerlukan revisi. ' . ($request->feedback ? 'Catatan: ' . $request->feedback : 'Silakan periksa kembali.'),
+                route('tasks.show', $task),
+                ['task_id' => $task->id]
+            );
         }
 
         return redirect()->back()->with('success', $message);

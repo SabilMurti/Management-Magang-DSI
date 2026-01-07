@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Sertifikat Magang - {{ $intern->user->name }}</title>
@@ -9,7 +10,7 @@
             padding: 0;
             size: 297mm 210mm landscape;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -24,36 +25,40 @@
             position: relative;
         }
 
-        /* Gold Border */
+        /* Enhanced Gold Border */
         .border-outer {
             position: absolute;
             top: 8mm;
             left: 8mm;
             right: 8mm;
             bottom: 8mm;
-            border: 5px solid #b8860b;
+            border: 6px double #b8860b;
+            box-shadow: inset 0 0 0 2px #d4af37;
         }
 
         .border-inner {
             position: absolute;
-            top: 3mm;
-            left: 3mm;
-            right: 3mm;
-            bottom: 3mm;
-            border: 2px solid #d4a84b;
+            top: 12mm;
+            left: 12mm;
+            right: 12mm;
+            bottom: 12mm;
+            border: 3px double #d4a84b;
         }
 
-        /* Corner Ornaments */
+        /* Enhanced Corner Ornaments */
         .corner {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #b8860b;
+            left: 12mm;
+            border-right: none;
+            border-top: none;
         }
-        .c-tl { top: 12mm; left: 12mm; border-right: none; border-bottom: none; }
-        .c-tr { top: 12mm; right: 12mm; border-left: none; border-bottom: none; }
-        .c-bl { bottom: 12mm; left: 12mm; border-right: none; border-top: none; }
-        .c-br { bottom: 12mm; right: 12mm; border-left: none; border-top: none; }
+
+        .c-br {
+            bottom: 12mm;
+            right: 12mm;
+            border-left: none;
+            border-top: none;
+        }
 
         /* Main Content */
         .content {
@@ -69,87 +74,91 @@
         }
 
         .company {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: #1e3a8a;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 2mm;
-        }
-
-        .tagline {
-            font-size: 10px;
-            color: #666;
-            letter-spacing: 2px;
-            margin-bottom: 8mm;
-        }
-
-        .title {
-            font-size: 48px;
-            font-style: italic;
-            color: #b8860b;
-            margin-bottom: 2mm;
-        }
-
-        .subtitle {
-            font-size: 16px;
             letter-spacing: 4px;
-            color: #333;
             text-transform: uppercase;
-            margin-bottom: 2mm;
-        }
-
-        .cert-no {
-            font-size: 10px;
-            color: #b8860b;
-            margin-bottom: 8mm;
-        }
-
-        .intro {
-            font-size: 12px;
-            font-style: italic;
-            color: #555;
-            margin-bottom: 4mm;
-        }
-
-        .name {
-            font-size: 36px;
-            font-weight: bold;
-            color: #1e3a8a;
-            text-transform: uppercase;
-            margin-bottom: 2mm;
-        }
-
-        .school {
-            font-size: 12px;
-            color: #444;
-            margin-bottom: 6mm;
-        }
-
-        .desc {
-            font-size: 11px;
-            color: #333;
-            line-height: 1.5;
             margin-bottom: 3mm;
         }
 
-        .period {
+        .tagline {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 3px;
+            margin-bottom: 10mm;
+        }
+
+        .title {
+            font-size: 56px;
+            font-style: italic;
+            font-weight: bold;
+            color: #b8860b;
+            margin-bottom: 3mm;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            letter-spacing: 5px;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 3mm;
+        }
+
+        .cert-no {
             font-size: 11px;
             color: #b8860b;
+            margin-bottom: 10mm;
+        }
+
+        .intro {
+            font-size: 13px;
+            font-style: italic;
+            color: #555;
             margin-bottom: 5mm;
         }
 
-        .grade {
-            font-size: 24px;
+        .name {
+            font-size: 42px;
             font-weight: bold;
-            color: #b8860b;
-            letter-spacing: 2px;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            margin-bottom: 3mm;
+        }
+
+        .school {
+            font-size: 14px;
+            color: #444;
             margin-bottom: 8mm;
         }
 
-        /* Footer */
-        .footer {
+        .desc {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 4mm;
+        }
+
+        .period {
+            font-size: 13px;
+            color: #b8860b;
+            font-weight: bold;
+            margin-bottom: 6mm;
+        }
+
+        .grade {
+            font-size: 28px;
+            font-weight: bold;
+            color: #b8860b;
+            letter-spacing: 3px;
+            margin-bottom: 10mm;
+        }
+
+
+        /* Enhanced Signature Section */
+        .signature-section {
             position: absolute;
+<<<<<<< HEAD
             bottom: 45mm;
             left: 25mm;
             right: 25mm;
@@ -160,66 +169,58 @@
             justify-content: space-between;
             align-items: flex-end;
             width: 100%;
+=======
+            bottom: 20mm;
+            left: 40mm;
+            right: 40mm;
         }
 
-        .sig-box {
-            display: flex;
-            flex-direction: column;
+        .signature-table {
+            width: 100%;
+            table-layout: fixed;
+>>>>>>> 22f0b285df02c5f9ee885ae8d6fe20795200b298
+        }
+
+        .signature-table td {
+            vertical-align: top;
             text-align: center;
-            width: 60mm;
-            flex-shrink: 0;
         }
 
+<<<<<<< HEAD
         .sig-line {
             border-bottom: 2px solid black;
             width: 70mm;
             margin: 10mm auto 2mm;
+=======
+        .sig-space {
+            height: 18mm;
+            border-bottom: 2px solid #333;
+            width: 70mm;
+            margin: 0 auto 3mm;
+>>>>>>> 22f0b285df02c5f9ee885ae8d6fe20795200b298
         }
 
-        .sig-name {
-            font-size: 12px;
+        .sig-name-new {
+            font-size: 14px;
             font-weight: bold;
             color: #1a202c;
             margin-bottom: 1mm;
         }
 
-        .sig-title {
-            font-size: 9px;
+        .sig-title-new {
+            font-size: 11px;
             color: #666;
             text-transform: uppercase;
-        }
-
-        .seal {
-            width: 55px;
-            height: 55px;
-            border: 3px double #b8860b;
-            border-radius: 50%;
-            margin: 0 auto 2mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #fffbf0;
-        }
-
-        .seal-text {
-            font-size: 10px;
-            font-weight: bold;
-            color: #b8860b;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .date {
-            font-size: 10px;
-            color: #555;
+            letter-spacing: 1px;
         }
     </style>
 </head>
+
 <body>
     <div class="border-outer">
         <div class="border-inner"></div>
     </div>
-    
+
     <div class="corner c-tl"></div>
     <div class="corner c-tr"></div>
     <div class="corner c-bl"></div>
@@ -239,7 +240,8 @@
             <div class="school">{{ $intern->school }} - Divisi {{ $intern->department }}</div>
 
             <div class="desc">
-                Telah menyelesaikan program magang di PT. Duta Solusi Informatika dengan dedikasi dan profesionalisme yang tinggi.
+                Telah menyelesaikan program magang di PT. Duta Solusi Informatika dengan dedikasi dan profesionalisme
+                yang tinggi.
             </div>
             <div class="period">
                 Periode: {{ $intern->start_date->format('d F Y') }} s.d. {{ $intern->end_date->format('d F Y') }}
@@ -251,6 +253,7 @@
         </div>
     </div>
 
+<<<<<<< HEAD
     <div class="footer">
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
@@ -267,9 +270,25 @@
                         <div class="sig-name">Kepala Direktur DSI</div>
                         <div class="sig-title">Pimpinan Perusahaan</div>
                     </div>
+=======
+    <!-- Enhanced Signature Section with Lines -->
+    <div class="signature-section">
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <div class="sig-space"></div>
+                    <div class="sig-name-new">Manager DSI</div>
+                    <div class="sig-title-new">Pembimbing Lapangan</div>
+                </td>
+                <td>
+                    <div class="sig-space"></div>
+                    <div class="sig-name-new">Direktur DSI</div>
+                    <div class="sig-title-new">Pimpinan Perusahaan</div>
+>>>>>>> 22f0b285df02c5f9ee885ae8d6fe20795200b298
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>

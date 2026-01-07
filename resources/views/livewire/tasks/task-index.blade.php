@@ -4,11 +4,17 @@
             <h2 style="margin-bottom: 4px;">Daftar Pekerjaan</h2>
             <p class="text-muted">Kelola tugas untuk siswa magang</p>
         </div>
-        @if(auth()->user()->canManage())
-            <a href="{{ route('tasks.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Buat Tugas Baru
-            </a>
-        @endif
+        <div class="d-flex gap-3">
+            @if(auth()->user()->canManage())
+                <button class="btn btn-secondary"
+                    onclick="window.location.href='{{ route('export.tasks', array_filter(['status' => $status !== '' ? $status : null])) }}'">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <a href="{{ route('tasks.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Buat Tugas Baru
+                </a>
+            @endif
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -182,7 +188,7 @@
             </div>
 
             <div class="pagination">
-                {{ $tasks->links() }}
+                {{ $tasks->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>

@@ -123,7 +123,7 @@
             </div>
 
             <div class="pagination">
-                {{ $assessments->links() }}
+                {{ $assessments->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>

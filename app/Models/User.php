@@ -77,4 +77,9 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['admin', 'pembimbing']);
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->latest();
+    }
 }
