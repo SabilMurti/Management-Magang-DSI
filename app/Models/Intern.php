@@ -20,11 +20,14 @@ class Intern extends Model
         'end_date',
         'status',
         'supervisor_id',
+        'certificate_number',
+        'certificate_issued_at',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'certificate_issued_at' => 'date',
     ];
 
     public function user()

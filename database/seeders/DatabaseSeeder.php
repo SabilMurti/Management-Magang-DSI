@@ -43,6 +43,10 @@ class DatabaseSeeder extends Seeder
             'role' => 'pembimbing',
         ]);
 
+        $this->call([
+            SettingSeeder::class,
+        ]);
+
         $this->command->info('');
         $this->command->info('✅ Database seeded successfully!');
         $this->command->info('');
