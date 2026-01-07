@@ -402,4 +402,108 @@ class TaskController extends Controller
 
         return back()->with('success', 'Status tugas diperbarui!');
     }
+
+    // Task Assignments Index - Grouped View
+    public function assignmentsIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->canManage()) {
+            return redirect()->route('tasks.index');
+        }
+
+        $query = TaskAssignment::with(['assignedBy', 'tasks.intern.user'])
+            ->withCount('tasks');
+
+        // Search
+        if ($request->search) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by priority
+        if ($request->priority) {
+            $query->where('priority', $request->priority);
+        }
+
+        $taskAssignments = $query->latest()->paginate(10);
+
+        // Calculate statistics for each assignment
+        foreach ($taskAssignments as $assignment) {
+            $assignment->stats = $this->calculateAssignmentStats($assignment);
+        }
+
+        return view('task-assignments.index', compact('taskAssignments'));
+    }
+
+    // Task Assignment Detail with Statistics
+    public function assignmentShow(TaskAssignment $taskAssignment)
+    {
+        $user = Auth::user();
+
+        if (!$user->canManage()) {
+            return redirect()->route('tasks.index');
+        }
+
+        $taskAssignment->load(['assignedBy', 'tasks.intern.user']);
+
+        // Calculate detailed statistics
+        $stats = $this->calculateAssignmentStats($taskAssignment);
+
+        // Group tasks by status for easier display
+        $tasksByStatus = [
+            'completed' => $taskAssignment->tasks->where('status', 'completed'),
+            'submitted' => $taskAssignment->tasks->where('status', 'submitted'),
+            'in_progress' => $taskAssignment->tasks->where('status', 'in_progress'),
+            'revision' => $taskAssignment->tasks->where('status', 'revision'),
+            'pending' => $taskAssignment->tasks->where('status', 'pending'),
+        ];
+
+        return view('task-assignments.show', compact('taskAssignment', 'stats', 'tasksByStatus'));
+    }
+
+    // Helper to calculate assignment statistics
+    private function calculateAssignmentStats(TaskAssignment $assignment)
+    {
+        $tasks = $assignment->tasks;
+        $total = $tasks->count();
+
+        if ($total === 0) {
+            return [
+                'total' => 0,
+                'completed' => 0,
+                'completed_on_time' => 0,
+                'completed_late' => 0,
+                'submitted' => 0,
+                'in_progress' => 0,
+                'revision' => 0,
+                'pending' => 0,
+                'progress_percentage' => 0,
+                'average_score' => 0,
+            ];
+        }
+
+        $completed = $tasks->where('status', 'completed')->count();
+        $completedOnTime = $tasks->where('status', 'completed')->where('is_late', false)->count();
+        $completedLate = $tasks->where('status', 'completed')->where('is_late', true)->count();
+        $submitted = $tasks->where('status', 'submitted')->count();
+        $inProgress = $tasks->where('status', 'in_progress')->count();
+        $revision = $tasks->where('status', 'revision')->count();
+        $pending = $tasks->where('status', 'pending')->count();
+
+        $scores = $tasks->where('status', 'completed')->whereNotNull('score')->pluck('score');
+        $averageScore = $scores->count() > 0 ? round($scores->avg(), 1) : 0;
+
+        return [
+            'total' => $total,
+            'completed' => $completed,
+            'completed_on_time' => $completedOnTime,
+            'completed_late' => $completedLate,
+            'submitted' => $submitted,
+            'in_progress' => $inProgress,
+            'revision' => $revision,
+            'pending' => $pending,
+            'progress_percentage' => round(($completed / $total) * 100),
+            'average_score' => $averageScore,
+        ];
+    }
 }

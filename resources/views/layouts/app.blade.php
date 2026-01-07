@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -81,12 +81,22 @@
                         @endif
 
                         <li class="nav-item">
-                            <a href="{{ route('tasks.index') }}"
-                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
-                                <i class="fas fa-tasks"></i>
-                                <span>Daftar Pekerjaan</span>
-                            </a>
-                        </li>
+                    <a href="{{ route('tasks.index') }}"
+                        class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Daftar Penugasan</span>
+                    </a>
+                </li>
+
+                @if(auth()->user()->canManage())
+                    <li class="nav-item">
+                        <a href="{{ route('task-assignments.index') }}"
+                            class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Daftar Tugas</span>
+                        </a>
+                    </li>
+                @endif
 
                         <li class="nav-item">
                             <a href="{{ route('attendances.index') }}"

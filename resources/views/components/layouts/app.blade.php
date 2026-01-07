@@ -1,7 +1,7 @@
 @props(['title'])
 
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -79,12 +79,22 @@
                         @endif
 
                         <li class="nav-item">
-                            <a href="{{ route('tasks.index') }}"
-                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
-                                <i class="fas fa-tasks"></i>
-                                <span>Daftar Pekerjaan</span>
-                            </a>
-                        </li>
+                    <a href="{{ route('tasks.index') }}"
+                        class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Daftar Penugasan</span>
+                    </a>
+                </li>
+
+                @if(auth()->user()->canManage())
+                    <li class="nav-item">
+                        <a href="{{ route('task-assignments.index') }}"
+                            class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Daftar Tugas</span>
+                        </a>
+                    </li>
+                @endif
 
                         <li class="nav-item">
                             <a href="{{ route('attendances.index') }}"
@@ -160,16 +170,11 @@
                 </div>
 
                 <div class="header-actions">
-                    <!-- Theme Toggle -->
-                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
-                        <i class="fas fa-moon"></i>
-                        <i class="fas fa-sun"></i>
-                    </button>
 
                     <div class="user-menu">
                         @if(auth()->user()->avatar)
-                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" 
-                                alt="Avatar" 
+                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}"
+                                alt="Avatar"
                                 class="user-avatar"
                                 style="object-fit: cover;">
                         @else
@@ -216,24 +221,6 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
-
-        // Theme Toggle
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        // Load saved theme
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-
-        loadTheme();
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function (e) {

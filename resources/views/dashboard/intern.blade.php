@@ -78,7 +78,7 @@
             .card-title-flat {
                 font-size: 16px;
                 font-weight: 700;
-                color: var(--color-text-dark);
+                color: var(--color-text-default);
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -143,7 +143,7 @@
             .btn-flat-outline {
                 background-color: transparent;
                 border: 1px solid var(--color-border);
-                color: var(--color-text-dark);
+                color: var(--color-text-default);
             }
 
             .btn-flat-outline:hover {
@@ -299,7 +299,8 @@
                                     style="font-size: 32px; color: #16a34a; margin-bottom: 10px; display: block;"></i>
                                 <strong style="color: #166534; font-size: 16px;">Selesai Hari Ini</strong>
                                 <p style="margin: 4px 0 0; color: #15803d; font-size: 13px;">Status:
-                                    {{ $todayAttendance->status_label }}</p>
+                                    {{ $todayAttendance->status_label }}
+                                </p>
                             </div>
                         @endif
                     </div>
@@ -333,7 +334,8 @@
                         <div
                             style="text-align: center; padding: 12px 8px; background: #dbeafe; border-radius: 8px; border: 1px solid #bfdbfe;">
                             <div style="font-size: 22px; font-weight: 800; color: #1d4ed8;">
-                                {{ $taskStats['in_progress'] ?? 0 }}</div>
+                                {{ $taskStats['in_progress'] ?? 0 }}
+                            </div>
                             <div style="font-size: 10px; font-weight: 600; color: #1e40af; text-transform: uppercase;">
                                 Proses</div>
                         </div>
@@ -406,7 +408,8 @@
                                             @endif
                                         </div>
                                         <div style="font-weight: 600; font-size: 14px; color: #111827; margin-bottom: 4px;">
-                                            {{ $task->title }}</div>
+                                            {{ $task->title }}
+                                        </div>
                                         <div style="font-size: 12px; color: #6b7280;">
                                             <i class="far fa-calendar-alt" style="margin-right: 4px;"></i>
                                             {{ $task->deadline ? $task->deadline->format('d M Y') : 'Tidak ada deadline' }}
@@ -487,6 +490,30 @@
                                 </span>
                             </div>
                         @endforeach
+                    </div>
+                </div>
+
+                <!-- Task Progress Chart -->
+                <div class="card-flat">
+                    <div class="card-header-flat" style="margin-bottom: 12px;">
+                        <h3 class="card-title-flat">
+                            <i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> Status Tugas
+                        </h3>
+                    </div>
+                    <div style="height: 200px;">
+                        <canvas id="taskProgressChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Attendance Chart -->
+                <div class="card-flat">
+                    <div class="card-header-flat" style="margin-bottom: 12px;">
+                        <h3 class="card-title-flat">
+                            <i class="fas fa-chart-bar" style="color: #10b981;"></i> Kehadiran 7 Hari
+                        </h3>
+                    </div>
+                    <div style="height: 180px;">
+                        <canvas id="weeklyAttendanceChart"></canvas>
                     </div>
                 </div>
 
@@ -712,6 +739,111 @@
                     }
                     document.getElementById('lateReasonInput').value = reason;
                     document.getElementById('checkInForm').submit();
+                });
+            }
+
+            // Task Progress Donut Chart
+            const taskBreakdown = @json($taskBreakdown);
+            const taskProgressCtx = document.getElementById('taskProgressChart');
+            if (taskProgressCtx) {
+                new Chart(taskProgressCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pending', 'Proses', 'Submitted', 'Selesai', 'Revisi'],
+                        datasets: [{
+                            data: [
+                                taskBreakdown.pending,
+                                taskBreakdown.in_progress,
+                                taskBreakdown.submitted,
+                                taskBreakdown.completed,
+                                taskBreakdown.revision
+                            ],
+                            backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#6b7280',
+                                    font: { size: 10 },
+                                    padding: 8,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+
+            // Weekly Attendance Bar Chart
+            const weeklyAttendance = @json($weeklyAttendance);
+            const statusColors = {
+                'present': '#10b981',
+                'late': '#f59e0b',
+                'permission': '#3b82f6',
+                'sick': '#a855f7',
+                'absent': '#ef4444'
+            };
+
+            const weeklyAttendanceCtx = document.getElementById('weeklyAttendanceChart');
+            if (weeklyAttendanceCtx) {
+                new Chart(weeklyAttendanceCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: weeklyAttendance.map(d => d.date),
+                        datasets: [{
+                            label: 'Kehadiran',
+                            data: weeklyAttendance.map(d => {
+                                if (d.status === 'present') return 3;
+                                if (d.status === 'late') return 2;
+                                if (d.status === 'permission' || d.status === 'sick') return 1;
+                                return 0;
+                            }),
+                            backgroundColor: weeklyAttendance.map(d => statusColors[d.status] || '#e5e7eb'),
+                            borderRadius: 6,
+                            barThickness: 24
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#6b7280', font: { size: 10 } }
+                            },
+                            y: {
+                                display: false,
+                                max: 4
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const status = weeklyAttendance[context.dataIndex].status;
+                                        const labels = {
+                                            'present': 'Hadir',
+                                            'late': 'Terlambat',
+                                            'permission': 'Izin',
+                                            'sick': 'Sakit',
+                                            'absent': 'Tidak Hadir'
+                                        };
+                                        return labels[status] || status;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             }
         </script>
