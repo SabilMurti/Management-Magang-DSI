@@ -5,9 +5,35 @@
             <h2 style="margin-bottom: 4px;">Daftar Anggota Magang</h2>
             <p class="text-muted">Kelola data siswa magang</p>
         </div>
-        <a href="{{ route('interns.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Tambah Anggota
-        </a>
+        <div class="d-flex gap-3">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="exportDropdown"
+                    data-toggle="dropdown">
+                    <i class="fas fa-file-export"></i> Export / Import
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{ route('export.interns') }}">
+                        <i class="fas fa-file-excel text-success"></i> Export Excel
+                    </a>
+                    <a class="dropdown-item" href="{{ route('export.interns', ['status' => 'active']) }}">
+                        <i class="fas fa-check-circle text-success"></i> Export Aktif
+                    </a>
+                    <a class="dropdown-item" href="{{ route('export.interns', ['status' => 'completed']) }}">
+                        <i class="fas fa-graduation-cap text-primary"></i> Export Selesai
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('import.interns.form') }}">
+                        <i class="fas fa-upload text-info"></i> Import Data
+                    </a>
+                    <a class="dropdown-item" href="{{ route('import.template') }}">
+                        <i class="fas fa-download text-warning"></i> Download Template
+                    </a>
+                </div>
+            </div>
+            <a href="{{ route('interns.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Tambah Anggota
+            </a>
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -65,8 +91,8 @@
                                     <div class="d-flex align-center gap-2">
                                         @if($intern->user->avatar)
                                             <img src="{{ asset('storage/avatars/' . $intern->user->avatar) }}"
-                                                 alt="{{ $intern->user->name }}"
-                                                 style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);">
+                                                alt="{{ $intern->user->name }}"
+                                                style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);">
                                         @else
                                             <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">
                                                 {{ strtoupper(substr($intern->user->name ?? 'N', 0, 1)) }}
@@ -132,7 +158,7 @@
             </div>
 
             <div class="pagination">
-                {{ $interns->links() }}
+                {{ $interns->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>

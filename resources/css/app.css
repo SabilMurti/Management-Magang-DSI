@@ -359,6 +359,7 @@ img.user-avatar {
     transform: translateY(-10px);
     transition: all var(--transition-fast);
     box-shadow: var(--shadow-lg);
+    z-index: 100;
 }
 
 .user-menu:hover .dropdown-menu {
@@ -386,6 +387,24 @@ img.user-avatar {
     height: 1px;
     background: var(--border-color);
     margin: 8px 0;
+}
+
+/* Generic Dropdown Support */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown.show .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
 }
 
 /* Content Area */
@@ -739,7 +758,7 @@ textarea.form-control {
 /* ========================================
    PAGINATION - Complete Rewrite
    ======================================== */
-   
+
 /* Main pagination container */
 .pagination {
     display: flex;
@@ -942,7 +961,7 @@ textarea.form-control {
         padding: 16px;
         gap: 8px;
     }
-    
+
     .pagination a,
     .pagination button,
     .pagination span[aria-current="page"],
