@@ -112,6 +112,12 @@
                                             title="Download Laporan PDF">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
+                                        @if($intern->status === 'completed')
+                                            <a href="{{ route('interns.certificate', $intern) }}" class="btn btn-sm btn-primary"
+                                                title="Download Sertifikat" target="_blank">
+                                                <i class="fas fa-certificate"></i>
+                                            </a>
+                                        @endif
                                         <button wire:click="deleteIntern({{ $intern->id }})"
                                             wire:confirm="Yakin ingin menghapus anggota ini?" class="btn btn-sm btn-danger"
                                             title="Hapus">
