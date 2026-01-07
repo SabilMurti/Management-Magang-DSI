@@ -8,8 +8,8 @@
     <div class="card mb-6" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border-color: rgba(99, 102, 241, 0.3);">
         <div class="d-flex align-center gap-4" style="flex-wrap: wrap;">
             @if($user->avatar)
-                <img src="{{ asset('storage/avatars/' . $user->avatar) }}" 
-                    alt="Avatar" 
+                <img src="{{ asset('storage/avatars/' . $user->avatar) }}"
+                    alt="Avatar"
                     class="user-avatar"
                     style="width: 100px; height: 100px; font-size: 40px; flex-shrink: 0; object-fit: cover;">
             @else
@@ -50,7 +50,7 @@
                     <div class="progress-bar" style="width: {{ $stats['totalTasks'] > 0 ? ($stats['completedTasks'] / $stats['totalTasks']) * 100 : 0 }}%"></div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon success">
                     <i class="fas fa-calendar-check"></i>
@@ -61,7 +61,7 @@
                     <div class="progress-bar" style="width: {{ $stats['attendancePercentage'] }}%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon info">
                     <i class="fas fa-tachometer-alt"></i>
@@ -72,7 +72,7 @@
                     <div class="progress-bar" style="width: {{ min($stats['averageSpeed'], 100) }}%; background: linear-gradient(90deg, #06b6d4, #0891b2);"></div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon warning">
                     <i class="fas fa-star"></i>
@@ -232,7 +232,7 @@
     const taskData = @json($taskStatusData);
     const taskLabels = Object.keys(taskData);
     const taskValues = Object.values(taskData);
-    
+
     new Chart(document.getElementById('taskPieChart').getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -260,7 +260,7 @@
     const attData = @json($attendanceData);
     const attLabels = Object.keys(attData);
     const attValues = Object.values(attData);
-    
+
     new Chart(document.getElementById('attendancePieChart').getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -289,7 +289,7 @@
     const assessData = @json($assessmentData);
     const assessLabels = Object.keys(assessData);
     const assessValues = Object.values(assessData);
-    
+
     new Chart(document.getElementById('assessmentRadarChart').getContext('2d'), {
         type: 'radar',
         data: {
