@@ -150,22 +150,16 @@
         /* Footer */
         .footer {
             position: absolute;
-            bottom: 15mm;
+            bottom: 45mm;
             left: 25mm;
             right: 25mm;
-            height: auto;
-            width: auto;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
         }
 
         .sig-row {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: flex-end;
             width: 100%;
-            gap: 20mm;
         }
 
         .sig-box {
@@ -177,9 +171,9 @@
         }
 
         .sig-line {
-            border-bottom: 1px solid #333;
-            width: 50mm;
-            margin: 0 auto 2mm;
+            border-bottom: 2px solid black;
+            width: 70mm;
+            margin: 10mm auto 2mm;
         }
 
         .sig-name {
@@ -258,19 +252,24 @@
     </div>
 
     <div class="footer">
-        <div class="sig-row">
-            <div class="sig-box">
-                <div class="sig-line"></div>
-                <div class="sig-name">Manager DSI</div>
-                <div class="sig-title">Pembimbing Lapangan</div>
-            </div>
-
-            <div class="sig-box">
-                <div class="sig-line"></div>
-                <div class="sig-name">Direktur DSI</div>
-                <div class="sig-title">Pimpinan Perusahaan</div>
-            </div>
-        </div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                    <div class="sig-box" style="margin: 0 auto;">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">Manager DSI</div>
+                        <div class="sig-title">Pembimbing Lapangan</div>
+                    </div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                    <div class="sig-box" style="margin: 0 auto;">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">Kepala Direktur DSI</div>
+                        <div class="sig-title">Pimpinan Perusahaan</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

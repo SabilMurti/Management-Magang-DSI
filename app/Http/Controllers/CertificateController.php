@@ -39,6 +39,7 @@ class CertificateController extends Controller
             'margin_bottom' => 0,
             'margin_header' => 0,
             'margin_footer' => 0,
+            'dpi' => 80,
         ]);
 
         // Enable CSS better support
