@@ -4,11 +4,17 @@
             <h2 style="margin-bottom: 4px;">Presensi Magang</h2>
             <p class="text-muted">Kelola kehadiran siswa magang</p>
         </div>
-        @if(auth()->user()->canManage())
-            <a href="{{ route('attendances.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Presensi
-            </a>
-        @endif
+        <div class="d-flex gap-3">
+            @if(auth()->user()->canManage())
+                <button class="btn btn-secondary"
+                    onclick="window.location.href='{{ route('export.attendances', array_filter(['date' => $date, 'status' => $status !== '' ? $status : null])) }}'">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <a href="{{ route('attendances.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Presensi
+                </a>
+            @endif
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -145,7 +151,7 @@
             </div>
 
             <div class="pagination">
-                {{ $attendances->links() }}
+                {{ $attendances->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>

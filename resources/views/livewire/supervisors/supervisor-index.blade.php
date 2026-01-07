@@ -52,7 +52,8 @@
                             <tr wire:key="supervisor-{{ $supervisor->id }}">
                                 <td>
                                     <div class="d-flex align-center gap-2">
-                                        <div class="user-avatar" style="width: 40px; height: 40px; font-size: 15px; background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                                        <div class="user-avatar"
+                                            style="width: 40px; height: 40px; font-size: 15px; background: linear-gradient(135deg, #8b5cf6, #6366f1);">
                                             {{ strtoupper(substr($supervisor->name, 0, 1)) }}
                                         </div>
                                         <div>
@@ -67,7 +68,8 @@
                                     <span style="color: var(--text-secondary);">{{ $supervisor->email }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge {{ $supervisor->supervised_interns_count > 0 ? 'badge-info' : 'badge-secondary' }}">
+                                    <span
+                                        class="badge {{ $supervisor->supervised_interns_count > 0 ? 'badge-info' : 'badge-secondary' }}">
                                         <i class="fas fa-users" style="margin-right: 4px;"></i>
                                         {{ $supervisor->supervised_interns_count }} Siswa
                                     </span>
@@ -85,8 +87,7 @@
                                         </a>
                                         @if($supervisor->supervised_interns_count == 0)
                                             <button wire:click="deleteSupervisor({{ $supervisor->id }})"
-                                                wire:confirm="Yakin ingin menghapus pembimbing ini?" 
-                                                class="btn btn-sm btn-danger"
+                                                wire:confirm="Yakin ingin menghapus pembimbing ini?" class="btn btn-sm btn-danger"
                                                 title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -105,7 +106,7 @@
             </div>
 
             <div class="pagination">
-                {{ $supervisors->links() }}
+                {{ $supervisors->links('vendor.livewire.simple-pagination') }}
             </div>
         @endif
     </div>
