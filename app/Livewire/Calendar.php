@@ -8,7 +8,11 @@ use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\Intern;
 use Carbon\Carbon;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
+#[Layout('layouts.app')]
+#[Title('Calendar View')]
 class Calendar extends Component
 {
     public $currentMonth;
