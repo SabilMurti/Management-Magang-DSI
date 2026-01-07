@@ -23,10 +23,18 @@
                     <p class="text-muted">{{ $intern->school }} - {{ $intern->department }}</p>
                 </div>
             </div>
-            <a href="{{ route('interns.downloadReport', $intern) }}" class="btn btn-primary"
-                style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
-                <i class="fas fa-file-pdf"></i> Download Laporan PDF
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('interns.downloadReport', $intern) }}" class="btn btn-primary"
+                    style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+                    <i class="fas fa-file-pdf"></i> Download Laporan (PDF)
+                </a>
+                @if($intern->status === 'completed')
+                    <a href="{{ route('interns.certificate', $intern) }}" class="btn btn-primary"
+                        style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Download Sertifikat (PDF)
+                    </a>
+                @endif
+            </div>
         </div>
 
         <!-- Stats Grid -->
@@ -128,6 +136,8 @@
                 </div>
             </div>
         </div>
+
+
 
         <div class="grid-2 mt-6">
             <!-- Attendance Chart -->
