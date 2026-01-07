@@ -3,19 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Intern;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Mpdf\Mpdf;
 
 class CertificateController extends Controller
 {
     /**
-     * Generate internship certificate PDF
+     * Generate internship certificate PDF using mPDF
      */
     public function generate(Intern $intern)
     {
         // Check if intern is eligible (e.g., completed)
-        // If not strictly enforced, we can just allow generation
         if ($intern->status !== 'completed') {
             return back()->with('error', 'Sertifikat hanya dapat dibuat untuk siswa magang yang sudah menyelesaikan masa magang.');
         }
@@ -30,13 +29,34 @@ class CertificateController extends Controller
             ]);
         }
 
-        // Load PDF
-        // Use A4 Landscape
-        $pdf = Pdf::loadView('pdf.certificate', [
+        // Create mPDF instance with A4 Landscape
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4-L', // A4 Landscape
+            'margin_left' => 0,
+            'margin_right' => 0,
+            'margin_top' => 0,
+            'margin_bottom' => 0,
+            'margin_header' => 0,
+            'margin_footer' => 0,
+        ]);
+
+        // Enable CSS better support
+        $mpdf->showImageErrors = true;
+        $mpdf->useSubstitutions = false;
+        
+        // Render the blade view to HTML
+        $html = view('pdf.certificate', [
             'intern' => $intern,
             'title' => 'Sertifikat Magang'
-        ])->setPaper('a4', 'landscape');
+        ])->render();
 
-        return $pdf->stream("Sertifikat-{$intern->user->name}.pdf");
+        // Write HTML to PDF
+        $mpdf->WriteHTML($html);
+
+        // Output PDF inline (display in browser)
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Sertifikat-' . $intern->user->name . '.pdf"');
     }
 }
