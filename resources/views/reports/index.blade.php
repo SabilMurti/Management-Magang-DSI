@@ -122,7 +122,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="pagination">
                 {{ $reports->links() }}
             </div>

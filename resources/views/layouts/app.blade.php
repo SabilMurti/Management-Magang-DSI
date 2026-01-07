@@ -13,19 +13,15 @@
     <!-- Google Fonts - Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Chart.js -->
+    <!-- Chart.js & SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-
-    <!-- Vite CSS -->
     @vite(["resources/css/app.css", "resources/js/app.js"])
 
     @livewireStyles
@@ -33,8 +29,6 @@
 </head>
 
 <body>
-    <div class="bg-animation"></div>
-
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -44,17 +38,16 @@
                 </div>
                 <div class="sidebar-brand-text">
                     <h1>InternHub</h1>
-                    <span>Management System</span>
+                    <span>Management</span>
                 </div>
             </div>
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Menu Utama</div>
-                    <ul>
+                    <div class="nav-section-title">Menu</div>
+                    <ul class="space-y-0.5">
                         <li class="nav-item">
-                            <a href="{{ route('dashboard') }}"
-                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                                 <i class="fas fa-home"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -62,8 +55,7 @@
 
                         @if(auth()->user()->canManage())
                             <li class="nav-item">
-                                <a href="{{ route('interns.index') }}"
-                                    class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}">
+                                <a href="{{ route('interns.index') }}" class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}">
                                     <i class="fas fa-users"></i>
                                     <span>Anggota Magang</span>
                                 </a>
@@ -72,43 +64,38 @@
 
                         @if(auth()->user()->role === 'admin')
                             <li class="nav-item">
-                                <a href="{{ route('supervisors.index') }}"
-                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}">
+                                <a href="{{ route('supervisors.index') }}" class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}">
                                     <i class="fas fa-user-tie"></i>
-                                    <span>Anggota Pembimbing</span>
+                                    <span>Pembimbing</span>
                                 </a>
                             </li>
                         @endif
 
                         <li class="nav-item">
-                    <a href="{{ route('tasks.index') }}"
-                        class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
-                        <i class="fas fa-tasks"></i>
-                        <span>Daftar Penugasan</span>
-                    </a>
-                </li>
+                            <a href="{{ route('tasks.index') }}" class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
+                                <i class="fas fa-tasks"></i>
+                                <span>Daftar Penugasan</span>
+                            </a>
+                        </li>
 
-                @if(auth()->user()->canManage())
-                    <li class="nav-item">
-                        <a href="{{ route('task-assignments.index') }}"
-                            class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
-                            <i class="fas fa-layer-group"></i>
-                            <span>Daftar Tugas</span>
-                        </a>
-                    </li>
-                @endif
+                        @if(auth()->user()->canManage())
+                            <li class="nav-item">
+                                <a href="{{ route('task-assignments.index') }}" class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>Daftar Tugas</span>
+                                </a>
+                            </li>
+                        @endif
 
                         <li class="nav-item">
-                            <a href="{{ route('attendances.index') }}"
-                                class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
+                            <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Presensi</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{ route('calendar') }}"
-                                class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
+                            <a href="{{ route('calendar') }}" class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span>Kalender</span>
                             </a>
@@ -119,17 +106,15 @@
                 @if(auth()->user()->canManage())
                     <div class="nav-section">
                         <div class="nav-section-title">Evaluasi</div>
-                        <ul>
+                        <ul class="space-y-0.5">
                             <li class="nav-item">
-                                <a href="{{ route('reports.index') }}"
-                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                                <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                     <i class="fas fa-file-alt"></i>
                                     <span>Laporan</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('assessments.index') }}"
-                                    class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}">
+                                <a href="{{ route('assessments.index') }}" class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}">
                                     <i class="fas fa-star"></i>
                                     <span>Penilaian</span>
                                 </a>
@@ -141,10 +126,9 @@
                 @if(auth()->user()->role === 'admin')
                     <div class="nav-section">
                         <div class="nav-section-title">Sistem</div>
-                        <ul>
+                        <ul class="space-y-0.5">
                             <li class="nav-item">
-                                <a href="{{ route('settings.index') }}"
-                                    class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                                <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                     <i class="fas fa-cog"></i>
                                     <span>Pengaturan</span>
                                 </a>
@@ -155,12 +139,11 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">Akun</div>
-                    <ul>
+                    <ul class="space-y-0.5">
                         <li class="nav-item">
-                            <a href="{{ route('profile.show') }}"
-                                class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                            <a href="{{ route('profile.show') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
                                 <i class="fas fa-user-circle"></i>
-                                <span>Profil @if(auth()->user()->isIntern())& Statistik @endif</span>
+                                <span>Profil</span>
                             </a>
                         </li>
                     </ul>
@@ -172,7 +155,7 @@
         <main class="main-content">
             <!-- Header -->
             <header class="header">
-                <div class="d-flex align-center gap-4">
+                <div class="flex items-center gap-3">
                     <button class="menu-toggle" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -185,68 +168,51 @@
                         $unreadNotifications = auth()->user()->notifications()->unread()->latest()->take(5)->get();
                         $unreadCount = auth()->user()->notifications()->unread()->count();
                     @endphp
-                    <div class="notification-bell dropdown" style="position: relative; margin-right: 16px;">
-                        <button class="notification-btn" data-toggle="dropdown"
-                            style="background: none; border: none; cursor: pointer; position: relative; padding: 8px;">
-                            <i class="fas fa-bell" style="font-size: 20px; color: var(--text-secondary);"></i>
+                    <div class="dropdown">
+                        <button class="btn btn-icon btn-secondary relative" data-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
                             @if($unreadCount > 0)
-                                <span class="notification-badge"
-                                    style="position: absolute; top: 0; right: 0; background: #ef4444; color: white; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-secondary);">
+                                <span class="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center px-1">
                                     {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                                 </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right"
-                            style="width: 320px; padding: 0; margin-top: 8px;">
-                            <div
-                                style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-weight: 700; color: var(--text-primary);">Notifikasi</span>
+                        <div class="dropdown-menu dropdown-menu-right" style="width: 300px;">
+                            <div class="px-4 py-3 flex justify-between items-center" style="border-bottom: 1px solid rgba(148,163,184,0.1);">
+                                <span class="font-bold text-slate-700 text-sm">Notifikasi</span>
                                 @if($unreadCount > 0)
-                                    <a href="{{ route('notifications.markAllRead') }}"
-                                        style="font-size: 12px; color: var(--accent-primary); text-decoration: none;">Tandai
-                                        semua dibaca</a>
+                                    <a href="{{ route('notifications.markAllRead') }}" class="text-[10px] text-violet-500 hover:text-violet-600 no-underline font-medium">Tandai dibaca</a>
                                 @endif
                             </div>
-                            <div style="max-height: 300px; overflow-y: auto;">
+                            <div class="max-h-72 overflow-y-auto">
                                 @forelse($unreadNotifications as $notification)
-                                    <a href="{{ $notification->link ?? route('notifications.index') }}"
-                                        style="display: flex; gap: 12px; padding: 12px 16px; text-decoration: none; border-bottom: 1px solid var(--border-color); transition: background 0.2s; {{ !$notification->read_at ? 'background: rgba(167, 139, 250, 0.05);' : '' }}"
-                                        onmouseover="this.style.background='var(--bg-hover)'"
-                                        onmouseout="this.style.background='{{ !$notification->read_at ? 'rgba(167, 139, 250, 0.05)' : 'transparent' }}'">
-                                        <div
-                                            style="width: 36px; height: 36px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                            <i class="{{ $notification->icon_class }}"
-                                                style="color: {{ $notification->color }};"></i>
+                                    <a href="{{ $notification->link ?? route('notifications.index') }}" class="flex gap-3 px-4 py-3 no-underline transition-colors hover:bg-slate-50/80 {{ !$notification->read_at ? 'bg-violet-50/30' : '' }}" style="border-bottom: 1px solid rgba(148,163,184,0.06);">
+                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(248,250,252,0.8);">
+                                            <i class="{{ $notification->icon_class }}" style="color: {{ $notification->color }};"></i>
                                         </div>
-                                        <div style="flex: 1; min-width: 0;">
-                                            <div
-                                                style="font-weight: 600; color: var(--text-primary); font-size: 13px; margin-bottom: 2px;">
-                                                {{ $notification->title }}</div>
-                                            <div
-                                                style="color: var(--text-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                {{ Str::limit($notification->message, 50) }}</div>
-                                            <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">
-                                                {{ $notification->created_at->diffForHumans() }}</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold text-slate-700 text-xs mb-0.5">{{ $notification->title }}</div>
+                                            <div class="text-slate-400 text-[11px] truncate">{{ Str::limit($notification->message, 45) }}</div>
+                                            <div class="text-slate-300 text-[10px] mt-1">{{ $notification->created_at->diffForHumans() }}</div>
                                         </div>
                                     </a>
                                 @empty
-                                    <div style="padding: 32px; text-align: center; color: var(--text-muted);">
-                                        <i class="fas fa-bell-slash"
-                                            style="font-size: 24px; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
-                                        Tidak ada notifikasi baru
+                                    <div class="py-8 text-center text-slate-400">
+                                        <i class="fas fa-bell-slash text-2xl mb-2 opacity-40 block"></i>
+                                        <span class="text-xs">Tidak ada notifikasi</span>
                                     </div>
                                 @endforelse
                             </div>
-                            <a href="{{ route('notifications.index') }}"
-                                style="display: block; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; color: var(--accent-primary); text-decoration: none; border-top: 1px solid var(--border-color);">
-                                Lihat Semua Notifikasi
+                            <a href="{{ route('notifications.index') }}" class="block py-3 text-center text-xs font-semibold text-violet-500 hover:text-violet-600 no-underline hover:bg-slate-50/50" style="border-top: 1px solid rgba(148,163,184,0.1);">
+                                Lihat Semua
                             </a>
                         </div>
                     </div>
+
+                    <!-- User Menu -->
                     <div class="user-menu">
                         @if(auth()->user()->avatar)
-                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" alt="Avatar"
-                                class="user-avatar" style="object-fit: cover;">
+                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" alt="Avatar" class="user-avatar">
                         @else
                             <div class="user-avatar">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -256,24 +222,21 @@
                             <div class="user-name">{{ auth()->user()->name }}</div>
                             <div class="user-role">{{ auth()->user()->role }}</div>
                         </div>
-                        <i class="fas fa-chevron-down" style="color: var(--text-muted); font-size: 12px;"></i>
+                        <i class="fas fa-chevron-down text-slate-400 text-[10px] ml-1"></i>
 
                         <div class="dropdown-menu">
                             <a href="{{ route('profile.show') }}" class="dropdown-item">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-user text-slate-400"></i>
                                 <span>Profil Saya</span>
                             </a>
                             <a href="{{ route('profile.edit') }}" class="dropdown-item">
-                                <i class="fas fa-cog"></i>
+                                <i class="fas fa-cog text-slate-400"></i>
                                 <span>Pengaturan</span>
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a href="#"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                                class="dropdown-item text-danger">
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item text-rose-500">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Logout</span>
-                            </a>
                             </a>
                         </div>
                     </div>
@@ -281,10 +244,7 @@
             </header>
 
             <!-- Content -->
-            <!-- Content -->
             <div class="content fade-in">
-                <!-- Alerts handled by SweetAlert2 -->
-
                 @if(isset($slot))
                     {{ $slot }}
                 @else
@@ -299,9 +259,6 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
 
-
-
-        // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function (e) {
             const sidebar = document.getElementById('sidebar');
             const menuToggle = document.querySelector('.menu-toggle');
@@ -313,88 +270,75 @@
             }
         });
 
-        // SweetAlert2 Integration
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
+        // SweetAlert2
+        const swalConfig = {
+            background: 'rgba(255,255,255,0.95)',
+            backdrop: 'rgba(0,0,0,0.2)',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl px-6 py-2.5 font-semibold',
             }
-        });
+        };
 
         @if(session('success'))
             Swal.fire({
+                ...swalConfig,
                 icon: 'success',
                 title: 'Berhasil!',
                 text: "{{ session('success') }}",
                 showConfirmButton: false,
-                timer: 2000,
-                background: '#fff',
-                color: '#1e293b'
+                timer: 2000
             });
         @endif
 
         @if(session('error'))
             Swal.fire({
+                ...swalConfig,
                 icon: 'error',
                 title: 'Gagal',
                 text: "{{ session('error') }}",
-                confirmButtonColor: '#ef4444',
-                background: '#fff',
-                color: '#1e293b'
+                confirmButtonColor: '#f43f5e'
             });
         @endif
 
         @if(session('warning'))
             Swal.fire({
+                ...swalConfig,
                 icon: 'warning',
                 title: 'Peringatan',
                 text: "{{ session('warning') }}",
-                confirmButtonColor: '#f59e0b',
-                background: '#fff',
-                color: '#1e293b'
+                confirmButtonColor: '#f59e0b'
             });
         @endif
 
         @if($errors->any())
             Swal.fire({
+                ...swalConfig,
                 icon: 'error',
-                title: 'Ada Kesalahan Input',
-                html: '<ul style="text-align: left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
-                confirmButtonColor: '#ef4444',
-                background: '#fff',
-                color: '#1e293b'
+                title: 'Kesalahan Input',
+                html: '<ul style="text-align:left;margin:0;padding-left:20px;">@foreach($errors->all() as $error)<li style="margin-bottom:4px;">{{ $error }}</li>@endforeach</ul>',
+                confirmButtonColor: '#f43f5e'
             });
         @endif
 
-        // Simple Dropdown Toggle logic
+        // Dropdown
         document.addEventListener('click', function (e) {
-            // Dropdown toggle
-            if (e.target.closest('.dropdown-toggle')) {
+            if (e.target.closest('[data-toggle="dropdown"]')) {
                 const dropdown = e.target.closest('.dropdown');
                 dropdown.classList.toggle('show');
-
-                // Close other dropdowns
                 document.querySelectorAll('.dropdown.show').forEach(d => {
                     if (d !== dropdown) d.classList.remove('show');
                 });
-
                 e.preventDefault();
             } else if (!e.target.closest('.dropdown')) {
-                // Click outside to close
-                document.querySelectorAll('.dropdown.show').forEach(d => {
-                    d.classList.remove('show');
-                });
+                document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
             }
         });
     </script>
+
     @livewireScripts
     @stack('scripts')
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;" wire:ignore>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden" wire:ignore>
         @csrf
     </form>
 </body>
