@@ -6,513 +6,300 @@
     @push('styles')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-        <style>
-            /* VARIABLES - FLAT & CLEAN THEME */
-            :root {
-                --color-bg: #f3f4f6;
-                --color-white: #ffffff;
-                --color-primary: #4f46e5;
-                /* Indigo-600 */
-                --color-primary-hover: #4338ca;
-                --color-success: #10b981;
-                /* Emerald-500 */
-                --color-warning: #f59e0b;
-                /* Amber-500 */
-                --color-danger: #ef4444;
-                /* Red-500 */
-                --color-text-dark: #111827;
-                /* Gray-900 */
-                --color-text-medium: #4b5563;
-                /* Gray-600 */
-                --color-text-light: #9ca3af;
-                /* Gray-400 */
-                --color-border: #e5e7eb;
-                /* Gray-200 */
-
-                --radius-card: 12px;
-                --radius-btn: 8px;
-                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            }
-
-            body {
-                background-color: var(--color-bg);
-                font-family: 'Inter', sans-serif;
-            }
-
-            /* GRID & LAYOUT */
-            .intern-dashboard-container {
-                padding-bottom: 50px;
-            }
-
-            .dashboard-header-simple {
-                margin-bottom: 24px;
-                padding-bottom: 16px;
-                border-bottom: 1px solid var(--color-border);
-            }
-
-            .dashboard-grid {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                gap: 24px;
-                align-items: start;
-            }
-
-            /* CARDS */
-            .card-flat {
-                background: var(--color-white);
-                border-radius: var(--radius-card);
-                border: 1px solid var(--color-border);
-                padding: 24px;
-                margin-bottom: 24px;
-                box-shadow: var(--shadow-sm);
-            }
-
-            .card-header-flat {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .card-title-flat {
-                font-size: 16px;
-                font-weight: 700;
-                color: var(--color-text-default);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            /* MAP SECTION */
-            #map-wrapper {
-                position: relative;
-                height: 350px;
-                width: 100%;
-                border-radius: var(--radius-btn);
-                overflow: hidden;
-                border: 1px solid var(--color-border);
-                background: #e5e7eb;
-                z-index: 1;
-            }
-
-            #map {
-                height: 100%;
-                width: 100%;
-            }
-
-            /* BUTTONS */
-            .btn-flat {
-                width: 100%;
-                padding: 12px 20px;
-                border: none;
-                border-radius: var(--radius-btn);
-                font-weight: 600;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all 0.2s;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .btn-flat-primary {
-                background-color: var(--color-primary);
-                color: white;
-            }
-
-            .btn-flat-primary:hover {
-                background-color: var(--color-primary-hover);
-            }
-
-            .btn-flat-primary:disabled {
-                background-color: #cbd5e1;
-                cursor: not-allowed;
-            }
-
-            .btn-flat-warning {
-                background-color: var(--color-warning);
-                color: white;
-            }
-
-            .btn-flat-warning:hover {
-                background-color: #d97706;
-            }
-
-            .btn-flat-outline {
-                background-color: transparent;
-                border: 1px solid var(--color-border);
-                color: var(--color-text-default);
-            }
-
-            .btn-flat-outline:hover {
-                background-color: #f9fafb;
-                border-color: #d1d5db;
-            }
-
-            /* BADGES */
-            .badge-status {
-                font-size: 11px;
-                padding: 4px 10px;
-                border-radius: 20px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .badge-gray {
-                background: #f3f4f6;
-                color: #4b5563;
-            }
-
-            .badge-green {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .badge-red {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            /* MODAL */
-            .modal-backdrop-custom {
-                display: none;
-                position: fixed;
-                z-index: 9999;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-
-            .modal-content-custom {
-                background: white;
-                border-radius: var(--radius-card);
-                width: 100%;
-                max-width: 480px;
-                padding: 30px;
-                box-shadow: var(--shadow-md);
-                animation: fadeIn 0.2s ease-out;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: scale(0.95);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-
-            /* RESPONSIVE */
-            @media (max-width: 900px) {
-                .dashboard-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                #map-wrapper {
-                    height: 280px;
-                }
-            }
-        </style>
     @endpush
 
-    <div class="intern-dashboard-container">
+    <div class="slide-up max-w-[1600px] mx-auto space-y-6">
         <!-- Header -->
-        <div class="dashboard-header-simple">
-            <h1 style="font-size: 24px; font-weight: 800; color: #111827; margin: 0;">Dashboard</h1>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 4px;">Selamat datang kembali, {{ auth()->user()->name }}!
-            </p>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-800 tracking-tight mb-1">
+                    Dashboard {{ auth()->user()->name }}
+                </h2>
+                <p class="text-slate-500 font-medium">Selamat datang kembali! Berikut ringkasan aktivitas magang Anda.</p>
+            </div>
+            <div class="text-right hidden sm:block">
+                <div class="text-sm font-semibold text-slate-600">{{ now()->isoFormat('dddd, D MMMM Y') }}</div>
+            </div>
         </div>
 
-        <div class="dashboard-grid">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- LEFT COLUMN (2/3) -->
-            <div class="left-section">
+            <div class="lg:col-span-2 space-y-6">
 
                 <!-- ATTENDANCE CARD -->
-                <div class="card-flat">
-                    <div class="card-header-flat">
-                        <h3 class="card-title-flat">
-                            <i class="fas fa-map-marked-alt" style="color: var(--color-primary);"></i> Presensi Harian
+                <div class="card p-0 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-map-marked-alt text-indigo-500"></i> Presensi Harian
                         </h3>
-                        <div id="gps-status" class="badge-status badge-gray">Mencari Lokasi...</div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <div id="map-wrapper">
-                            <div id="map"></div>
+                        <div id="gps-status"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5 animate-pulse"></div> Mencari Lokasi...
                         </div>
                     </div>
 
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f3f4f6;">
-                        <span style="font-size: 13px; color: #4b5563;">
-                            <i class="fas fa-building me-1"></i> Kantor: <strong>PT. DUTA SOLUSI INFORMATIKA</strong>
-                        </span>
-                        <span style="font-size: 13px; color: #4b5563;" id="distance-display">
-                            Jarak: <strong>-- m</strong>
-                        </span>
+                    <div class="p-6 space-y-4">
+                        <div
+                            class="relative h-[300px] w-full rounded-xl overflow-hidden border border-slate-200 shadow-inner">
+                            <div id="map" class="h-full w-full z-0"></div>
+                        </div>
+
+                        <div
+                            class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="text-sm font-medium text-slate-600 flex items-center gap-2">
+                                <i class="fas fa-building text-slate-400"></i> Kantor: <span
+                                    class="font-bold text-slate-800">PT. DUTA SOLUSI INFORMATIKA</span>
+                            </span>
+                            <span class="text-sm font-medium text-slate-600" id="distance-display">
+                                Jarak: <span class="font-mono font-bold text-slate-800">-- m</span>
+                            </span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div>
+                            @if(!$todayAttendance)
+                                <form action="{{ route('attendance.checkIn') }}" method="POST" id="checkInForm">
+                                    @csrf
+                                    <input type="hidden" name="latitude" id="lat">
+                                    <input type="hidden" name="longitude" id="lon">
+                                    <input type="hidden" name="late_reason" id="lateReasonInput">
+
+                                    <button type="submit" id="checkInBtn"
+                                        class="btn w-full py-3.5 text-base font-bold shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
+                                        disabled>
+                                        <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"
+                                            style="display:none;" id="loadingSpinner"></span>
+                                        <i class="fas fa-location-arrow mr-2" id="btnIcon"></i> Menunggu GPS...
+                                    </button>
+                                </form>
+                            @elseif(!$todayAttendance->check_out && !in_array($todayAttendance->status, ['permission', 'sick']))
+                                <div class="text-center mb-4">
+                                    <div
+                                        class="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 font-medium text-sm border border-emerald-100">
+                                        <i class="fas fa-check-circle mr-2"></i> Anda masuk pukul <strong
+                                            class="ml-1">{{ $todayAttendance->check_in }}</strong>
+                                    </div>
+                                </div>
+                                <form action="{{ route('attendance.checkOut') }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                        class="btn w-full py-3.5 text-base font-bold bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20 transition-all">
+                                        <i class="fas fa-sign-out-alt mr-2"></i> CHECK OUT SEKARANG
+                                    </button>
+                                </form>
+                            @else
+                                <!-- Attendance Completed -->
+                                <div class="text-center p-6 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+                                    <div
+                                        class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 shadow-sm">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <h4 class="font-bold text-emerald-800 text-lg">Selesai Hari Ini</h4>
+                                    <p class="text-emerald-600 font-medium text-sm mt-1">
+                                        Status: <span class="capitalize">{{ $todayAttendance->status_label }}</span>
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TASKS CARD -->
+                <div class="card p-0 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-clipboard-list text-teal-500"></i> Tugas Saya
+                        </h3>
+                        <a href="{{ route('tasks.index') }}"
+                            class="text-xs font-bold text-teal-600 hover:text-teal-700 uppercase tracking-wider hover:underline">
+                            Lihat Semua
+                        </a>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div>
-                        @if(!$todayAttendance)
-                            <form action="{{ route('attendance.checkIn') }}" method="POST" id="checkInForm">
-                                @csrf
-                                <input type="hidden" name="latitude" id="lat">
-                                <input type="hidden" name="longitude" id="lon">
-                                <input type="hidden" name="late_reason" id="lateReasonInput">
-
-                                <button type="submit" id="checkInBtn" class="btn-flat btn-flat-primary" disabled>
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                                        style="display:none;" id="loadingSpinner"></span>
-                                    <i class="fas fa-location-arrow" id="btnIcon"></i> Menunggu GPS...
-                                </button>
-                            </form>
-                        @elseif(!$todayAttendance->check_out && !in_array($todayAttendance->status, ['permission', 'sick']))
-                            <div style="text-align: center; margin-bottom: 15px;">
-                                <div
-                                    style="font-size: 14px; color: #059669; background: #d1fae5; padding: 8px; border-radius: 6px; display: inline-block;">
-                                    Anda masuk pukul <strong>{{ $todayAttendance->check_in }}</strong>
+                    <div class="p-6 space-y-6">
+                        <!-- Task Progress Stats -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div
+                                class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                <div class="text-2xl font-black text-slate-700">{{ $totalTasks }}</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total</div>
+                            </div>
+                            <div
+                                class="bg-amber-50 p-4 rounded-xl border border-amber-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                <div class="text-2xl font-black text-amber-600">{{ $pendingTasks }}</div>
+                                <div class="text-[10px] font-bold text-amber-600/70 uppercase tracking-wider mt-1">Pending
                                 </div>
                             </div>
-                            <form action="{{ route('attendance.checkOut') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-flat btn-flat-warning">
-                                    <i class="fas fa-sign-out-alt"></i> CHECK OUT SEKARANG
-                                </button>
-                            </form>
-                        @else
-                            <!-- Attendance Completed -->
                             <div
-                                style="text-align: center; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-                                <i class="fas fa-check-circle"
-                                    style="font-size: 32px; color: #16a34a; margin-bottom: 10px; display: block;"></i>
-                                <strong style="color: #166534; font-size: 16px;">Selesai Hari Ini</strong>
-                                <p style="margin: 4px 0 0; color: #15803d; font-size: 13px;">Status:
-                                    {{ $todayAttendance->status_label }}
-                                </p>
+                                class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                <div class="text-2xl font-black text-indigo-600">{{ $taskStats['in_progress'] ?? 0 }}</div>
+                                <div class="text-[10px] font-bold text-indigo-600/70 uppercase tracking-wider mt-1">Proses
+                                </div>
+                            </div>
+                            <div
+                                class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                <div class="text-2xl font-black text-emerald-600">{{ $completedTasks }}</div>
+                                <div class="text-[10px] font-bold text-emerald-600/70 uppercase tracking-wider mt-1">Selesai
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        @if($totalTasks > 0)
+                            <div>
+                                <div class="flex justify-between items-end mb-2">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Overall
+                                        Progress</span>
+                                    <span
+                                        class="text-sm font-bold text-emerald-600">{{ $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0 }}%</span>
+                                </div>
+                                <div class="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500 ease-out"
+                                        style="width: {{ $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($tasks->isEmpty())
+                            <div class="text-center py-12 text-slate-400">
+                                <i class="fas fa-check-double text-4xl mb-3 opacity-20"></i>
+                                <p class="font-medium">Semua tugas sudah selesai! 🎉</p>
+                            </div>
+                        @else
+                            <div class="space-y-3">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tugas Aktif</h4>
+                                @foreach($tasks as $task)
+                                    @php
+                                        $deadlineDays = $task->deadline ? now()->diffInDays($task->deadline, false) : null;
+                                        $isUrgent = $deadlineDays !== null && $deadlineDays <= 2 && $deadlineDays >= 0;
+                                        $isOverdue = $deadlineDays !== null && $deadlineDays < 0;
+                                    @endphp
+                                    <div
+                                        class="group flex items-center justify-between p-4 rounded-xl border {{ $isOverdue ? 'bg-rose-50 border-rose-200' : ($isUrgent ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200 hover:border-indigo-200') }} transition-all hover:shadow-md">
+                                        <div class="flex-1 min-w-0 mr-4">
+                                            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                                <span
+                                                    class="badge {{ $task->priority == 'high' ? 'bg-rose-100 text-rose-700' : ($task->priority == 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }} text-[10px] px-2 py-0.5 rounded uppercase font-bold tracking-wide">
+                                                    {{ ucfirst($task->priority) }}
+                                                </span>
+                                                <span
+                                                    class="badge {{ $task->status_color == 'primary' ? 'bg-indigo-100 text-indigo-700' : ($task->status_color == 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600') }} text-[10px] px-2 py-0.5 rounded uppercase font-bold tracking-wide">
+                                                    {{ $task->status_label }}
+                                                </span>
+                                                @if($isOverdue)
+                                                    <span
+                                                        class="inline-flex items-center gap-1 bg-rose-100 text-rose-600 text-[10px] px-2 py-0.5 rounded font-bold uppercase animate-pulse">
+                                                        <i class="fas fa-exclamation-circle"></i> Terlambat
+                                                    </span>
+                                                @elseif($isUrgent)
+                                                    <span
+                                                        class="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                                        <i class="fas fa-clock"></i>
+                                                        {{ $deadlineDays == 0 ? 'Hari Ini' : $deadlineDays . ' Hari Lagi' }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <h4
+                                                class="font-bold text-slate-800 text-sm truncate group-hover:text-indigo-600 transition-colors">
+                                                {{ $task->title }}
+                                            </h4>
+                                            <div class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1.5">
+                                                <i class="far fa-calendar-alt text-slate-400"></i>
+                                                {{ $task->deadline ? $task->deadline->format('d M Y') : 'Tidak ada deadline' }}
+                                                @if($task->deadline_time)
+                                                    <span class="text-rose-500"> {{ $task->deadline_time }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('tasks.show', $task) }}"
+                                            class="flex-shrink-0 w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                                            <i class="fas fa-arrow-right text-xs"></i>
+                                        </a>
+                                    </div>
+                                @endforeach
                             </div>
                         @endif
                     </div>
                 </div>
 
-                <!-- TASKS CARD - ENHANCED -->
-                <div class="card-flat">
-                    <div class="card-header-flat">
-                        <h3 class="card-title-flat">
-                            <i class="fas fa-clipboard-list" style="color: #0d9488;"></i> Tugas Saya
-                        </h3>
-                        <a href="{{ route('tasks.index') }}"
-                            style="font-size: 13px; color: var(--color-primary); font-weight: 600; text-decoration: none;">Lihat
-                            Semua</a>
-                    </div>
-
-                    <!-- Task Progress Stats -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                        <div
-                            style="text-align: center; padding: 12px 8px; background: #f3f4f6; border-radius: 8px; border: 1px solid #e5e7eb;">
-                            <div style="font-size: 22px; font-weight: 800; color: #374151;">{{ $totalTasks }}</div>
-                            <div style="font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase;">Total
-                            </div>
-                        </div>
-                        <div
-                            style="text-align: center; padding: 12px 8px; background: #fef3c7; border-radius: 8px; border: 1px solid #fde68a;">
-                            <div style="font-size: 22px; font-weight: 800; color: #b45309;">{{ $pendingTasks }}</div>
-                            <div style="font-size: 10px; font-weight: 600; color: #92400e; text-transform: uppercase;">
-                                Pending</div>
-                        </div>
-                        <div
-                            style="text-align: center; padding: 12px 8px; background: #dbeafe; border-radius: 8px; border: 1px solid #bfdbfe;">
-                            <div style="font-size: 22px; font-weight: 800; color: #1d4ed8;">
-                                {{ $taskStats['in_progress'] ?? 0 }}
-                            </div>
-                            <div style="font-size: 10px; font-weight: 600; color: #1e40af; text-transform: uppercase;">
-                                Proses</div>
-                        </div>
-                        <div
-                            style="text-align: center; padding: 12px 8px; background: #dcfce7; border-radius: 8px; border: 1px solid #bbf7d0;">
-                            <div style="font-size: 22px; font-weight: 800; color: #16a34a;">{{ $completedTasks }}</div>
-                            <div style="font-size: 10px; font-weight: 600; color: #166534; text-transform: uppercase;">
-                                Selesai</div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    @if($totalTasks > 0)
-                        <div style="margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                <span style="font-size: 12px; font-weight: 600; color: #6b7280;">Progress Tugas</span>
-                                <span
-                                    style="font-size: 12px; font-weight: 700; color: #16a34a;">{{ $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0 }}%</span>
-                            </div>
-                            <div style="height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
-                                <div
-                                    style="height: 100%; width: {{ $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0 }}%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 4px; transition: width 0.5s ease;">
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($tasks->isEmpty())
-                        <div style="text-align: center; padding: 40px; color: #9ca3af;">
-                            <i class="far fa-check-circle"
-                                style="font-size: 32px; margin-bottom: 10px; display: block; color: #22c55e;"></i>
-                            Semua tugas sudah selesai! 🎉
-                        </div>
-                    @else
-                        <div
-                            style="font-size: 12px; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">
-                            Tugas Aktif</div>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            @foreach($tasks as $task)
-                                @php
-                                    $deadlineDays = $task->deadline ? now()->diffInDays($task->deadline, false) : null;
-                                    $isUrgent = $deadlineDays !== null && $deadlineDays <= 2 && $deadlineDays >= 0;
-                                    $isOverdue = $deadlineDays !== null && $deadlineDays < 0;
-                                @endphp
-                                <div style="border: 1px solid {{ $isOverdue ? '#fecaca' : ($isUrgent ? '#fed7aa' : 'var(--color-border)') }}; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; background: {{ $isOverdue ? '#fef2f2' : ($isUrgent ? '#fffbeb' : 'white') }}; transition: all 0.2s;"
-                                    onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'"
-                                    onmouseout="this.style.boxShadow='none'">
-                                    <div style="flex: 1;">
-                                        <div
-                                            style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
-                                            <span class="badge-status"
-                                                style="background: {{ $task->priority == 'high' ? '#fee2e2' : ($task->priority == 'medium' ? '#fef3c7' : '#dcfce7') }}; color: {{ $task->priority == 'high' ? '#991b1b' : ($task->priority == 'medium' ? '#92400e' : '#166534') }}; font-size: 10px;">
-                                                {{ ucfirst($task->priority) }}
-                                            </span>
-                                            <span class="badge-status"
-                                                style="background: {{ $task->status_color == 'primary' ? '#dbeafe' : ($task->status_color == 'warning' ? '#fef3c7' : '#f3f4f6') }}; color: {{ $task->status_color == 'primary' ? '#1e40af' : ($task->status_color == 'warning' ? '#92400e' : '#4b5563') }}; font-size: 10px;">
-                                                {{ $task->status_label }}
-                                            </span>
-                                            @if($isOverdue)
-                                                <span class="badge-status"
-                                                    style="background: #fee2e2; color: #dc2626; font-size: 10px; animation: pulse 2s infinite;">
-                                                    <i class="fas fa-exclamation-circle"></i> TERLAMBAT
-                                                </span>
-                                            @elseif($isUrgent)
-                                                <span class="badge-status"
-                                                    style="background: #ffedd5; color: #c2410c; font-size: 10px;">
-                                                    <i class="fas fa-clock"></i>
-                                                    {{ $deadlineDays == 0 ? 'HARI INI' : $deadlineDays . ' HARI LAGI' }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div style="font-weight: 600; font-size: 14px; color: #111827; margin-bottom: 4px;">
-                                            {{ $task->title }}
-                                        </div>
-                                        <div style="font-size: 12px; color: #6b7280;">
-                                            <i class="far fa-calendar-alt" style="margin-right: 4px;"></i>
-                                            {{ $task->deadline ? $task->deadline->format('d M Y') : 'Tidak ada deadline' }}
-                                            @if($task->deadline_time)
-                                                <span style="color: #ef4444; font-weight: 500;"> {{ $task->deadline_time }}</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <a href="{{ route('tasks.show', $task) }}" class="btn-flat-outline"
-                                        style="padding: 8px 16px; width: auto; font-size: 12px; border-radius: 8px; font-weight: 600;">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
             </div>
 
             <!-- RIGHT COLUMN (1/3) -->
-            <div class="right-section">
+            <div class="space-y-6">
 
                 <!-- QUICK MENU IZIN -->
-                <div class="card-flat">
-                    <h4
-                        style="font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px;">
-                        Menu Izin</h4>
+                <div class="card p-5">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Menu Izin</h4>
 
                     @if(!$todayAttendance)
-                        <button onclick="openModal('permissionModal')" class="btn-flat btn-flat-outline"
-                            style="justify-content: space-between; text-align: left;">
-                            <span style="display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-file-medical" style="color: var(--color-primary);"></i> Form Izin / Sakit
+                        <button onclick="openModal('permissionModal')"
+                            class="w-full flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-slate-50 hover:shadow-sm transition-all group">
+                            <span class="flex items-center gap-3 font-semibold text-slate-700 group-hover:text-indigo-700">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <i class="fas fa-file-medical"></i>
+                                </div>
+                                Form Izin / Sakit
                             </span>
-                            <i class="fas fa-chevron-right" style="font-size: 12px; color: #9ca3af;"></i>
+                            <i
+                                class="fas fa-chevron-right text-xs text-slate-400 group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     @else
                         <div
-                            style="font-size: 13px; color: #6b7280; text-align: center; padding: 10px; background: #f9fafb; border-radius: 6px;">
-                            Presensi hari ini sudah tercatat.
+                            class="text-center p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-500 font-medium">
+                            <i class="fas fa-info-circle mr-1 text-slate-400"></i> Presensi hari ini sudah tercatat.
                         </div>
                     @endif
                 </div>
 
                 <!-- STATS SUMMARY -->
-                <div class="card-flat">
-                    <div class="card-header-flat" style="margin-bottom: 16px;">
-                        <h3 class="card-title-flat">Statistik Ringkas</h3>
+                <div class="card p-0 overflow-hidden">
+                    <div class="p-5 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Statistik Ringkas</h3>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-                        <div
-                            style="background: #f0f9ff; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #bae6fd;">
-                            <div style="font-size: 20px; font-weight: 800; color: #0284c7;">{{ $attendancePercentage }}%
+                    <div class="p-5">
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-sky-50 p-3 rounded-xl border border-sky-100 text-center">
+                                <div class="text-xl font-black text-sky-600">{{ $attendancePercentage }}%</div>
+                                <div class="text-[10px] font-bold text-sky-600/70 uppercase">Kehadiran</div>
                             </div>
-                            <div style="font-size: 10px; font-weight: 600; color: #075985;">KEHADIRAN</div>
+                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+                                <div class="text-xl font-black text-emerald-600">{{ $completedTasks }}</div>
+                                <div class="text-[10px] font-bold text-emerald-600/70 uppercase">Task Done</div>
+                            </div>
                         </div>
-                        <div
-                            style="background: #f0fdf4; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #bbf7d0;">
-                            <div style="font-size: 20px; font-weight: 800; color: #16a34a;">{{ $completedTasks }}</div>
-                            <div style="font-size: 10px; font-weight: 600; color: #166534;">TUGAS SELESAI</div>
-                        </div>
-                    </div>
 
-                    <h5
-                        style="margin: 0 0 10px; font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase;">
-                        Riwayat Terakhir</h5>
-                    <div>
-                        @foreach($attendances->take(3) as $log)
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; font-size: 13px;">
-                                <span style="color: #374151;">{{ $log->date->format('d/m') }}</span>
-                                <span
-                                    class="badge-status {{ $log->status == 'present' ? 'badge-green' : ($log->status == 'late' ? 'badge-red' : 'badge-gray') }}"
-                                    style="font-size: 10px;">
-                                    {{ $log->status_label }}
-                                </span>
-                            </div>
-                        @endforeach
+                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Riwayat Terakhir</h5>
+                        <div class="space-y-3">
+                            @foreach($attendances->take(3) as $log)
+                                <div
+                                    class="flex items-center justify-between text-sm py-2 border-b border-dashed border-slate-100 last:border-0 last:pb-0">
+                                    <span class="font-medium text-slate-600">{{ $log->date->format('d/m') }}</span>
+                                    <span
+                                        class="badge {{ $log->status == 'present' ? 'bg-emerald-100 text-emerald-700' : ($log->status == 'late' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600') }} text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                        {{ $log->status_label }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
-                <!-- Task Progress Chart -->
-                <div class="card-flat">
-                    <div class="card-header-flat" style="margin-bottom: 12px;">
-                        <h3 class="card-title-flat">
-                            <i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> Status Tugas
-                        </h3>
-                    </div>
-                    <div style="height: 200px;">
+                <!-- charts -->
+                <div class="card p-5">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-violet-500"></i> Status Tugas
+                    </h3>
+                    <div class="h-48">
                         <canvas id="taskProgressChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Weekly Attendance Chart -->
-                <div class="card-flat">
-                    <div class="card-header-flat" style="margin-bottom: 12px;">
-                        <h3 class="card-title-flat">
-                            <i class="fas fa-chart-bar" style="color: #10b981;"></i> Kehadiran 7 Hari
-                        </h3>
-                    </div>
-                    <div style="height: 180px;">
+                <div class="card p-5">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-emerald-500"></i> Kehadiran 7 Hari
+                    </h3>
+                    <div class="h-40">
                         <canvas id="weeklyAttendanceChart"></canvas>
                     </div>
                 </div>
@@ -522,87 +309,108 @@
     </div>
 
     <!-- MODAL PERMISSION -->
-    <div id="permissionModal" class="modal-backdrop-custom">
-        <div class="modal-content-custom">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #111827;">Form Izin</h3>
-                <p style="margin: 4px 0 0; color: #6b7280; font-size: 14px;">Silakan isi detail ketidakhadiran Anda.</p>
-            </div>
+    <div id="permissionModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity modal-backdrop-custom"
+                aria-hidden="true" onclick="closeModal('permissionModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <form action="{{ route('attendance.permission') }}" method="POST" enctype="multipart/form-data"
-                id="permissionForm">
-                @csrf
-
-                <input type="hidden" name="latitude" id="permLat">
-                <input type="hidden" name="longitude" id="permLon">
-
-                <div style="margin-bottom: 20px;">
-                    <label
-                        style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #374151;">Jenis
-                        Izin</label>
-                    <div style="display: flex; gap: 16px;">
-                        <label style="flex: 1; display: block; cursor: pointer;">
-                            <input type="radio" name="status" value="permission" checked style="margin-right: 8px;"> Izin
-                            Biasa
-                        </label>
-                        <label style="flex: 1; display: block; cursor: pointer;">
-                            <input type="radio" name="status" value="sick" style="margin-right: 8px;"> Sakit
-                        </label>
+            <div
+                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg leading-6 font-bold text-slate-900" id="modal-title">Form Izin</h3>
+                        <p class="text-sm text-slate-500 mt-1">Silakan isi detail ketidakhadiran Anda.</p>
                     </div>
-                </div>
 
-                <!-- Upload Bukti -->
-                <div style="margin-bottom: 20px;">
-                    <label
-                        style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #374151;">Bukti
-                        Lampiran (Surat Dokter/Lainnya)</label>
-                    <input type="file" name="proof_file" accept=".jpg,.jpeg,.png,.pdf" class="form-control"
-                        style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font-size: 13px;">
-                    <small style="color: #6b7280; font-size: 11px;">Max: 2MB (PDF/JPG/PNG)</small>
-                </div>
+                    <form action="{{ route('attendance.permission') }}" method="POST" enctype="multipart/form-data"
+                        id="permissionForm">
+                        @csrf
+                        <input type="hidden" name="latitude" id="permLat">
+                        <input type="hidden" name="longitude" id="permLon">
 
-                <div style="margin-bottom: 24px;">
-                    <label
-                        style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #374151;">Keterangan</label>
-                    <textarea name="notes" rows="4"
-                        style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; font-family: inherit; font-size: 14px;"
-                        required placeholder="Jelaskan alasan Anda..."></textarea>
-                </div>
+                        <div class="mb-5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Jenis Izin</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="status" value="permission" class="peer sr-only" checked>
+                                    <div
+                                        class="px-4 py-3 rounded-xl border-2 border-slate-200 text-slate-600 text-center font-semibold peer-checked:border-indigo-500 peer-checked:text-indigo-600 peer-checked:bg-indigo-50 transition-all">
+                                        Izin Biasa
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="status" value="sick" class="peer sr-only">
+                                    <div
+                                        class="px-4 py-3 rounded-xl border-2 border-slate-200 text-slate-600 text-center font-semibold peer-checked:border-rose-500 peer-checked:text-rose-600 peer-checked:bg-rose-50 transition-all">
+                                        Sakit
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
 
-                <div style="display: flex; gap: 12px;">
-                    <button type="button" onclick="closeModal('permissionModal')"
-                        class="btn-flat btn-flat-outline">Batal</button>
-                    <button type="submit" class="btn-flat btn-flat-primary">Kirim</button>
+                        <div class="mb-5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Bukti Lampiran</label>
+                            <input type="file" name="proof_file" accept=".jpg,.jpeg,.png,.pdf"
+                                class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-lg">
+                            <p class="text-xs text-slate-400 mt-1">Max: 2MB (PDF/JPG/PNG)</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Keterangan</label>
+                            <textarea name="notes" rows="4"
+                                class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                required placeholder="Jelaskan alasan Anda..."></textarea>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" onclick="closeModal('permissionModal')"
+                                class="flex-1 btn btn-secondary">Batal</button>
+                            <button type="submit" class="flex-1 btn btn-primary">Kirim</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <!-- MODAL LATE REASON -->
-    <div id="lateReasonModal" class="modal-backdrop-custom"
-        style="display: {{ session('show_late_reason_form') ? 'flex' : 'none' }};">
-        <div class="modal-content-custom">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <i class="fas fa-exclamation-triangle"
-                    style="font-size: 32px; color: #f59e0b; margin-bottom: 12px; display: block;"></i>
-                <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #111827;">Terlambat Check-in</h3>
-                <p style="margin: 4px 0 0; color: #6b7280; font-size: 14px;">Waktu masuk telah berlalu. Mohon sertakan
-                    alasan.</p>
-            </div>
+    <div id="lateReasonModal"
+        class="fixed inset-0 z-50 {{ session('show_late_reason_form') ? 'flex' : 'hidden' }} overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity modal-backdrop-custom"
+                onclick="closeModal('lateReasonModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-            <div style="margin-bottom: 24px;">
-                <textarea id="lateReasonText" rows="3"
-                    style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; font-family: inherit; font-size: 14px;"
-                    placeholder="Alasan keterlambatan..."></textarea>
-            </div>
-
-            <div style="display: flex; gap: 12px;">
-                <button type="button" onclick="closeModal('lateReasonModal')"
-                    class="btn-flat btn-flat-outline">Batal</button>
-                <button type="button" id="submitLateBtn" class="btn-flat btn-flat-primary">Simpan & Check In</button>
+            <div
+                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="text-center mb-6">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 mb-4">
+                            <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg leading-6 font-bold text-slate-900">Terlambat Check-in</h3>
+                        <p class="text-sm text-slate-500 mt-1">Waktu masuk telah berlalu. Mohon sertakan alasan
+                            keterlambatan Anda.</p>
+                    </div>
+                    <div class="mb-6">
+                        <textarea id="lateReasonText" rows="3"
+                            class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500 text-sm"
+                            placeholder="Tuliskan alasan keterlambatan..."></textarea>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('lateReasonModal')"
+                            class="flex-1 btn btn-secondary">Batal</button>
+                        <button type="button" id="submitLateBtn"
+                            class="flex-1 btn btn-primary bg-amber-500 hover:bg-amber-600 text-white border-transparent">Simpan
+                            & Check In</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 
     @push('scripts')
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -624,11 +432,21 @@
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
 
-                L.marker([officeLat, officeLon]).addTo(map).bindPopup("<b>Kantor</b>").openPopup();
+                // Custom Icon for Office
+                const officeIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: "<div style='background-color:#4f46e5; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);'></div>",
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+
+                L.marker([officeLat, officeLon], { icon: officeIcon }).addTo(map).bindPopup("<b>Kantor</b>").openPopup();
+
                 L.circle([officeLat, officeLon], {
                     color: '#4f46e5',
                     fillColor: '#4f46e5',
-                    fillOpacity: 0.15,
+                    fillOpacity: 0.1,
+                    weight: 1,
                     radius: maxDist
                 }).addTo(map);
 
@@ -657,40 +475,51 @@
                         if (lonInput) lonInput.value = lng;
 
                         if (userMarker) userMarker.setLatLng([lat, lng]);
-                        else userMarker = L.marker([lat, lng]).addTo(map);
+                        else {
+                            const userIcon = L.divIcon({
+                                className: 'custom-div-icon',
+                                html: "<div style='background-color:#10b981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);'></div>",
+                                iconSize: [12, 12],
+                                iconAnchor: [6, 6]
+                            });
+                            userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+                        }
 
                         const dist = map.distance([officeLat, officeLon], [lat, lng]);
 
-                        if (distDisplay) distDisplay.innerHTML = "Jarak: <strong>" + Math.round(dist) + " m</strong>";
+                        if (distDisplay) distDisplay.innerHTML = "Jarak: <span class='font-mono font-bold text-slate-800'>" + Math.round(dist) + " m</span>";
 
                         if (checkInBtn) {
                             if (dist <= maxDist) {
                                 checkInBtn.disabled = false;
-                                checkInBtn.classList.remove('btn-flat-primary');
-                                checkInBtn.classList.add('btn-flat-primary'); // Ensure primary color
-                                checkInBtn.style.background = "#10b981"; // Success green override
-                                checkInBtn.innerHTML = '<i class="fas fa-fingerprint"></i> CHECK IN SEKARANG';
+                                checkInBtn.classList.remove('bg-slate-300', 'text-slate-500');
+                                checkInBtn.classList.add('bg-emerald-500', 'text-white', 'hover:bg-emerald-600', 'shadow-emerald-500/20');
+                                // Remove indigo classes if present from initial state
+                                checkInBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-500/20');
+
+                                checkInBtn.innerHTML = '<i class="fas fa-fingerprint mr-2 animate-pulse"></i> CHECK IN SEKARANG';
 
                                 if (gpsStatus) {
-                                    gpsStatus.innerHTML = "Lokasi Valid";
-                                    gpsStatus.className = "badge-status badge-green";
+                                    gpsStatus.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></div> Lokasi Valid';
+                                    gpsStatus.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100";
                                 }
                             } else {
                                 checkInBtn.disabled = true;
-                                checkInBtn.style.background = "#cbd5e1";
-                                checkInBtn.innerHTML = '<i class="fas fa-ban"></i> Terlalu Jauh';
+                                checkInBtn.classList.add('bg-slate-300', 'text-slate-500');
+                                checkInBtn.classList.remove('bg-emerald-500', 'text-white', 'hover:bg-emerald-600', 'shadow-emerald-500/20', 'bg-indigo-600');
+                                checkInBtn.innerHTML = '<i class="fas fa-ban mr-2"></i> Terlalu Jauh';
 
                                 if (gpsStatus) {
-                                    gpsStatus.innerHTML = "Diluar Jangkauan";
-                                    gpsStatus.className = "badge-status badge-red";
+                                    gpsStatus.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></div> Diluar Jangkauan';
+                                    gpsStatus.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100";
                                 }
                             }
                         }
                     }, (error) => {
                         console.error("GPS Error", error);
                         if (gpsStatus) {
-                            gpsStatus.innerHTML = "GPS Error";
-                            gpsStatus.className = "badge-status badge-red";
+                            gpsStatus.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> GPS Error';
+                            gpsStatus.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100";
                         }
                     }, {
                         enableHighAccuracy: true,
@@ -701,7 +530,8 @@
 
             // --- MODALS ---
             function openModal(id) {
-                document.getElementById(id).style.display = 'flex';
+                document.getElementById(id).classList.remove('hidden');
+                document.getElementById(id).classList.add('flex'); // Add flex to center content if using flex utility
 
                 // If opening permission modal, try to get GPS
                 if (id === 'permissionModal') {
@@ -718,14 +548,8 @@
                 }
             }
             function closeModal(id) {
-                document.getElementById(id).style.display = 'none';
-            }
-
-            // Close modal on outside click
-            window.onclick = function (event) {
-                if (event.target.classList.contains('modal-backdrop-custom')) {
-                    event.target.style.display = "none";
-                }
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('flex');
             }
 
             // Late Reason Submit
@@ -741,6 +565,10 @@
                     document.getElementById('checkInForm').submit();
                 });
             }
+
+            // Chart Defaults
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
 
             // Task Progress Donut Chart
             const taskBreakdown = @json($taskBreakdown);
@@ -758,7 +586,7 @@
                                 taskBreakdown.completed,
                                 taskBreakdown.revision
                             ],
-                            backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444'],
+                            backgroundColor: ['#fbbf24', '#6366f1', '#a855f7', '#10b981', '#f43f5e'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -770,78 +598,43 @@
                             legend: {
                                 position: 'right',
                                 labels: {
-                                    color: '#6b7280',
-                                    font: { size: 10 },
-                                    padding: 8,
                                     usePointStyle: true,
-                                    pointStyle: 'circle'
+                                    pointStyle: 'circle',
+                                    boxWidth: 6,
+                                    font: { size: 10 }
                                 }
                             }
                         },
-                        cutout: '60%'
+                        cutout: '70%'
                     }
                 });
             }
 
             // Weekly Attendance Bar Chart
             const weeklyAttendance = @json($weeklyAttendance);
-            const statusColors = {
-                'present': '#10b981',
-                'late': '#f59e0b',
-                'permission': '#3b82f6',
-                'sick': '#a855f7',
-                'absent': '#ef4444'
-            };
-
             const weeklyAttendanceCtx = document.getElementById('weeklyAttendanceChart');
             if (weeklyAttendanceCtx) {
                 new Chart(weeklyAttendanceCtx.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: weeklyAttendance.map(d => d.date),
+                        labels: weeklyAttendance.days,
                         datasets: [{
-                            label: 'Kehadiran',
-                            data: weeklyAttendance.map(d => {
-                                if (d.status === 'present') return 3;
-                                if (d.status === 'late') return 2;
-                                if (d.status === 'permission' || d.status === 'sick') return 1;
-                                return 0;
-                            }),
-                            backgroundColor: weeklyAttendance.map(d => statusColors[d.status] || '#e5e7eb'),
-                            borderRadius: 6,
-                            barThickness: 24
+                            label: 'Status',
+                            data: weeklyAttendance.counts,
+                            backgroundColor: weeklyAttendance.colors,
+                            borderRadius: 4,
+                            barThickness: 16
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: '#6b7280', font: { size: 10 } }
-                            },
-                            y: {
-                                display: false,
-                                max: 4
-                            }
+                            y: { beginAtZero: true, display: false },
+                            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
                         },
                         plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        const status = weeklyAttendance[context.dataIndex].status;
-                                        const labels = {
-                                            'present': 'Hadir',
-                                            'late': 'Terlambat',
-                                            'permission': 'Izin',
-                                            'sick': 'Sakit',
-                                            'absent': 'Tidak Hadir'
-                                        };
-                                        return labels[status] || status;
-                                    }
-                                }
-                            }
+                            legend: { display: false }
                         }
                     }
                 });

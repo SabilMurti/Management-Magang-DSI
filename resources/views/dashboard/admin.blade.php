@@ -208,8 +208,7 @@
             <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 700; color: #1e293b;">Selamat Datang,
                 {{ auth()->user()->name }}! 👋
             </h2>
-            {{-- <p style="color: #64748b; font-size: 15px;">Dashboard ringkas dan bersih untuk memantau aktivitas magang.
-            </p> --}}
+            <p style="color: #64748b; font-size: 15px;">Dashboard ringkas dan bersih untuk memantau aktivitas magang.</p>
         </div>
 
         <!-- Stats Grid -->
