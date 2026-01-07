@@ -502,7 +502,7 @@
             ];
 
             new Chart(document.getElementById('performanceChart').getContext('2d'), {
-                type: 'line',
+                type: 'line', // Reverted to line chart as requested
                 data: {
                     labels: interns.map(i => i.name),
                     datasets: [
@@ -510,10 +510,10 @@
                             label: 'Tepat Waktu',
                             data: interns.map(i => i.on_time),
                             borderColor: '#22c55e',
-                            backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.15)', // Light green gradient feel
                             borderWidth: 3,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.4, // Smooth curves
                             pointRadius: 6,
                             pointBackgroundColor: '#22c55e',
                             pointBorderColor: '#fff',
@@ -525,10 +525,10 @@
                             label: 'Terlambat',
                             data: interns.map(i => i.late),
                             borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                            backgroundColor: 'rgba(245, 158, 11, 0.15)', // Light orange gradient feel
                             borderWidth: 3,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.4, // Smooth curves
                             pointRadius: 6,
                             pointBackgroundColor: '#f59e0b',
                             pointBorderColor: '#fff',
