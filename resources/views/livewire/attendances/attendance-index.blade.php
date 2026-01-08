@@ -98,7 +98,100 @@
                 @endif
             </div>
         @else
-            <div class="table-container">
+            <!-- Mobile/Tablet View (Cards) -->
+            <div class="block lg:hidden space-y-4">
+                @foreach($attendances as $attendance)
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            @if(auth()->user()->canManage())
+                                <div class="flex items-center gap-3">
+                                    <div class="user-avatar w-10 h-10 text-xs text-white shrink-0 bg-indigo-500 rounded-full flex items-center justify-center">
+                                        {{ strtoupper(substr($attendance->intern->user->name ?? 'N', 0, 1)) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-700 text-sm truncate">{{ $attendance->intern->user->name ?? 'N/A' }}</div>
+                                        <div class="text-[11px] text-slate-400 truncate">{{ $attendance->intern->department ?? 'Magang' }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 text-slate-700 font-bold">
+                                    <i class="far fa-calendar-alt text-indigo-500"></i>
+                                    {{ $attendance->date->format('d M Y') }}
+                                </div>
+                            @endif
+
+                             <span class="badge badge-{{ $attendance->status_color }} text-[10px]">
+                                {{ $attendance->status_label }}
+                            </span>
+                        </div>
+
+                         <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center text-center">
+                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Check In</span>
+                                 <div class="text-sm font-black text-slate-700">
+                                    @if($attendance->check_in)
+                                        <span class="text-emerald-600">{{ $attendance->check_in->format('H:i') }}</span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                 </div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center text-center">
+                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Check Out</span>
+                                 <div class="text-sm font-black text-slate-700">
+                                    @if($attendance->check_out)
+                                        <span class="text-rose-600">{{ $attendance->check_out->format('H:i') }}</span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                 </div>
+                            </div>
+                        </div>
+                        
+                        @if(auth()->user()->canManage())
+                            <div class="flex items-center justify-between mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Tanggal</span>
+                                <div class="text-xs font-bold text-slate-700">{{ $attendance->date->format('d F Y') }}</div>
+                            </div>
+                        @endif
+
+                        @if($attendance->notes)
+                            <div class="p-3 bg-amber-50 rounded-lg text-xs text-amber-700 mb-4 border border-amber-100 italic relative pl-8">
+                                <i class="fas fa-quote-left absolute left-3 top-3 opacity-20 text-xl"></i>
+                                "{{ Str::limit($attendance->notes, 60) }}"
+                            </div>
+                        @endif
+
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-100 gap-3">
+                             @if(auth()->user()->canManage())
+                                <label class="flex items-center gap-2 cursor-pointer p-1">
+                                    <input type="checkbox" wire:model.live="selectedAttendances" value="{{ $attendance->id }}" class="form-checkbox w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="text-xs font-bold text-slate-500 select-none">Pilih Item</span>
+                                </label>
+                            @else
+                                <div></div>
+                            @endif
+
+                            <div class="flex gap-2">
+                                <a href="{{ route('attendances.show', $attendance) }}" class="btn btn-sm btn-secondary" title="Detail">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </a>
+                                @if(auth()->user()->canManage())
+                                    <a href="{{ route('attendances.edit', $attendance) }}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-pencil-alt text-xs"></i>
+                                    </a>
+                                    <button wire:click="deleteAttendance({{ $attendance->id }})" wire:confirm="Yakin?" class="btn btn-sm btn-danger" title="Hapus">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Desktop View (Table) -->
+            <div class="hidden lg:block table-container">
                 <table>
                     <thead>
                         <tr>

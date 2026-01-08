@@ -3,258 +3,358 @@
 @section('title', 'Detail Tugas: ' . $taskAssignment->title)
 
 @section('content')
-<div class="slide-up">
+<div class="slide-up max-w-7xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="d-flex align-center gap-4 mb-6">
-        <a href="{{ route('task-assignments.index') }}" class="btn btn-secondary btn-icon">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div style="flex: 1;">
-            <div class="d-flex gap-2 align-center mb-2">
-                <span class="badge badge-{{ $taskAssignment->priority_color }}">
-                    {{ strtoupper($taskAssignment->priority) }}
-                </span>
-                @if($taskAssignment->deadline && $taskAssignment->deadline->isPast())
-                    <span class="badge badge-danger">DEADLINE LEWAT</span>
-                @endif
-            </div>
-            <h2 style="margin: 0;">{{ $taskAssignment->title }}</h2>
-            <p class="text-muted" style="margin-top: 4px;">
-                Dibuat oleh {{ $taskAssignment->assignedBy->name ?? 'Admin' }} • {{ $taskAssignment->created_at->format('d M Y H:i') }}
-            </p>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="stats-grid mb-6">
-        <div class="stat-card stat-total">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-info">
-                <div class="stat-value">{{ $stats['total'] }}</div>
-                <div class="stat-label">Total Siswa</div>
-            </div>
-        </div>
-        <div class="stat-card stat-success">
-            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-info">
-                <div class="stat-value">{{ $stats['completed'] }}</div>
-                <div class="stat-label">Selesai</div>
-            </div>
-        </div>
-        <div class="stat-card stat-warning">
-            <div class="stat-icon"><i class="fas fa-clock"></i></div>
-            <div class="stat-info">
-                <div class="stat-value">{{ $stats['submitted'] }}</div>
-                <div class="stat-label">Menunggu Review</div>
-            </div>
-        </div>
-        <div class="stat-card stat-primary">
-            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
-            <div class="stat-info">
-                <div class="stat-value">{{ $stats['in_progress'] + $stats['pending'] }}</div>
-                <div class="stat-label">Belum Selesai</div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{{ route('task-assignments.index') }}" class="btn btn-secondary btn-icon">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <h2 class="text-2xl font-bold text-slate-800 tracking-tight">{{ $taskAssignment->title }}</h2>
+                    <span class="badge badge-{{ $taskAssignment->priority_color }} text-[10px] uppercase tracking-wider px-2 py-0.5">
+                        {{ strtoupper($taskAssignment->priority) }}
+                    </span>
+                    @if($taskAssignment->deadline && $taskAssignment->deadline->isPast())
+                        <span class="badge badge-danger text-[10px] uppercase tracking-wider px-2 py-0.5">Deadline Lewat</span>
+                    @endif
+                </div>
+                <div class="text-sm text-slate-500 font-medium">
+                    <span class="text-slate-400">Dibuat oleh</span> {{ $taskAssignment->assignedBy->name ?? 'Admin' }}
+                    <span class="mx-1 text-slate-300">•</span>
+                    {{ $taskAssignment->created_at->format('d M Y H:i') }}
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Progress & Charts Row -->
-    <div class="grid-2 mb-6">
-        <!-- Progress Overview -->
-        <div class="card">
-            <div class="card-header border-0">
-                <h3 class="card-title"><i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> Progress Keseluruhan</h3>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Total -->
+        <div class="card p-5 border border-indigo-100 bg-indigo-50/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-800">{{ $stats['total'] }}</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Siswa</div>
+            </div>
+        </div>
+
+        <!-- Selesai -->
+        <div class="card p-5 border border-emerald-100 bg-emerald-50/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-800">{{ $stats['completed'] }}</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Selesai</div>
+            </div>
+        </div>
+
+        <!-- Review -->
+        <div class="card p-5 border border-violet-100 bg-violet-50/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-800">{{ $stats['submitted'] }}</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Review</div>
+            </div>
+        </div>
+
+        <!-- Belum Selesai -->
+        <div class="card p-5 border border-amber-100 bg-amber-50/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-800">{{ $stats['in_progress'] + $stats['pending'] }}</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Proses</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Progress Chart -->
+        <div class="card p-6 border border-slate-100">
+            <h3 class="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
+                <i class="fas fa-chart-pie text-violet-500"></i> Progress Keseluruhan
+            </h3>
+
+            <!-- Circular Progress -->
+            <div class="relative w-48 h-48 mx-auto mb-8">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" stroke-width="3" />
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="{{ $stats['progress_percentage'] }}, 100" stroke-linecap="round" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-4xl font-black text-slate-800">{{ $stats['progress_percentage'] }}<span class="text-xl text-slate-400">%</span></span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Completion</span>
+                </div>
             </div>
 
-            <!-- Big Progress Circle -->
-            <div class="progress-circle-container">
-                <div class="progress-circle" style="--progress: {{ $stats['progress_percentage'] }};">
-                    <span class="progress-value">{{ $stats['progress_percentage'] }}%</span>
-                    <span class="progress-text">Selesai</span>
+            <!-- Legends -->
+            <div class="grid grid-cols-2 gap-3">
+                 <div class="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <span class="text-xs text-slate-600 flex-1">Tepat Waktu</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['completed_on_time'] }}</span>
                 </div>
-            </div>
-
-            <!-- Detailed Breakdown -->
-            <div class="progress-breakdown">
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #10b981;"></span>
-                    <span class="breakdown-label">Tepat Waktu</span>
-                    <span class="breakdown-value">{{ $stats['completed_on_time'] }}</span>
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-rose-50 border border-rose-100">
+                    <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                    <span class="text-xs text-slate-600 flex-1">Terlambat</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['completed_late'] }}</span>
                 </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #ef4444;"></span>
-                    <span class="breakdown-label">Terlambat</span>
-                    <span class="breakdown-value">{{ $stats['completed_late'] }}</span>
+                <!-- More layout items... handled dynamically usually but hardcoded for fidelity -->
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-violet-50 border border-violet-100">
+                    <div class="w-2 h-2 rounded-full bg-violet-500"></div>
+                    <span class="text-xs text-slate-600 flex-1">Review</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['submitted'] }}</span>
                 </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #8b5cf6;"></span>
-                    <span class="breakdown-label">Review</span>
-                    <span class="breakdown-value">{{ $stats['submitted'] }}</span>
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-sky-50 border border-sky-100">
+                    <div class="w-2 h-2 rounded-full bg-sky-500"></div>
+                    <span class="text-xs text-slate-600 flex-1">Dikerjakan</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['in_progress'] }}</span>
                 </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #3b82f6;"></span>
-                    <span class="breakdown-label">Dikerjakan</span>
-                    <span class="breakdown-value">{{ $stats['in_progress'] }}</span>
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-amber-50 border border-amber-100">
+                    <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <span class="text-xs text-slate-600 flex-1">Revisi</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['revision'] }}</span>
                 </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #f59e0b;"></span>
-                    <span class="breakdown-label">Revisi</span>
-                    <span class="breakdown-value">{{ $stats['revision'] }}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-dot" style="background: #9ca3af;"></span>
-                    <span class="breakdown-label">Belum Mulai</span>
-                    <span class="breakdown-value">{{ $stats['pending'] }}</span>
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
+                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                    <span class="text-xs text-slate-600 flex-1">Belum</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $stats['pending'] }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Task Details & Chart -->
-        <div class="card">
-            <div class="card-header border-0">
-                <h3 class="card-title"><i class="fas fa-info-circle" style="color: #3b82f6;"></i> Detail Tugas</h3>
-            </div>
+        <!-- Details & Charts -->
+        <div class="card p-6 border border-slate-100">
+             <h3 class="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
+                <i class="fas fa-info-circle text-sky-500"></i> Detail Tugas
+            </h3>
 
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <span class="detail-label">Deadline</span>
-                    <span class="detail-value {{ $taskAssignment->deadline && $taskAssignment->deadline->isPast() ? 'text-danger' : '' }}">
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Deadline</div>
+                    <div class="font-bold text-slate-800 flex items-center gap-2">
                         @if($taskAssignment->deadline)
+                            <i class="far fa-calendar-alt text-slate-400"></i>
                             {{ $taskAssignment->deadline->format('d M Y') }}
-                            @if($taskAssignment->deadline_time) {{ $taskAssignment->deadline_time }} @endif
+                            @if($taskAssignment->deadline_time) <span class="text-xs text-slate-500 font-normal">({{ $taskAssignment->deadline_time }})</span> @endif
                         @else
-                            Tidak ada
+                            <span class="text-slate-400 italic">Tidak ada deadline</span>
                         @endif
-                    </span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Estimasi Waktu</span>
-                    <span class="detail-value">{{ $taskAssignment->estimated_hours ?? '-' }} jam</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Metode Submit</span>
-                    <span class="detail-value">
-                        @if($taskAssignment->submission_type == 'github') GitHub
-                        @elseif($taskAssignment->submission_type == 'file') Upload File
-                        @else GitHub / File
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Metode Submit</div>
+                    <div class="font-bold text-slate-800 flex items-center gap-2">
+                         @if($taskAssignment->submission_type == 'github') <i class="fab fa-github"></i> GitHub Only
+                        @elseif($taskAssignment->submission_type == 'file') <i class="fas fa-file-upload"></i> File Upload
+                        @else <i class="fas fa-layer-group"></i> GitHub / File
                         @endif
-                    </span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Rata-rata Nilai</span>
-                    <span class="detail-value" style="font-size: 24px; font-weight: 800; color: #10b981;">
+
+                 <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Rata-rata Nilai</div>
+                    <div class="text-3xl font-black text-emerald-600">
                         {{ $stats['average_score'] ?: '-' }}
-                    </span>
+                    </div>
                 </div>
             </div>
-
-            @if($taskAssignment->description)
-                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                    <h4 style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Deskripsi</h4>
-                    <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-line;">{{ $taskAssignment->description }}</p>
-                </div>
-            @endif
-
-            <!-- Donut Chart -->
-            <div style="margin-top: 20px; height: 200px;">
+             <!-- Donut Chart Canvas -->
+            <div class="mt-6 h-48 relative">
                 <canvas id="statusChart"></canvas>
             </div>
         </div>
+
+        <!-- Description -->
+        <div class="card p-6 border border-slate-100 flex flex-col">
+             <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+                <i class="fas fa-align-left text-slate-400"></i> Deskripsi
+            </h3>
+            <div class="flex-1 overflow-y-auto max-h-[400px] prose prose-sm prose-slate max-w-none text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                 {!! nl2br(e($taskAssignment->description ?? 'Tidak ada deskripsi.')) !!}
+            </div>
+        </div>
     </div>
 
-    <!-- Students List by Status -->
-    <div class="card">
-        <div class="card-header border-0">
-            <h3 class="card-title"><i class="fas fa-user-graduate" style="color: #6366f1;"></i> Daftar Siswa</h3>
+    <!-- Students List -->
+    <div class="card p-0 overflow-hidden border border-slate-200">
+        <div class="p-6 border-b border-slate-100 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                 <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fas fa-user-graduate text-indigo-500"></i> Daftar Siswa
+                </h3>
+
+                <!-- Filter Tabs -->
+                <div class="flex flex-wrap gap-2 p-1 bg-slate-100 rounded-xl">
+                    <button class="status-tab active px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-white hover:shadow-sm" data-status="all">
+                        Semua <span class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-[10px]">{{ $stats['total'] }}</span>
+                    </button>
+                    <button class="status-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-white hover:shadow-sm" data-status="completed">
+                        Selesai <span class="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px]">{{ $stats['completed'] }}</span>
+                    </button>
+                    <button class="status-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-white hover:shadow-sm" data-status="submitted">
+                        Review <span class="ml-1 px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 text-[10px]">{{ $stats['submitted'] }}</span>
+                    </button>
+                    <button class="status-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-white hover:shadow-sm" data-status="in_progress">
+                        Proses <span class="ml-1 px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 text-[10px]">{{ $stats['in_progress'] }}</span>
+                    </button>
+                     <button class="status-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-white hover:shadow-sm" data-status="pending">
+                        Belum <span class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[10px]">{{ $stats['pending'] }}</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="status-tabs">
-            <button class="status-tab active" data-status="all">
-                <span>Semua</span>
-                <span class="tab-count">{{ $stats['total'] }}</span>
-            </button>
-            <button class="status-tab" data-status="completed">
-                <span>Selesai</span>
-                <span class="tab-count tab-green">{{ $stats['completed'] }}</span>
-            </button>
-            <button class="status-tab" data-status="submitted">
-                <span>Review</span>
-                <span class="tab-count tab-purple">{{ $stats['submitted'] }}</span>
-            </button>
-            <button class="status-tab" data-status="in_progress">
-                <span>Proses</span>
-                <span class="tab-count tab-blue">{{ $stats['in_progress'] }}</span>
-            </button>
-            <button class="status-tab" data-status="pending">
-                <span>Belum</span>
-                <span class="tab-count tab-gray">{{ $stats['pending'] }}</span>
-            </button>
+        <!-- Mobile View (Cards) -->
+        <div class="block sm:hidden space-y-4 p-4 bg-slate-50/50">
+             @foreach($taskAssignment->tasks->sortByDesc(function($task) {
+                $order = ['submitted' => 5, 'revision' => 4, 'in_progress' => 3, 'pending' => 2, 'completed' => 1];
+                return $order[$task->status] ?? 0;
+            }) as $task)
+                <div class="student-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden" data-status="{{ $task->status }}">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="user-avatar w-10 h-10 text-xs shrink-0">
+                                {{ strtoupper(substr($task->intern->user->name ?? 'N', 0, 1)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="font-bold text-slate-700 text-sm truncate">{{ $task->intern->user->name ?? 'N/A' }}</div>
+                                <div class="text-[11px] text-slate-400 truncate">{{ $task->intern->user->email ?? '' }}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                             <span class="badge badge-{{ $task->status_color }} text-[10px]">
+                                {{ $task->status_label }}
+                            </span>
+                            @if($task->is_late)
+                                <span class="text-[9px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">LATE</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Sekolah</span>
+                             <div class="text-xs font-bold text-slate-600 truncate">{{ $task->intern->school ?? '-' }}</div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Dikumpulkan</span>
+                             <div class="text-xs font-bold text-slate-600">
+                                 @if($task->submitted_at)
+                                    {{ $task->submitted_at->format('d/m H:i') }}
+                                @else
+                                    -
+                                @endif
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                         <div class="flex flex-col">
+                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Nilai</span>
+                             @if($task->score)
+                                @php
+                                    $scoreColor = $task->score >= 80 ? 'text-emerald-600' : ($task->score >= 60 ? 'text-amber-500' : 'text-rose-500');
+                                @endphp
+                                <span class="font-black {{ $scoreColor }} text-lg leading-none">{{ $task->score }}</span>
+                            @else
+                                <span class="text-slate-300 text-lg leading-none">-</span>
+                            @endif
+                         </div>
+
+                         <div class="flex items-center gap-2">
+                            <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-secondary" title="Lihat">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            @if($task->status === 'submitted')
+                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary" title="Review">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                            @endif
+                         </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
 
-        <!-- Students Table -->
-        <div class="table-responsive">
-            <table class="table" id="studentsTable">
-                <thead>
+        <!-- Desktop View (Table) -->
+        <div class="hidden sm:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50 border-b border-slate-100 text-xs text-slate-500 font-bold uppercase tracking-wider text-left">
                     <tr>
-                        <th>Siswa</th>
-                        <th>Sekolah</th>
-                        <th>Status</th>
-                        <th>Submitted</th>
-                        <th>Nilai</th>
-                        <th>Aksi</th>
+                        <th class="px-6 py-4">Siswa</th>
+                        <th class="px-6 py-4">Sekolah</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Submitted</th>
+                        <th class="px-6 py-4">Nilai</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     @foreach($taskAssignment->tasks->sortByDesc(function($task) {
                         $order = ['submitted' => 5, 'revision' => 4, 'in_progress' => 3, 'pending' => 2, 'completed' => 1];
                         return $order[$task->status] ?? 0;
                     }) as $task)
-                        <tr class="student-row" data-status="{{ $task->status }}">
-                            <td>
-                                <div class="d-flex align-center gap-3">
-                                    <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">
+                        <tr class="student-row hover:bg-slate-50/50 transition-colors" data-status="{{ $task->status }}">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                   <div class="user-avatar w-9 h-9 text-xs">
                                         {{ strtoupper(substr($task->intern->user->name ?? 'N', 0, 1)) }}
                                     </div>
                                     <div>
-                                        <strong>{{ $task->intern->user->name ?? 'N/A' }}</strong>
-                                        <div class="text-muted" style="font-size: 11px;">{{ $task->intern->user->email ?? '' }}</div>
+                                        <div class="font-bold text-slate-700 text-sm">{{ $task->intern->user->name ?? 'N/A' }}</div>
+                                        <div class="text-[11px] text-slate-400">{{ $task->intern->user->email ?? '' }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $task->intern->school ?? '-' }}</td>
-                            <td>
+                            <td class="px-6 py-4 text-sm text-slate-600">
+                                {{ $task->intern->school ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4">
                                 <span class="badge badge-{{ $task->status_color }}">
                                     {{ $task->status_label }}
                                 </span>
                                 @if($task->is_late)
-                                    <span class="badge badge-danger" style="font-size: 9px;">LATE</span>
+                                    <span class="badge badge-danger text-[9px] px-1.5 py-0.5 ml-1">LATE</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-6 py-4 text-sm text-slate-600">
                                 @if($task->submitted_at)
                                     {{ $task->submitted_at->format('d/m/Y H:i') }}
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="text-slate-300">-</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 @if($task->score)
-                                    <span style="font-weight: 700; color: {{ $task->score >= 80 ? '#10b981' : ($task->score >= 60 ? '#f59e0b' : '#ef4444') }};">
-                                        {{ $task->score }}
-                                    </span>
+                                    @php
+                                        $scoreColor = $task->score >= 80 ? 'text-emerald-600' : ($task->score >= 60 ? 'text-amber-500' : 'text-rose-500');
+                                    @endphp
+                                    <span class="font-black {{ $scoreColor }}">{{ $task->score }}</span>
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="text-slate-300">-</span>
                                 @endif
                             </td>
-                            <td>
-                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if($task->status === 'submitted')
-                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-check"></i> Review
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-secondary btn-icon" title="Lihat">
+                                        <i class="fas fa-eye"></i>
                                     </a>
-                                @endif
+                                    @if($task->status === 'submitted')
+                                        <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary" title="Review">
+                                            <i class="fas fa-check mr-1"></i> Review
+                                        </a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -264,219 +364,12 @@
     </div>
 </div>
 
-@push('styles')
-<style>
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-    }
-
-    .stat-card {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 20px;
-        border-radius: var(--radius-lg);
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-    }
-
-    .stat-card .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .stat-total .stat-icon { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
-    .stat-success .stat-icon { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-    .stat-warning .stat-icon { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
-    .stat-primary .stat-icon { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-
-    .stat-card .stat-value {
-        font-size: 28px;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .stat-card .stat-label {
-        font-size: 13px;
-        color: var(--text-muted);
-        margin-top: 4px;
-    }
-
-    .progress-circle-container {
-        display: flex;
-        justify-content: center;
-        padding: 20px 0;
-    }
-
-    .progress-circle {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: conic-gradient(
-            #10b981 calc(var(--progress) * 1%),
-            var(--bg-tertiary) calc(var(--progress) * 1%)
-        );
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-
-    .progress-circle::before {
-        content: '';
-        position: absolute;
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        background: var(--bg-secondary);
-    }
-
-    .progress-value {
-        position: relative;
-        font-size: 32px;
-        font-weight: 800;
-        color: #10b981;
-    }
-
-    .progress-text {
-        position: relative;
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-top: -4px;
-    }
-
-    .progress-breakdown {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        padding: 16px;
-        background: var(--bg-tertiary);
-        border-radius: 12px;
-    }
-
-    .breakdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .breakdown-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-    }
-
-    .breakdown-label {
-        flex: 1;
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-
-    .breakdown-value {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-
-    .detail-item {
-        padding: 12px 16px;
-        background: var(--bg-tertiary);
-        border-radius: 8px;
-    }
-
-    .detail-label {
-        display: block;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 4px;
-    }
-
-    .detail-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .status-tabs {
-        display: flex;
-        gap: 8px;
-        padding: 0 0 16px 0;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-
-    .status-tab {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        transition: all 0.2s;
-    }
-
-    .status-tab:hover {
-        border-color: var(--accent-primary);
-    }
-
-    .status-tab.active {
-        background: var(--accent-primary);
-        border-color: var(--accent-primary);
-        color: white;
-    }
-
-    .tab-count {
-        font-size: 11px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        background: rgba(0,0,0,0.1);
-    }
-
-    .status-tab.active .tab-count {
-        background: rgba(255,255,255,0.2);
-    }
-
-    .tab-green { color: #10b981; }
-    .tab-purple { color: #8b5cf6; }
-    .tab-blue { color: #3b82f6; }
-    .tab-gray { color: #6b7280; }
-
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-</style>
-@endpush
-
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Status Chart
-    new Chart(document.getElementById('statusChart').getContext('2d'), {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Selesai', 'Review', 'Proses', 'Revisi', 'Belum Mulai'],
@@ -490,7 +383,7 @@
                 ],
                 backgroundColor: ['#10b981', '#8b5cf6', '#3b82f6', '#f59e0b', '#9ca3af'],
                 borderWidth: 0,
-                hoverOffset: 4
+                hoverOffset: 10
             }]
         },
         options: {
@@ -501,27 +394,62 @@
                     position: 'bottom',
                     labels: {
                         color: '#64748b',
-                        font: { size: 11 },
-                        padding: 12,
+                        font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+                        padding: 15,
                         usePointStyle: true,
                         pointStyle: 'circle'
                     }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    padding: 12,
+                    displayColors: true,
+                    titleFont: { family: "'Plus Jakarta Sans', sans-serif" },
+                    bodyFont: { family: "'Plus Jakarta Sans', sans-serif" }
                 }
             },
-            cutout: '60%'
+            cutout: '75%',
+            layout: { padding: 10 }
         }
     });
 
-    // Tab Filtering
+    // Tab Filtering Logic
+    const tabs = document.querySelectorAll('.status-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active classes
+            tabs.forEach(t => {
+                t.classList.remove('bg-indigo-600', 'text-white', 'shadow-md'); 
+                t.classList.add('text-slate-600', 'hover:bg-white');
+                // Note: The specific styles in the HTML above use 'status-tab active' as a selector for custom CSS previously?
+                // Now we are using Tailwind classes. We need to manually toggle them.
+                
+                // Let's rely on a simpler approach: 
+                // Currently I used `active` class in HTML. Let's make sure our JS toggles a styling class instead of 'active'.
+                // Actually the above HTML uses `active` in classList. Let's stick to adding/removing a style class.
+            });
+            
+            // For simplicity in this replacement string, I will re-implement the JS to toggle specific Tailwind classes
+            // But wait, the previous code used custom css `.status-tab.active`.
+            // I should just use a simple class and let CSS handle it or fully JS.
+            // Let's reuse a simple `.active-tab-style` logic in JS.
+        });
+    });
+
+    // Re-implementing Tab Logic robustly for Tailwind
     document.querySelectorAll('.status-tab').forEach(tab => {
         tab.addEventListener('click', function() {
-            // Update active class
-            document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
+            // Reset all tabs
+            document.querySelectorAll('.status-tab').forEach(t => {
+                 t.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600', 'ring-1', 'ring-indigo-100');
+                 t.classList.add('text-slate-600', 'hover:bg-white');
+            });
+
+            // Activate current
+            this.classList.remove('text-slate-600', 'hover:bg-white');
+            this.classList.add('bg-white', 'shadow-sm', 'text-indigo-600', 'ring-1', 'ring-indigo-100');
 
             const status = this.dataset.status;
-
-            // Filter rows
             document.querySelectorAll('.student-row').forEach(row => {
                 if (status === 'all' || row.dataset.status === status) {
                     row.style.display = '';
@@ -531,6 +459,9 @@
             });
         });
     });
+    
+    // Set initial active state style manually for "All" tab or based on HTML "active" class
+    document.querySelector('.status-tab[data-status="all"]').click();
 </script>
 @endpush
 @endsection

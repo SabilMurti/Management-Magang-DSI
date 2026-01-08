@@ -189,6 +189,16 @@
             font-weight: bold;
             color: #b8860b;
             letter-spacing: 2px;
+            bottom: 45mm;
+            left: 25mm;
+            right: 25mm;
+        }
+
+        .sig-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
         }
 
         /* Signature Section - Using Table for DomPDF stability */
@@ -210,6 +220,10 @@
             font-size: 8px;
             color: #64748b;
             margin-bottom: 30px;
+        .sig-line {
+            border-bottom: 2px solid black;
+            width: 70mm;
+            margin: 10mm auto 2mm;
         }
 
         .signature-line {
@@ -307,6 +321,25 @@
         </div>
 
         <div class="footer">Diterbitkan: {{ now()->format('d/m/Y') }}</div>
+    <div class="footer">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                    <div class="sig-box" style="margin: 0 auto;">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">Manager DSI</div>
+                        <div class="sig-title">Pembimbing Lapangan</div>
+                    </div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                    <div class="sig-box" style="margin: 0 auto;">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">Kepala Direktur DSI</div>
+                        <div class="sig-title">Pimpinan Perusahaan</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 
