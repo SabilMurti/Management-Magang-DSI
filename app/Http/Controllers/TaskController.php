@@ -147,9 +147,20 @@ class TaskController extends Controller
     {
         $user = Auth::user();
 
-        // Check access
-        if ($user->isIntern() && $task->intern_id !== $user->intern?->id) {
-            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+        // Check access for intern
+        if ($user->isIntern()) {
+            // Load intern relationship if not loaded
+            $intern = $user->intern;
+
+            // If intern profile doesn't exist, deny access
+            if (!$intern) {
+                abort(403, 'Profil magang tidak ditemukan.');
+            }
+
+            // Check if task belongs to this intern
+            if ((int) $task->intern_id !== (int) $intern->id) {
+                abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+            }
         }
 
         $task->load(['intern.user', 'assignedBy', 'assessment', 'taskAssignment']);
@@ -266,8 +277,9 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Verify task belongs to intern
-        if ($task->intern_id !== $user->intern?->id) {
-            abort(403);
+        $intern = $user->intern;
+        if (!$intern || (int) $task->intern_id !== (int) $intern->id) {
+            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
         }
 
         // Validate based on submission type
@@ -394,8 +406,11 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Verify task belongs to intern
-        if ($user->isIntern() && $task->intern_id !== $user->intern?->id) {
-            abort(403);
+        if ($user->isIntern()) {
+            $intern = $user->intern;
+            if (!$intern || (int) $task->intern_id !== (int) $intern->id) {
+                abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+            }
         }
 
         $request->validate([
