@@ -42,76 +42,131 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Main Info Card -->
-            <div class="lg:col-span-2 card p-0 overflow-hidden">
-                <div class="p-6 sm:p-8 border-b border-slate-100">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
-                             <i class="fas fa-info-circle text-lg"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg">Informasi Tugas</h3>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Deskripsi</label>
-                            <div class="prose prose-sm prose-slate max-w-none text-slate-600 leading-relaxed">
-                                {{ $task->description ?? 'Tidak ada deskripsi.' }}
-                            </div>
+            <!-- Main Info Card -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="card p-0 overflow-hidden border border-indigo-100 shadow-indigo-100/50">
+                    <div class="p-6 sm:p-8 bg-white relative overflow-hidden">
+                         <div class="absolute top-0 right-0 p-4 opacity-5">
+                            <i class="fas fa-tasks text-9xl transform -rotate-12"></i>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Siswa</label>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-sm font-bold text-slate-600">
-                                        {{ strtoupper(substr($task->intern->user->name ?? 'N', 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <div class="font-bold text-slate-700 text-sm">{{ $task->intern->user->name ?? 'N/A' }}</div>
-                                        <div class="text-[11px] text-slate-400">{{ $task->intern->position ?? 'Intern' }}</div>
-                                    </div>
+                        <div class="relative z-10">
+                            <h3 class="font-bold text-slate-800 text-xl mb-6 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg shadow-sm">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                Informasi Detail
+                            </h3>
+
+                            <div class="mb-8">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Deskripsi Tugas</label>
+                                <div class="prose prose-sm prose-slate max-w-none text-slate-600 leading-relaxed bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                                    {!! nl2br(e($task->description ?? 'Tidak ada deskripsi.')) !!}
                                 </div>
                             </div>
 
-                             <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Tenggat Waktu</label>
-                                @if($task->deadline)
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center">
-                                            <i class="fas fa-calendar-alt"></i>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Assigned Intern (Already Updated) -->
+                                <div class="group relative bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-300">
+                                    <div class="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                        <i class="fas fa-user-graduate text-5xl text-indigo-600 transform -rotate-12"></i>
+                                    </div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3 group-hover:text-indigo-500 transition-colors">Ditugaskan Kepada</label>
+                                    @if($task->intern)
+                                        <a href="{{ route('interns.show', $task->intern) }}" class="flex items-center gap-4 relative z-10">
+                                            @if($task->intern->user->avatar)
+                                                <img src="{{ asset('storage/avatars/' . $task->intern->user->avatar) }}" 
+                                                    alt="{{ $task->intern->user->name }}" 
+                                                    class="w-12 h-12 rounded-full object-cover ring-2 ring-slate-100 group-hover:ring-indigo-100 transition-all">
+                                            @else
+                                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-600 flex items-center justify-center text-sm font-bold ring-2 ring-slate-100 group-hover:ring-indigo-100 transition-all">
+                                                    {{ strtoupper(substr($task->intern->user->name ?? 'N', 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-bold text-slate-700 text-sm group-hover:text-indigo-700 transition-colors truncate">{{ $task->intern->user->name }}</div>
+                                                <div class="text-[11px] text-slate-500 truncate">{{ $task->intern->department ?? 'Magang' }}</div>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-all">
+                                                <i class="fas fa-chevron-right text-xs"></i>
+                                            </div>
+                                        </a>
+                                    @else
+                                        <div class="flex items-center gap-3 opacity-50">
+                                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                                <i class="fas fa-user-slash"></i>
+                                            </div>
+                                            <div class="text-sm font-medium text-slate-500">Belum ada siswa</div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Deadline Card -->
+                                <div class="p-4 rounded-2xl border border-slate-200 bg-white relative overflow-hidden group hover:border-rose-200 transition-colors">
+                                    <div class="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                        <i class="fas fa-calendar-alt text-5xl text-rose-500 transform -rotate-12"></i>
+                                    </div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Tenggat Waktu</label>
+                                    @if($task->deadline)
+                                        <div class="flex items-center gap-4 relative z-10">
+                                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                                <i class="far fa-calendar-check text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <strong class="text-slate-700 text-sm block">{{ $task->deadline->format('d M Y') }}</strong>
+                                                @if($task->deadline_time)
+                                                    <span class="text-xs text-rose-500 font-bold bg-rose-50 px-2 py-0.5 rounded-md mt-1 inline-block">{{ $task->deadline_time }} WIB</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center gap-3 opacity-50">
+                                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                                <i class="fas fa-infinity"></i>
+                                            </div>
+                                            <span class="text-slate-400 text-sm">Tidak ada deadline</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                <!-- Est. Time Card -->
+                                <div class="p-4 rounded-2xl border border-slate-200 bg-white group hover:border-violet-200 transition-colors">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Estimasi Pengerjaan</label>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
+                                            <i class="fas fa-stopwatch text-xl"></i>
                                         </div>
                                         <div>
-                                            <strong class="text-slate-700 text-sm block">{{ $task->deadline->format('d M Y') }}</strong>
-                                            @if($task->deadline_time)
-                                                <span class="text-xs text-rose-500 font-medium">{{ $task->deadline_time }} WIB</span>
-                                            @endif
+                                            <div class="font-bold text-slate-700 text-base">{{ $task->estimated_hours ?? '-' }}</div>
+                                            <div class="text-xs text-slate-400">Jam Kerja</div>
                                         </div>
                                     </div>
-                                @else
-                                    <span class="text-slate-400 text-sm">Tidak ada deadline</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Estimasi Waktu</label>
-                                <div class="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                    <i class="fas fa-hourglass-start text-violet-500"></i>
-                                    {{ $task->estimated_hours ?? '-' }} Jam
                                 </div>
-                            </div>
 
-                             <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Metode Pengumpulan</label>
-                                <div class="font-bold text-sm text-slate-700">
-                                    @if($task->submission_type === 'github')
-                                        <div class="flex items-center gap-2"><i class="fab fa-github"></i> Link GitHub</div>
-                                    @elseif($task->submission_type === 'file')
-                                        <div class="flex items-center gap-2"><i class="fas fa-folder"></i> Upload File</div>
-                                    @else
-                                        <div class="flex items-center gap-2"><i class="fas fa-layer-group"></i> GitHub / File</div>
-                                    @endif
+                                <!-- Submission Type Card -->
+                                <div class="p-4 rounded-2xl border border-slate-200 bg-white group hover:border-sky-200 transition-colors">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Metode Pengumpulan</label>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center shrink-0">
+                                            @if($task->submission_type === 'github') <i class="fab fa-github text-xl"></i>
+                                            @elseif($task->submission_type === 'file') <i class="fas fa-file-upload text-xl"></i>
+                                            @else <i class="fas fa-layer-group text-xl"></i>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-slate-700 text-sm">
+                                                @if($task->submission_type === 'github') Link Repository
+                                                @elseif($task->submission_type === 'file') Upload File
+                                                @else Fleksibel
+                                                @endif
+                                            </div>
+                                            <div class="text-xs text-slate-400">
+                                                @if($task->submission_type === 'both') Github / File @else Wajib @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

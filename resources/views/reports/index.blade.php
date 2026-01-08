@@ -67,7 +67,64 @@
                     </a>
                 </div>
             @else
-                <div class="table-container">
+                <!-- Mobile/Tablet View (Cards) -->
+                <div class="block lg:hidden space-y-4">
+                    @foreach($reports as $report)
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="flex items-start justify-between gap-4 mb-4">
+                                <div class="flex items-center gap-3">
+                                     <div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="font-bold text-slate-800 text-sm truncate">{{ Str::limit($report->title, 25) }}</h4>
+                                        <div class="text-[11px] text-slate-400 truncate">Oleh: {{ $report->createdBy->name }}</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-{{ $report->status_color }} text-[10px]">
+                                    {{ $report->status_label }}
+                                </span>
+                            </div>
+
+                            <div class="space-y-3 mb-4">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-medium">Siswa</span>
+                                    <span class="font-bold text-slate-700">{{ $report->intern->user->name ?? 'N/A' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-medium">Tipe</span>
+                                    <span class="badge badge-primary px-2 py-0.5 text-[10px]">{{ $report->type_label }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-medium">Periode</span>
+                                    <span class="font-bold text-slate-700">
+                                        {{ $report->period_start->format('d M') }} - {{ $report->period_end->format('d M Y') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                                <a href="{{ route('reports.show', $report) }}" class="btn btn-sm btn-info" title="Detail">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </a>
+                                <a href="{{ route('reports.edit', $report) }}" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="fas fa-edit text-xs"></i>
+                                </a>
+                                <form action="{{ route('reports.destroy', $report) }}" method="POST"
+                                    onsubmit="return confirm('Yakin ingin menghapus laporan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Desktop/Laptop View (Table) -->
+                <div class="hidden lg:block table-container">
                     <table>
                         <thead>
                             <tr>
