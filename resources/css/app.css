@@ -53,16 +53,20 @@
    ======================================== */
 @layer components {
     .app-container {
-        @apply flex min-h-screen;
+        @apply min-h-screen relative bg-slate-50;
     }
 
     /* Sidebar - Acrylic Glass */
     .sidebar {
-        @apply w-56 fixed h-screen overflow-y-auto z-50 transition-transform duration-300 p-4;
+        @apply w-64 lg:w-56 fixed left-0 top-0 h-screen overflow-y-auto z-50 transition-transform duration-300 p-4 -translate-x-full lg:translate-x-0;
         background: var(--glass-bg-solid);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         box-shadow: 4px 0 24px -4px rgba(0, 0, 0, 0.04);
+    }
+
+    .sidebar.active {
+        @apply translate-x-0;
     }
 
     .sidebar-brand {
@@ -135,7 +139,7 @@
 
     /* Sidebar Close Button */
     .sidebar-close {
-        @apply absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100/80 text-slate-500 transition-all duration-200 cursor-pointer border-0;
+        @apply absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100/80 text-slate-500 transition-all duration-200 cursor-pointer border-0 z-[60] lg:hidden;
     }
 
     .sidebar-close:hover {
@@ -149,12 +153,13 @@
 
     /* Main Content */
     .main-content {
-        @apply flex-1 ml-56 min-h-screen;
+        @apply flex-1 ml-0 lg:ml-56 min-h-screen transition-[margin] duration-300;
+        max-width: 100vw;
     }
 
     /* Header - Floating Acrylic */
     .header {
-        @apply px-6 py-3 sticky top-0 z-40 flex justify-between items-center gap-2 mx-4 mt-4 rounded-2xl;
+        @apply px-4 sm:px-6 py-3 sticky top-0 z-40 flex justify-between items-center gap-2 mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-xl sm:rounded-2xl;
         background: var(--glass-bg);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -238,7 +243,7 @@
 
     /* Content */
     .content {
-        @apply p-6 pb-16 max-w-[1400px] mx-auto;
+        @apply p-4 sm:p-6 pb-16 max-w-[1400px] mx-auto;
     }
 }
 
@@ -248,7 +253,7 @@
 @layer components {
     /* Cards - Glass Morphism */
     .card {
-        @apply rounded-2xl p-5 transition-all duration-300;
+        @apply rounded-xl sm:rounded-2xl p-4 sm:p-5 transition-all duration-300;
         background: var(--glass-bg-solid);
         backdrop-filter: blur(16px);
         box-shadow: var(--shadow-soft);
@@ -259,7 +264,7 @@
     }
 
     .card-header {
-        @apply flex justify-between items-center mb-4 pb-3;
+        @apply flex justify-between items-center mb-4 pb-3 flex-wrap gap-2;
         border-bottom: 1px solid rgba(148, 163, 184, 0.1);
     }
 
@@ -269,12 +274,11 @@
 
     /* Stat Cards - Sweet Acrylic */
     .stat-grid {
-        @apply grid gap-4 mb-6;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        @apply grid gap-4 mb-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
     }
 
     .stat-card {
-        @apply rounded-2xl p-5 relative overflow-hidden transition-all duration-300;
+        @apply rounded-xl sm:rounded-2xl p-5 relative overflow-hidden transition-all duration-300;
         background: var(--glass-bg-solid);
         backdrop-filter: blur(16px);
         box-shadow: var(--shadow-soft);
@@ -326,7 +330,7 @@
 
     /* Buttons - Smooth & Modern */
     .btn {
-        @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-sans text-xs font-semibold cursor-pointer transition-all duration-200 no-underline;
+        @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-sans text-xs font-semibold cursor-pointer transition-all duration-200 no-underline whitespace-nowrap;
     }
 
     .btn-primary {
@@ -387,11 +391,11 @@
 
     /* Tables - Clean & Spacious */
     .table-container {
-        @apply overflow-x-auto rounded-xl;
+        @apply overflow-x-auto rounded-xl max-w-full;
     }
 
     table {
-        @apply w-full;
+        @apply w-full whitespace-nowrap;
     }
 
     th,
@@ -570,6 +574,51 @@
         @apply w-4 h-4 rounded cursor-pointer;
         accent-color: #a78bfa;
     }
+
+    /* Bootstrap-like Grid System (Custom Responsive Components) */
+    .row {
+        @apply flex flex-wrap -mx-2 sm:-mx-3;
+    }
+    
+    .col {
+        @apply flex-1 px-2 sm:px-3 max-w-full;
+    }
+
+    .col-auto {
+        @apply w-auto px-2 sm:px-3;
+    }
+
+    .col-12 { @apply w-full px-2 sm:px-3; }
+    .col-6 { @apply w-1/2 px-2 sm:px-3; }
+    .col-4 { @apply w-1/3 px-2 sm:px-3; }
+    .col-3 { @apply w-1/4 px-2 sm:px-3; }
+
+    /* Small devices (tablets, 640px and up) */
+    @media (min-width: 640px) {
+        .col-sm-12 { @apply w-full; }
+        .col-sm-6 { @apply w-1/2; }
+        .col-sm-4 { @apply w-1/3; }
+        .col-sm-3 { @apply w-1/4; }
+    }
+
+    /* Medium devices (desktops, 768px and up) */
+    @media (min-width: 768px) {
+        .col-md-12 { @apply w-full; }
+        .col-md-6 { @apply w-1/2; }
+        .col-md-4 { @apply w-1/3; }
+        .col-md-3 { @apply w-1/4; }
+        .col-md-8 { @apply w-2/3; }
+        .col-md-9 { @apply w-3/4; }
+    }
+
+    /* Large devices (large desktops, 1024px and up) */
+    @media (min-width: 1024px) {
+        .col-lg-12 { @apply w-full; }
+        .col-lg-6 { @apply w-1/2; }
+        .col-lg-4 { @apply w-1/3; }
+        .col-lg-3 { @apply w-1/4; }
+        .col-lg-2 { @apply w-1/6; }
+    }
 }
 
 /* ========================================
@@ -659,10 +708,14 @@
     }
 
     .grid-2 {
-        @apply grid grid-cols-2 gap-5;
+        @apply grid grid-cols-1 sm:grid-cols-2 gap-5;
     }
     .grid-3 {
-        @apply grid grid-cols-3 gap-5;
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5;
+    }
+    
+    .w-full-mobile {
+        @apply w-full;
     }
 }
 
@@ -725,5 +778,12 @@
    MENU TOGGLE
    ======================================== */
 .menu-toggle {
-    @apply hidden bg-transparent text-slate-600 text-lg cursor-pointer p-2 rounded-xl transition-colors hover:bg-slate-100;
+    @apply lg:hidden bg-transparent text-slate-600 text-lg cursor-pointer p-2 rounded-xl transition-colors hover:bg-slate-100 border-none mx-2;
+}
+
+/* Safe area for mobile */
+@media (max-width: 640px) {
+    .content {
+        padding-bottom: 80px;
+    }
 }

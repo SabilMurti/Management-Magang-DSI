@@ -95,7 +95,8 @@
                 </a>
             </div>
         @else
-            <div class="table-container">
+            <!-- Desktop Table View -->
+            <div class="hidden sm:block table-container">
                 <table>
                     <thead>
                         <tr>
@@ -113,7 +114,7 @@
                     </thead>
                     <tbody>
                         @foreach($interns as $intern)
-                            <tr wire:key="intern-{{ $intern->id }}" class="{{ in_array((string) $intern->id, $selectedInterns) ? 'selected-row' : '' }}">
+                            <tr wire:key="intern-d-{{ $intern->id }}" class="{{ in_array((string) $intern->id, $selectedInterns) ? 'selected-row' : '' }}">
                                 <td>
                                     <input type="checkbox" wire:model.live="selectedInterns" value="{{ $intern->id }}" class="form-checkbox">
                                 </td>
@@ -175,6 +176,77 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="block sm:hidden p-4 space-y-4 bg-slate-50/50">
+                 @foreach($interns as $intern)
+                    <div wire:key="intern-m-{{ $intern->id }}" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+                        <!-- Status Strip -->
+                        <div class="absolute top-0 left-0 w-1 h-full
+                            @if($intern->status === 'active') bg-emerald-500
+                            @elseif($intern->status === 'completed') bg-violet-500
+                            @else bg-rose-500 @endif">
+                        </div>
+
+                        <div class="p-4 pl-5">
+                            <!-- Header -->
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-3">
+                                    @if($intern->user->avatar)
+                                        <img src="{{ asset('storage/avatars/' . $intern->user->avatar) }}" alt="{{ $intern->user->name }}" class="w-10 h-10 rounded-full object-cover">
+                                    @else
+                                        <div class="user-avatar w-10 h-10 text-sm">
+                                            {{ strtoupper(substr($intern->user->name ?? 'N', 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <h4 class="font-bold text-slate-800 text-sm">{{ $intern->user->name }}</h4>
+                                        <p class="text-xs text-slate-400">{{ $intern->user->email }}</p>
+                                    </div>
+                                </div>
+                                @if($intern->status === 'active')
+                                    <span class="badge badge-success">Aktif</span>
+                                @elseif($intern->status === 'completed')
+                                    <span class="badge badge-primary">Selesai</span>
+                                @else
+                                    <span class="badge badge-danger">Batal</span>
+                                @endif
+                            </div>
+
+                            <!-- Details -->
+                            <div class="space-y-2 mb-4 text-xs">
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <i class="fas fa-school w-4 text-center text-slate-400"></i>
+                                    <span class="font-medium truncate">{{ $intern->school }}</span>
+                                    <span class="text-slate-300">|</span>
+                                    <span class="truncate">{{ $intern->department }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <i class="fas fa-chalkboard-teacher w-4 text-center text-slate-400"></i>
+                                    <span>{{ $intern->supervisor->name ?? 'Belum ada pembimbing' }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <i class="fas fa-calendar-alt w-4 text-center text-slate-400"></i>
+                                    <span>{{ $intern->start_date->format('d M') }} - {{ $intern->end_date->format('d M Y') }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex gap-2 pt-3 border-t border-slate-100">
+                                <a href="{{ route('interns.show', $intern) }}" class="flex-1 btn btn-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100">
+                                    <i class="fas fa-eye mr-1"></i> Detail
+                                </a>
+                                <a href="{{ route('interns.edit', $intern) }}" class="flex-1 btn btn-sm bg-amber-50 text-amber-600 hover:bg-amber-100">
+                                    <i class="fas fa-edit mr-1"></i> Edit
+                                </a>
+                                <button wire:click="deleteIntern({{ $intern->id }})" wire:confirm="Yakin ingin menghapus?" class="btn btn-sm bg-rose-50 text-rose-600 hover:bg-rose-100 w-8">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                 @endforeach
             </div>
 
             <div class="pagination">

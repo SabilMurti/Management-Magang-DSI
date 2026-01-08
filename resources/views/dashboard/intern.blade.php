@@ -12,10 +12,10 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h2 class="text-3xl font-bold text-slate-800 tracking-tight mb-1">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight mb-1">
                     Dashboard {{ auth()->user()->name }}
                 </h2>
-                <p class="text-slate-500 font-medium">Selamat datang kembali! Berikut ringkasan aktivitas magang Anda.</p>
+                <p class="text-slate-500 font-medium text-sm sm:text-base">Selamat datang kembali! Berikut ringkasan aktivitas magang Anda.</p>
             </div>
             <div class="text-right hidden sm:block">
                 <div class="text-sm font-semibold text-slate-600">{{ now()->isoFormat('dddd, D MMMM Y') }}</div>
@@ -28,7 +28,7 @@
 
                 <!-- ATTENDANCE CARD -->
                 <div class="card p-0 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div class="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
                             <i class="fas fa-map-marked-alt text-indigo-500"></i> Presensi Harian
                         </h3>
@@ -38,9 +38,9 @@
                         </div>
                     </div>
 
-                    <div class="p-6 space-y-4">
+                    <div class="p-4 sm:p-6 space-y-4">
                         <div
-                            class="relative h-[300px] w-full rounded-xl overflow-hidden border border-slate-200 shadow-inner">
+                            class="relative h-[220px] sm:h-[300px] w-full rounded-xl overflow-hidden border border-slate-200 shadow-inner">
                             <div id="map" class="h-full w-full z-0"></div>
                         </div>
 
@@ -106,7 +106,7 @@
 
                 <!-- TASKS CARD -->
                 <div class="card p-0 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div class="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
                             <i class="fas fa-clipboard-list text-teal-500"></i> Tugas Saya
                         </h3>
@@ -116,28 +116,28 @@
                         </a>
                     </div>
 
-                    <div class="p-6 space-y-6">
+                    <div class="p-4 sm:p-6 space-y-6">
                         <!-- Task Progress Stats -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                             <div
-                                class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                class="bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-100 text-center hover:bg-white hover:shadow-md transition-all">
                                 <div class="text-2xl font-black text-slate-700">{{ $totalTasks }}</div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total</div>
                             </div>
                             <div
-                                class="bg-amber-50 p-4 rounded-xl border border-amber-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                class="bg-amber-50 p-3 sm:p-4 rounded-xl border border-amber-100 text-center hover:bg-white hover:shadow-md transition-all">
                                 <div class="text-2xl font-black text-amber-600">{{ $pendingTasks }}</div>
                                 <div class="text-[10px] font-bold text-amber-600/70 uppercase tracking-wider mt-1">Pending
                                 </div>
                             </div>
                             <div
-                                class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                class="bg-indigo-50 p-3 sm:p-4 rounded-xl border border-indigo-100 text-center hover:bg-white hover:shadow-md transition-all">
                                 <div class="text-2xl font-black text-indigo-600">{{ $taskStats['in_progress'] ?? 0 }}</div>
                                 <div class="text-[10px] font-bold text-indigo-600/70 uppercase tracking-wider mt-1">Proses
                                 </div>
                             </div>
                             <div
-                                class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center hover:bg-white hover:shadow-md transition-all">
+                                class="bg-emerald-50 p-3 sm:p-4 rounded-xl border border-emerald-100 text-center hover:bg-white hover:shadow-md transition-all">
                                 <div class="text-2xl font-black text-emerald-600">{{ $completedTasks }}</div>
                                 <div class="text-[10px] font-bold text-emerald-600/70 uppercase tracking-wider mt-1">Selesai
                                 </div>
@@ -200,7 +200,7 @@
                                                 @endif
                                             </div>
                                             <h4
-                                                class="font-bold text-slate-800 text-sm truncate group-hover:text-indigo-600 transition-colors">
+                                                class="font-bold text-slate-800 text-sm line-clamp-2 md:truncate group-hover:text-indigo-600 transition-colors">
                                                 {{ $task->title }}
                                             </h4>
                                             <div class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1.5">
@@ -317,7 +317,7 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div
-                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full z-50">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="text-center mb-6">
                         <h3 class="text-lg leading-6 font-bold text-slate-900" id="modal-title">Form Izin</h3>
@@ -531,7 +531,7 @@
             // --- MODALS ---
             function openModal(id) {
                 document.getElementById(id).classList.remove('hidden');
-                document.getElementById(id).classList.add('flex'); // Add flex to center content if using flex utility
+                // document.getElementById(id).classList.add('flex'); // Check: Removed valid flex toggle to rely on block layout for this specific modal pattern
 
                 // If opening permission modal, try to get GPS
                 if (id === 'permissionModal') {
@@ -549,7 +549,7 @@
             }
             function closeModal(id) {
                 document.getElementById(id).classList.add('hidden');
-                document.getElementById(id).classList.remove('flex');
+                // document.getElementById(id).classList.remove('flex');
             }
 
             // Late Reason Submit

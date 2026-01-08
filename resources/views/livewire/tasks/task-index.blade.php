@@ -113,7 +113,8 @@
                 @endif
             </div>
         @else
-            <div class="table-container">
+            <!-- Desktop Table View -->
+            <div class="hidden sm:block table-container">
                 <table>
                     <thead>
                         <tr>
@@ -144,7 +145,7 @@
                                     $rowStyle = 'background: rgba(14,165,233,0.08); border-left: 3px solid #0ea5e9;';
                                 }
                             @endphp
-                            <tr wire:key="task-{{ $task->id }}" style="{{ $rowStyle }}">
+                            <tr wire:key="task-d-{{ $task->id }}" style="{{ $rowStyle }}">
                                 @if(auth()->user()->canManage())
                                     <td>
                                         <input type="checkbox" wire:model.live="selectedTasks" value="{{ $task->id }}"
@@ -230,6 +231,99 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="block sm:hidden p-4 space-y-4 bg-slate-50/50">
+                @foreach($tasks as $task)
+                    <div wire:key="task-m-{{ $task->id }}"
+                        class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+                        <!-- Status Strip -->
+                        <div
+                            class="absolute top-0 left-0 w-1 h-full
+                        @if($task->status === 'completed') bg-emerald-500
+                        @elseif($task->status === 'submitted') bg-sky-500
+                        @elseif($task->status === 'revision') bg-amber-500
+                        @elseif($task->status === 'in_progress') bg-indigo-500
+                        @else bg-slate-300 @endif
+                    ">
+                        </div>
+
+                        <div class="p-4 pl-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex-1 mr-2">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="badge badge-{{ $task->priority_color }} text-[10px] px-1.5 py-0.5">
+                                            {{ ucfirst($task->priority) }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 flex items-center gap-1">
+                                            @if($task->submission_type === 'github') <i class="fab fa-github"></i>
+                                            @elseif($task->submission_type === 'file') <i class="fas fa-folder"></i>
+                                            @else <i class="fas fa-layer-group"></i> @endif
+                                            {{ ucfirst($task->submission_type) }}
+                                        </span>
+                                        @if($task->isOverdue())
+                                            <span class="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">
+                                                <i class="fas fa-exclamation-circle"></i> Late
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm line-clamp-1">{{ $task->title }}</h4>
+                                </div>
+                                <span class="badge badge-{{ $task->status_color }} text-[10px] whitespace-nowrap">
+                                    {{ $task->status_label }}
+                                </span>
+                            </div>
+
+                            @if(auth()->user()->canManage() && $task->intern)
+                                <div class="flex items-center gap-2 mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <div class="user-avatar w-6 h-6 text-[10px]">
+                                        {{ strtoupper(substr($task->intern->user->name ?? 'N', 0, 1)) }}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-semibold text-slate-700">{{ $task->intern->user->name }}</span>
+                                        <span class="text-[10px] text-slate-400">Assigned Intern</span>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-4 pt-2 border-t border-slate-100 border-dashed">
+                                <div class="flex items-center gap-1.5">
+                                    <i class="far fa-calendar-alt text-slate-400"></i>
+                                    @if($task->deadline)
+                                        <span class="{{ $task->isOverdue() ? 'text-rose-500 font-bold' : '' }}">
+                                            {{ $task->deadline->format('d M') }}
+                                            @if($task->deadline_time) {{ $task->deadline_time }} @endif
+                                        </span>
+                                    @else
+                                        <span>No deadline</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="far fa-clock text-slate-400"></i>
+                                    <span>{{ $task->created_at->diffForHumans() }}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid {{ auth()->user()->canManage() ? 'grid-cols-3' : 'grid-cols-1' }} gap-2">
+                                <a href="{{ route('tasks.show', $task) }}"
+                                    class="btn btn-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border-0 justify-center">
+                                    <i class="fas fa-eye mr-1"></i> Detail
+                                </a>
+                                @if(auth()->user()->canManage())
+                                    <a href="{{ route('tasks.edit', $task) }}"
+                                        class="btn btn-sm bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 justify-center">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </a>
+                                    <button wire:click="deleteTask({{ $task->id }})" wire:confirm="Yakin?"
+                                        class="btn btn-sm bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 justify-center">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="pagination">

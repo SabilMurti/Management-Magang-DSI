@@ -37,7 +37,79 @@
                 </a>
             </div>
         @else
-            <div class="table-container">
+            <!-- Mobile/Tablet View (Cards) -->
+            <div class="block lg:hidden space-y-4 p-4 bg-slate-50/50">
+                @foreach($assessments as $assessment)
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <!-- Intern Info -->
+                             @if($assessment->intern)
+                                <div class="flex items-center gap-3">
+                                    <div class="user-avatar w-12 h-12 text-sm shrink-0 ring-2 ring-white shadow-sm">
+                                        {{ strtoupper(substr($assessment->intern->user->name ?? 'N', 0, 1)) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-800 text-sm truncate">{{ $assessment->intern->user->name ?? 'N/A' }}</div>
+                                        <div class="text-[11px] text-slate-400 truncate">{{ $assessment->intern->user->email ?? '' }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="badge badge-secondary">Siswa Dihapus</span>
+                            @endif
+
+                             <!-- Grade Badge -->
+                             <div class="flex flex-col items-end">
+                                <span class="badge badge-{{ $assessment->grade_color }} text-lg font-black px-3 py-1 shadow-sm">
+                                    {{ $assessment->grade }}
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Grade</span>
+                             </div>
+                        </div>
+
+                         <!-- Task Info -->
+                        <div class="mb-4 pb-4 border-b border-slate-100">
+                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tugas / Penilaian</span>
+                             <div class="font-bold text-slate-700 text-sm leading-snug">
+                                {{ $assessment->task->title ?? 'Penilaian Umum' }}
+                             </div>
+                        </div>
+
+                        <!-- Scores Grid -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rata-rata</span>
+                                <div class="text-2xl font-black text-slate-800">{{ $assessment->average_score }}</div>
+                            </div>
+                             <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col justify-center gap-2">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-500 font-medium">Kualitas</span>
+                                    <span class="font-bold text-slate-700">{{ $assessment->quality_score }}</span>
+                                </div>
+                                 <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-500 font-medium">Kecepatan</span>
+                                    <span class="font-bold text-slate-700">{{ $assessment->speed_score }}</span>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex justify-end gap-2">
+                            <a href="{{ route('assessments.show', $assessment) }}" class="btn btn-sm btn-info w-full justify-center lg:w-auto" title="Detail">
+                                <i class="fas fa-eye mr-1"></i> Detail
+                            </a>
+                            <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-sm btn-warning w-full justify-center lg:w-auto" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button wire:click="deleteAssessment({{ $assessment->id }})" wire:confirm="Yakin?" class="btn btn-sm btn-danger w-full justify-center lg:w-auto" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Desktop View (Table) -->
+            <div class="hidden lg:block table-container">
                 <table>
                     <thead>
                         <tr>
