@@ -141,7 +141,46 @@
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
+                <!-- Mobile View (Cards) -->
+                <div class="block sm:hidden divide-y divide-sky-100">
+                    @foreach($submittedTasks as $task)
+                        <div class="p-4 bg-white/40 hover:bg-white/60 transition-colors">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">{{ $task->title }}</h4>
+                                    @if($task->is_late)
+                                        <span
+                                            class="inline-block px-2 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-lg">
+                                            Terlambat
+                                        </span>
+                                    @endif
+                                </div>
+                                <span class="text-[10px] text-sky-600 font-semibold whitespace-nowrap bg-sky-100 px-2 py-1 rounded-full">
+                                    {{ $task->submitted_at->diffForHumans() }}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center gap-2 mb-4">
+                                <div
+                                    class="w-7 h-7 bg-sky-200 text-sky-700 rounded-full flex items-center justify-center text-[10px] font-bold shadow-sm">
+                                    {{ substr($task->intern->user->name, 0, 1) }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-semibold text-slate-700">{{ $task->intern->user->name }}</span>
+                                    <span class="text-[10px] text-slate-400">Siswa Magang</span>
+                                </div>
+                            </div>
+
+                            <a href="{{ route('tasks.show', $task) }}"
+                                class="flex items-center justify-center w-full px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-sky-500/20 active:scale-95">
+                                <i class="fas fa-feather-alt mr-2"></i> Review & Nilai
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Desktop View (Table) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full">
                         <thead>
                             <tr class="border-b border-sky-100">

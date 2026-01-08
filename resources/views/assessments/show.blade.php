@@ -3,139 +3,187 @@
 @section('title', 'Detail Penilaian')
 
 @section('content')
-<div class="slide-up">
-    <div class="d-flex align-center gap-4 mb-6">
-        <a href="{{ route('assessments.index') }}" class="btn btn-secondary btn-icon">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div style="flex: 1;">
-            <h2 style="margin-bottom: 4px;">Penilaian - {{ $assessment->intern->user->name }}</h2>
-            <p class="text-muted">{{ $assessment->task->title ?? 'Penilaian Umum' }} | {{ $assessment->created_at->format('d M Y') }}</p>
+<div class="slide-up max-w-[1200px] mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{{ route('assessments.index') }}" class="btn btn-secondary btn-icon">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-1">
+                    Penilaian - {{ $assessment->intern->user->name }}
+                </h2>
+                <div class="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                    <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
+                        {{ $assessment->task->title ?? 'Penilaian Umum' }}
+                    </span>
+                    <span>|</span>
+                    <i class="far fa-calendar-alt"></i> {{ $assessment->created_at->format('d M Y') }}
+                </div>
+            </div>
         </div>
-        <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-warning">
-            <i class="fas fa-edit"></i> Edit
+        <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-warning shadow-sm self-end sm:self-auto">
+            <i class="fas fa-edit mr-2"></i> Edit Penilaian
         </a>
     </div>
 
-    <div class="grid-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Score Card -->
-        <div class="card text-center">
-            <div style="font-size: 72px; font-weight: 800; margin-bottom: 8px;">
-                <span class="badge badge-{{ $assessment->grade_color }}" style="font-size: 64px; padding: 24px 48px;">
-                    {{ $assessment->grade }}
-                </span>
-            </div>
-            <div style="font-size: 32px; font-weight: 700; color: var(--accent-primary);">{{ $assessment->average_score }}</div>
-            <div class="text-muted">Skor Rata-rata</div>
-            
-            <div style="margin-top: 24px; text-align: left;">
-                <div class="text-muted" style="font-size: 12px; margin-bottom: 8px;">Dinilai oleh</div>
-                <div class="d-flex align-center gap-2">
-                    <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">
-                        {{ strtoupper(substr($assessment->assessedBy->name ?? 'N', 0, 1)) }}
+        <div class="card p-0 overflow-hidden lg:col-span-1 border border-indigo-100 shadow-indigo-100/50">
+            <div class="bg-gradient-to-br from-indigo-600 to-violet-600 p-8 text-center text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-award text-9xl transform rotate-12"></i>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="text-sm font-bold uppercase tracking-widest text-indigo-200 mb-4">Total Nilai</div>
+                    <div class="inline-block relative">
+                         @php
+                            $gradeColor = match($assessment->grade) {
+                                'A' => 'text-emerald-400',
+                                'B' => 'text-sky-400',
+                                'C' => 'text-amber-400',
+                                default => 'text-rose-400'
+                            };
+                        @endphp
+                        <span class="text-8xl font-black {{ $gradeColor }} drop-shadow-md">
+                            {{ $assessment->grade }}
+                        </span>
                     </div>
-                    <strong>{{ $assessment->assessedBy->name }}</strong>
+                    <div class="text-4xl font-bold mt-2">{{ $assessment->average_score }}<span class="text-xl text-indigo-300">/100</span></div>
+                    <div class="mt-8 pt-6 border-t border-indigo-500/30 flex items-center justify-center gap-3">
+                        <div class="text-indigo-200 text-xs uppercase font-bold tracking-wider">Dinilai Oleh</div>
+                        <div class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                             <div class="w-6 h-6 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold">
+                                {{ strtoupper(substr($assessment->assessedBy->name ?? 'N', 0, 1)) }}
+                            </div>
+                            <span class="font-bold text-sm">{{ $assessment->assessedBy->name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Radar Chart Container -->
+            <div class="p-6 bg-white min-h-[300px] flex flex-col">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Analisis Radar</h3>
+                <div class="relative flex-1">
+                    <canvas id="radarChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Radar Chart -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-chart-radar"></i> Radar Penilaian</h3>
-            </div>
-            <div class="chart-container" style="height: 280px;">
-                <canvas id="radarChart"></canvas>
-            </div>
-        </div>
-    </div>
+        <!-- Detail Skills -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Skill Progress Bars -->
+            <div class="card p-6 border border-slate-100">
+                <h3 class="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
+                    <i class="fas fa-chart-bar text-indigo-500"></i> Detail Kompetensi
+                </h3>
+                
+                <div class="space-y-6">
+                    <!-- Item -->
+                    <div class="group">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-700">Kualitas Kerja</span>
+                            <span class="font-bold text-slate-800">{{ $assessment->quality_score }}<span class="text-slate-400 text-sm">/100</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%" data-width="{{ $assessment->quality_score }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="group">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-700">Kecepatan</span>
+                            <span class="font-bold text-slate-800">{{ $assessment->speed_score }}<span class="text-slate-400 text-sm">/100</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                             <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out delay-100" style="width: 0%" data-width="{{ $assessment->speed_score }}%"></div>
+                        </div>
+                    </div>
 
-    <div class="card mt-6">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-list-alt"></i> Detail Skor</h3>
-        </div>
-        
-        <div style="display: grid; gap: 20px;">
-            <div>
-                <div class="d-flex justify-between mb-2">
-                    <span>Kualitas Kerja</span>
-                    <strong>{{ $assessment->quality_score }}/100</strong>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" style="width: {{ $assessment->quality_score }}%;"></div>
-                </div>
-            </div>
-            
-            <div>
-                <div class="d-flex justify-between mb-2">
-                    <span>Kecepatan</span>
-                    <strong>{{ $assessment->speed_score }}/100</strong>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" style="width: {{ $assessment->speed_score }}%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
-                </div>
-            </div>
-            
-            <div>
-                <div class="d-flex justify-between mb-2">
-                    <span>Inisiatif</span>
-                    <strong>{{ $assessment->initiative_score }}/100</strong>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" style="width: {{ $assessment->initiative_score }}%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
-                </div>
-            </div>
-            
-            <div>
-                <div class="d-flex justify-between mb-2">
-                    <span>Kerjasama Tim</span>
-                    <strong>{{ $assessment->teamwork_score }}/100</strong>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" style="width: {{ $assessment->teamwork_score }}%; background: linear-gradient(90deg, #06b6d4, #0891b2);"></div>
-                </div>
-            </div>
-            
-            <div>
-                <div class="d-flex justify-between mb-2">
-                    <span>Komunikasi</span>
-                    <strong>{{ $assessment->communication_score }}/100</strong>
-                </div>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" style="width: {{ $assessment->communication_score }}%; background: linear-gradient(90deg, #a855f7, #9333ea);"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div class="group">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-700">Inisiatif</span>
+                            <span class="font-bold text-slate-800">{{ $assessment->initiative_score }}<span class="text-slate-400 text-sm">/100</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                             <div class="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-1000 ease-out delay-200" style="width: 0%" data-width="{{ $assessment->initiative_score }}%"></div>
+                        </div>
+                    </div>
 
-    @if($assessment->strengths || $assessment->improvements || $assessment->comments)
-    <div class="grid-2 mt-6">
-        @if($assessment->strengths)
-        <div class="card" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
-            <h4 style="color: var(--success); margin-bottom: 12px;"><i class="fas fa-thumbs-up"></i> Kelebihan</h4>
-            <p style="line-height: 1.7;">{{ $assessment->strengths }}</p>
+                    <div class="group">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-700">Kerjasama Tim</span>
+                            <span class="font-bold text-slate-800">{{ $assessment->teamwork_score }}<span class="text-slate-400 text-sm">/100</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                             <div class="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full transition-all duration-1000 ease-out delay-300" style="width: 0%" data-width="{{ $assessment->teamwork_score }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-700">Komunikasi</span>
+                            <span class="font-bold text-slate-800">{{ $assessment->communication_score }}<span class="text-slate-400 text-sm">/100</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                             <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-1000 ease-out delay-400" style="width: 0%" data-width="{{ $assessment->communication_score }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantitative Feedback -->
+            @if($assessment->strengths || $assessment->improvements)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @if($assessment->strengths)
+                    <div class="card p-6 bg-emerald-50/50 border border-emerald-100 h-full">
+                        <h4 class="font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-thumbs-up text-emerald-500"></i> Kelebihan
+                        </h4>
+                        <p class="text-slate-700 text-sm leading-relaxed">{{ $assessment->strengths }}</p>
+                    </div>
+                    @endif
+                    
+                    @if($assessment->improvements)
+                    <div class="card p-6 bg-amber-50/50 border border-amber-100 h-full">
+                        <h4 class="font-bold text-amber-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-amber-500"></i> Area Perbaikan
+                        </h4>
+                        <p class="text-slate-700 text-sm leading-relaxed">{{ $assessment->improvements }}</p>
+                    </div>
+                    @endif
+                </div>
+            @endif
+
+            @if($assessment->comments)
+            <div class="card p-6 border border-slate-100">
+                <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-comment-alt text-indigo-500"></i> Komentar Tambahan
+                </h4>
+                <div class="p-4 bg-slate-50 rounded-xl text-slate-700 text-sm italic border border-slate-100 relative">
+                    <i class="fas fa-quote-left text-slate-200 text-4xl absolute -top-2 -left-2"></i>
+                    <p class="relative z-10">{{ $assessment->comments }}</p>
+                </div>
+            </div>
+            @endif
         </div>
-        @endif
-        
-        @if($assessment->improvements)
-        <div class="card" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
-            <h4 style="color: var(--warning); margin-bottom: 12px;"><i class="fas fa-arrow-up"></i> Area Perbaikan</h4>
-            <p style="line-height: 1.7;">{{ $assessment->improvements }}</p>
-        </div>
-        @endif
     </div>
-    
-    @if($assessment->comments)
-    <div class="card mt-6">
-        <h4 style="margin-bottom: 12px;"><i class="fas fa-comment"></i> Komentar Tambahan</h4>
-        <p style="line-height: 1.7;">{{ $assessment->comments }}</p>
-    </div>
-    @endif
-    @endif
 </div>
 
 @push('scripts')
 <script>
+    // Animate Progress Bars
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.querySelectorAll('[data-width]').forEach(el => {
+                el.style.width = el.getAttribute('data-width');
+            });
+        }, 300);
+    });
+
     const ctx = document.getElementById('radarChart').getContext('2d');
     new Chart(ctx, {
         type: 'radar',
@@ -151,9 +199,12 @@
                     {{ $assessment->communication_score }}
                 ],
                 backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                borderColor: 'rgba(99, 102, 241, 1)',
+                borderColor: 'rgba(99, 102, 241, 0.8)',
                 borderWidth: 2,
                 pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(99, 102, 241, 1)'
             }]
         },
         options: {
@@ -161,30 +212,24 @@
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        stepSize: 20,
-                        color: '#71717a'
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    angleLines: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
+                    angleLines: { color: 'rgba(0, 0, 0, 0.05)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     pointLabels: {
-                        color: '#a1a1aa',
-                        font: {
-                            family: 'Inter',
-                            size: 12
-                        }
-                    }
+                        color: '#64748b',
+                        font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: '600' }
+                    },
+                    ticks: { display: false }
                 }
             },
             plugins: {
-                legend: {
-                    display: false
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleFont: { family: "'Plus Jakarta Sans', sans-serif" },
+                    bodyFont: { family: "'Plus Jakarta Sans', sans-serif" },
+                    padding: 10,
+                    cornerRadius: 8,
+                    displayColors: false
                 }
             }
         }
