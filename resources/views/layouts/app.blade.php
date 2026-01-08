@@ -51,8 +51,16 @@
 
 <body>
     <div class="app-container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
+            <!-- Mobile Close Button -->
+            <button class="sidebar-close lg:hidden" onclick="closeSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+
             <div class="sidebar-brand">
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-graduation-cap"></i>
@@ -187,30 +195,30 @@
         <main class="main-content">
             <!-- Header -->
             <header class="header">
-                <div class="flex items-center gap-3">
-                    <button class="menu-toggle" onclick="toggleSidebar()">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <button class="menu-toggle flex-shrink-0" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h2 class="header-title">@yield('title', 'Dashboard')</h2>
+                    <h2 class="header-title truncate text-sm sm:text-base lg:text-lg">@yield('title', 'Dashboard')</h2>
                 </div>
 
-                <div class="header-actions">
+                <div class="header-actions flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
                     <!-- Notification Bell -->
                     @php
                         $unreadNotifications = auth()->user()->notifications()->unread()->latest()->take(5)->get();
                         $unreadCount = auth()->user()->notifications()->unread()->count();
                     @endphp
                     <div class="dropdown">
-                        <button class="btn btn-icon btn-secondary relative" data-toggle="dropdown">
-                            <i class="fas fa-bell"></i>
+                        <button class="btn btn-icon btn-secondary relative w-8 h-8 sm:w-9 sm:h-9" data-toggle="dropdown">
+                            <i class="fas fa-bell text-sm"></i>
                             @if($unreadCount > 0)
                                 <span
-                                    class="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center px-1">
+                                    class="absolute -top-1 -right-1 min-w-[14px] sm:min-w-[16px] h-3.5 sm:h-4 rounded-full bg-rose-500 text-white text-[8px] sm:text-[9px] font-bold flex items-center justify-center px-0.5 sm:px-1">
                                     {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                                 </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right" style="width: 300px;">
+                        <div class="dropdown-menu dropdown-menu-right w-[280px] sm:w-[300px] max-w-[calc(100vw-16px)]">
                             <div class="px-4 py-3 flex justify-between items-center"
                                 style="border-bottom: 1px solid rgba(148,163,184,0.1);">
                                 <span class="font-bold text-slate-700 text-sm">Notifikasi</span>
@@ -255,20 +263,20 @@
                     </div>
 
                     <!-- User Menu -->
-                    <div class="user-menu">
+                    <div class="user-menu px-1.5 py-1 sm:px-3 sm:py-1.5">
                         @if(auth()->user()->avatar)
                             <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}" alt="Avatar"
-                                class="user-avatar">
+                                class="user-avatar w-7 h-7 sm:w-8 sm:h-8">
                         @else
-                            <div class="user-avatar">
+                            <div class="user-avatar w-7 h-7 sm:w-8 sm:h-8 text-[10px] sm:text-xs">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                             </div>
                         @endif
-                        <div class="user-info">
+                        <div class="user-info hidden sm:block">
                             <div class="user-name">{{ auth()->user()->name }}</div>
                             <div class="user-role">{{ auth()->user()->role }}</div>
                         </div>
-                        <i class="fas fa-chevron-down text-slate-400 text-[10px] ml-1"></i>
+                        <i class="fas fa-chevron-down text-slate-400 text-[10px] ml-1 hidden sm:inline"></i>
 
                         <div class="dropdown-menu">
                             <a href="{{ route('profile.show') }}" class="dropdown-item">
@@ -304,18 +312,28 @@
 
     <script>
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
         }
 
-        document.addEventListener('click', function (e) {
+        function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.querySelector('.menu-toggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
 
-            if (window.innerWidth <= 1024) {
-                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-                    sidebar.classList.remove('active');
+        // Close sidebar on nav link click (mobile)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    closeSidebar();
                 }
-            }
+            });
         });
 
         // SweetAlert2
