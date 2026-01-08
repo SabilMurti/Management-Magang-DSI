@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - InternHub</title>
+    <title>Reset Password - InternHub</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#8b5cf6">
-    <meta name="description" content="Masuk ke InternHub - Sistem Manajemen Magang">
+    <meta name="description" content="Reset password akun InternHub">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -33,66 +33,60 @@
             <!-- Brand -->
             <div class="text-center mb-8">
                 <div class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center text-2xl text-white shadow-lg"
-                    style="background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%); box-shadow: 0 8px 20px -4px rgba(167,139,250,0.5);">
-                    <i class="fas fa-graduation-cap"></i>
+                    style="background: linear-gradient(135deg, #22c55e 0%, #10b981 100%); box-shadow: 0 8px 20px -4px rgba(34,197,94,0.5);">
+                    <i class="fas fa-lock-open"></i>
                 </div>
-                <h1 class="text-xl font-extrabold text-slate-800 mb-1 tracking-tight">InternHub</h1>
-                <p class="text-slate-400 text-sm">Masuk ke akun Anda</p>
+                <h1 class="text-xl font-extrabold text-slate-800 mb-1 tracking-tight">Reset Password</h1>
+                <p class="text-slate-400 text-sm">Buat password baru untuk akun Anda</p>
             </div>
 
-            <!-- Success Messages -->
-            @if(session('success'))
-                <div class="alert alert-success mb-5">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
-                </div>
-            @endif
-
             <!-- Error Messages -->
-            @if(session('error'))
-                <div class="alert alert-error mb-5">
-                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                </div>
-            @endif
-
             @if($errors->any())
                 <div class="alert alert-error mb-5">
                     <i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            <form method="POST" action="{{ route('password.update') }}" class="space-y-5">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
+                <input type="hidden" name="email" value="{{ $email }}">
+
                 <div class="form-group mb-0">
                     <label class="form-label">Email</label>
                     <div class="search-input">
-                        <input type="email" name="email" class="form-control" placeholder="nama@email.com"
-                            value="{{ old('email') }}" required autofocus>
+                        <input type="email" class="form-control bg-slate-100" value="{{ $email }}" disabled>
                         <i class="fas fa-envelope"></i>
                     </div>
                 </div>
 
                 <div class="form-group mb-0">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">Password Baru</label>
                     <div class="search-input">
-                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <input type="password" name="password" class="form-control" placeholder="Minimal 8 karakter"
+                            required autofocus>
                         <i class="fas fa-lock"></i>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" name="remember" id="remember" class="form-checkbox">
-                        <label for="remember" class="text-sm text-slate-500 cursor-pointer">Ingat saya</label>
+                <div class="form-group mb-0">
+                    <label class="form-label">Konfirmasi Password</label>
+                    <div class="search-input">
+                        <input type="password" name="password_confirmation" class="form-control"
+                            placeholder="Ulangi password baru" required>
+                        <i class="fas fa-lock"></i>
                     </div>
-                    <a href="{{ route('password.request') }}"
-                        class="text-sm text-violet-500 hover:text-violet-600 font-medium">
-                        Lupa password?
-                    </a>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full py-3 text-sm">
-                    <i class="fas fa-sign-in-alt"></i> Masuk
+                <button type="submit" class="btn btn-success w-full py-3 text-sm">
+                    <i class="fas fa-check"></i> Reset Password
                 </button>
+
+                <div class="text-center">
+                    <a href="{{ route('login') }}" class="text-sm text-slate-500 hover:text-violet-500 font-medium">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke Login
+                    </a>
+                </div>
             </form>
         </div>
     </div>
