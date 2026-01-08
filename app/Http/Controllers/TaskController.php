@@ -323,7 +323,7 @@ class TaskController extends Controller
         if ($request->hasFile('submission_file')) {
             $file = $request->file('submission_file');
             $filename = time() . '_' . $task->id . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/submissions', $filename);
+            $file->storeAs('submissions', $filename, 'public');
             $data['submission_file'] = $filename;
         }
 
