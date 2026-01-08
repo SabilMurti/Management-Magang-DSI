@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\Intern;
 use App\Models\Notification;
+use App\Services\TaskNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -116,7 +117,7 @@ class TaskController extends Controller
                     'status' => 'pending',
                 ]);
 
-                // Send notification to intern
+                // Send notification to intern (in-app + email)
                 Notification::notify(
                     $intern->user_id,
                     Notification::TYPE_TASK_ASSIGNED,
@@ -125,6 +126,9 @@ class TaskController extends Controller
                     route('tasks.show', $task),
                     ['task_id' => $task->id]
                 );
+
+                // Send email notification
+                TaskNotificationService::notifyTaskAssigned($task);
             }
 
             DB::commit();
@@ -351,7 +355,7 @@ class TaskController extends Controller
             $task->approve($request->score, $request->feedback);
             $message = 'Tugas berhasil disetujui dan dinilai!';
 
-            // Notify intern about approval
+            // Notify intern about approval (in-app + email)
             Notification::notify(
                 $task->intern->user_id,
                 Notification::TYPE_TASK_APPROVED,
@@ -360,11 +364,14 @@ class TaskController extends Controller
                 route('tasks.show', $task),
                 ['task_id' => $task->id, 'score' => $request->score]
             );
+
+            // Send email notification
+            TaskNotificationService::notifyTaskStatusChange($task, 'approved');
         } else {
             $task->requestRevision($request->feedback);
             $message = 'Tugas dikembalikan untuk revisi.';
 
-            // Notify intern about revision request
+            // Notify intern about revision request (in-app + email)
             Notification::notify(
                 $task->intern->user_id,
                 Notification::TYPE_TASK_REVISION,
@@ -373,6 +380,9 @@ class TaskController extends Controller
                 route('tasks.show', $task),
                 ['task_id' => $task->id]
             );
+
+            // Send email notification
+            TaskNotificationService::notifyTaskStatusChange($task, 'revision');
         }
 
         return redirect()->back()->with('success', $message);
