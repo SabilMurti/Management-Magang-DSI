@@ -73,4 +73,24 @@ class TaskAssignment extends Model
             'pending' => $tasks->whereIn('status', ['pending', 'in_progress'])->count(),
         ];
     }
+
+    /**
+     * Delete all TaskAssignments that have no tasks
+     * Call this method after bulk task deletions if observer doesn't trigger
+     * 
+     * @return int Number of orphaned assignments deleted
+     */
+    public static function cleanupOrphaned(): int
+    {
+        $orphaned = self::doesntHave('tasks')->get();
+        $count = 0;
+        
+        foreach ($orphaned as $assignment) {
+            // This cascade deletes pivot table entries too
+            $assignment->delete();
+            $count++;
+        }
+        
+        return $count;
+    }
 }
