@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
+        // Register Model Observers
+        \App\Models\Task::observe(\App\Observers\TaskObserver::class);
+
         // Query logging for development
         if (app()->environment('local')) {
             DB::listen(function ($query) {
