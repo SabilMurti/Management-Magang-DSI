@@ -95,18 +95,18 @@ class DashboardController extends Controller
         // Chart Data: Monthly Attendance Trend (Last 7 days) - Single optimized query
         $attendanceTrend = [];
         $trendData = Attendance::selectRaw('
-            DATE(date) as date,
+            DATE_FORMAT(date, "%Y-%m-%d") as date_key,
             SUM(CASE WHEN status IN ("present", "late") THEN 1 ELSE 0 END) as present
         ')->whereBetween('date', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
-            ->groupBy(DB::raw('DATE(date)'))
-            ->orderBy('date', 'asc')
+            ->groupBy('date_key')
+            ->orderBy('date_key', 'asc')
             ->get()
-            ->keyBy('date');
+            ->keyBy('date_key');
 
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
             $dateKey = $date->format('Y-m-d');
-            $present = $trendData[$dateKey]->present ?? 0;
+            $present = isset($trendData[$dateKey]) ? (int) $trendData[$dateKey]->present : 0;
             
             $attendanceTrend[] = [
                 'date' => $date->format('d M'),
