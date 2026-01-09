@@ -68,9 +68,10 @@
                 <div class="sidebar-brand-text">
                     <h1>InternHub</h1>
                     <span>Management</span>
+
                 </div>
             </div>
-
+{{-- a --}}
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Menu</div>
