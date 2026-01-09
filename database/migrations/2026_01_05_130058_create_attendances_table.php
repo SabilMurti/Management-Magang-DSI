@@ -18,7 +18,12 @@ return new class extends Migration
             $table->time('check_in')->nullable();
             $table->time('check_out')->nullable();
             $table->enum('status', ['present', 'late', 'absent', 'sick', 'permission'])->default('present');
+            $table->text('late_reason')->nullable();
             $table->text('notes')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->integer('distance_meters')->nullable();
+            $table->string('proof_file')->nullable();
             $table->timestamps();
             $table->unique(['intern_id', 'date']);
         });

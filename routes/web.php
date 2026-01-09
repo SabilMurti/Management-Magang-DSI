@@ -45,9 +45,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
     Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-    Route::post('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
-    Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->name('tasks.submit');
-    Route::post('/tasks/{task}/review', [TaskController::class, 'review'])->name('tasks.review');
+    Route::post('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->middleware('throttle:30,1')->name('tasks.updateStatus');
+    Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->middleware('throttle:10,1')->name('tasks.submit');
+    Route::post('/tasks/{task}/review', [TaskController::class, 'review'])->middleware('throttle:10,1')->name('tasks.review');
 
     // Task Assignments (Grouped Task View)
     Route::get('/task-assignments', [TaskController::class, 'assignmentsIndex'])->name('task-assignments.index');
@@ -64,9 +64,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendances/{attendance}/edit', [AttendanceController::class, 'edit'])->name('attendances.edit');
     Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])->name('attendances.update');
     Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
-    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.checkIn');
-    Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.checkOut');
-    Route::post('/attendance/permission', [AttendanceController::class, 'submitPermission'])->name('attendance.permission');
+    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->middleware('throttle:5,1')->name('attendance.checkIn');
+    Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->middleware('throttle:5,1')->name('attendance.checkOut');
+    Route::post('/attendance/permission', [AttendanceController::class, 'submitPermission'])->middleware('throttle:5,1')->name('attendance.permission');
 
     // Notifications
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');

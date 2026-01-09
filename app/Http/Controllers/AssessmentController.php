@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\Intern;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AssessmentController extends Controller
 {
@@ -18,22 +19,22 @@ class AssessmentController extends Controller
         }
 
         $assessments = $query->latest()->paginate(10);
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Cache::activeInterns(50);
         
         return view('assessments.index', compact('assessments', 'interns'));
     }
 
     public function create(Request $request)
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
-        $tasks = Task::with('intern.user')->get();
+        $interns = Cache::activeInterns(50);
+        $tasks = Task::with('intern.user')->latest()->limit(100)->get();
         
         $selectedIntern = null;
         $selectedTask = null;
         
         if ($request->filled('intern_id')) {
             $selectedIntern = Intern::find($request->intern_id);
-            $tasks = Task::where('intern_id', $request->intern_id)->get();
+            $tasks = Task::where('intern_id', $request->intern_id)->latest()->limit(50)->get();
         }
         
         if ($request->filled('task_id')) {
@@ -75,8 +76,8 @@ class AssessmentController extends Controller
 
     public function edit(Assessment $assessment)
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
-        $tasks = Task::where('intern_id', $assessment->intern_id)->get();
+        $interns = Cache::activeInterns(50);
+        $tasks = Task::where('intern_id', $assessment->intern_id)->latest()->limit(50)->get();
         
         return view('assessments.edit', compact('assessment', 'interns', 'tasks'));
     }
