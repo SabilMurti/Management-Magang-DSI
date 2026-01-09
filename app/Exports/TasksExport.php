@@ -23,7 +23,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function collection()
     {
-        $query = Task::with(['intern.user', 'createdBy']);
+        $query = Task::with(['intern.user', 'assignedBy']);
 
         if ($this->internId) {
             $query->where('intern_id', $this->internId);
@@ -71,7 +71,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
             $task->is_late ? 'Terlambat' : ($task->status === 'completed' ? 'Tepat Waktu' : '-'),
             $task->score ?? '-',
             $task->admin_feedback ?? '-',
-            $task->createdBy->name ?? '-',
+            $task->assignedBy->name ?? '-',
             $task->created_at->format('d/m/Y H:i'),
         ];
     }
