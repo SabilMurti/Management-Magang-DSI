@@ -68,10 +68,12 @@
                 <div class="sidebar-brand-text">
                     <h1>InternHub</h1>
                     <span>Management</span>
-
                 </div>
+                <button class="sidebar-collapse-btn hidden lg:flex" onclick="toggleSidebarCollapse()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
             </div>
-{{-- a --}}
+
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Menu</div>
@@ -327,6 +329,28 @@
             overlay.classList.remove('active');
             document.body.classList.remove('sidebar-open');
         }
+
+        // Desktop Sidebar Collapse
+        function toggleSidebarCollapse() {
+            const appContainer = document.querySelector('.app-container');
+            const isCollapsed = appContainer.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed);
+            
+            // Update button icon
+            const btn = document.querySelector('.sidebar-collapse-btn i');
+            if (btn) {
+                btn.className = isCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+            }
+        }
+
+        // Restore sidebar state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.querySelector('.app-container').classList.add('sidebar-collapsed');
+                const btn = document.querySelector('.sidebar-collapse-btn i');
+                if (btn) btn.className = 'fas fa-chevron-right';
+            }
+        });
 
         // Close sidebar on nav link click (mobile)
         document.querySelectorAll('.nav-link').forEach(link => {
