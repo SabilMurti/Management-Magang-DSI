@@ -48,9 +48,9 @@ class CleanupOrphanedTaskAssignments extends Command
             }
         }
 
-        // Hapus semua orphaned task assignments
-        $deleted = $orphaned->count();
-        TaskAssignment::doesntHave('tasks')->delete();
+        // Hapus semua orphaned task assignments menggunakan method model
+        // Ini memastikan cascade delete di pivot table juga berjalan
+        $deleted = TaskAssignment::cleanupOrphaned();
 
         $this->info("✓ Berhasil menghapus {$deleted} task group kosong.");
         return Command::SUCCESS;
