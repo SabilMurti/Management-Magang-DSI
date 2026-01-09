@@ -45,6 +45,66 @@
 
     @vite(["resources/css/app.css", "resources/js/app.js"])
 
+    <!-- Early sidebar state restoration (prevent flashing) -->
+    <script>
+        (function() {
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.documentElement.classList.add('sidebar-collapsed-init');
+            }
+        })();
+    </script>
+    <style>
+        @media (min-width: 1024px) {
+            html.sidebar-collapsed-init .sidebar {
+                width: 4rem;
+            }
+            html.sidebar-collapsed-init .sidebar-brand-text {
+                display: none;
+            }
+            html.sidebar-collapsed-init .nav-section-title {
+                opacity: 0;
+                height: 0;
+                margin-bottom: 0;
+                overflow: hidden;
+            }
+            html.sidebar-collapsed-init .nav-link {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            html.sidebar-collapsed-init .nav-link span {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+            }
+            html.sidebar-collapsed-init .main-content {
+                margin-left: 4rem;
+            }
+            html.sidebar-collapsed-init .sidebar-brand {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            html.sidebar-collapsed-init .sidebar-brand-icon {
+                width: 2.25rem;
+                height: 2.25rem;
+                font-size: 1.125rem;
+            }
+            html.sidebar-collapsed-init .sidebar-collapse-btn {
+                position: static;
+                transform: translateY(0);
+                margin-left: 0;
+                width: 2rem;
+                height: 2rem;
+            }
+            html.sidebar-collapsed-init .sidebar-collapse-btn i {
+                transform: rotate(0deg);
+            }
+        }
+    </style>
+
     @livewireStyles
     @stack('styles')
 </head>
@@ -335,7 +395,16 @@
         // Desktop Sidebar Collapse
         function toggleSidebarCollapse() {
             const appContainer = document.querySelector('.app-container');
+            const html = document.documentElement;
             const isCollapsed = appContainer.classList.toggle('sidebar-collapsed');
+            
+            // Also toggle on html for persistence
+            if (isCollapsed) {
+                html.classList.add('sidebar-collapsed-init');
+            } else {
+                html.classList.remove('sidebar-collapsed-init');
+            }
+            
             localStorage.setItem('sidebar-collapsed', isCollapsed);
             
             // Update button icon
