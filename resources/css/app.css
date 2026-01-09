@@ -70,23 +70,46 @@
     }
 
     .sidebar-brand {
-        @apply flex items-center gap-2.5 px-2 pb-4 mb-4;
+        @apply flex items-center gap-2.5 px-2 pb-4 mb-4 relative justify-between;
         border-bottom: 1px solid rgba(148, 163, 184, 0.12);
     }
 
+    @media (max-width: 1023px) {
+        .sidebar-brand {
+            @apply justify-between items-center gap-2;
+        }
+    }
+
     .sidebar-brand-icon {
-        @apply w-10 h-10 rounded-xl flex items-center justify-center text-xl text-white shadow-lg;
+        @apply w-10 h-10 rounded-xl flex items-center justify-center text-xl text-white shadow-lg flex-shrink-0;
         background: var(--accent-gradient);
         box-shadow: 0 4px 12px -2px rgba(167, 139, 250, 0.4);
     }
 
     .sidebar-brand-text h1 {
-        @apply text-base font-extrabold bg-clip-text text-transparent tracking-tight;
+        @apply text-base font-extrabold bg-clip-text text-transparent tracking-tight flex-1;
         background-image: var(--accent-gradient);
     }
 
     .sidebar-brand-text span {
-        @apply text-[9px] text-slate-400 uppercase tracking-widest font-medium;
+        @apply text-[9px] text-slate-400 uppercase tracking-widest font-medium block;
+    }
+    }
+
+    /* Sidebar Collapse Button */
+    .sidebar-collapse-btn {
+        @apply w-7 h-7 rounded-lg flex items-center justify-center bg-slate-100/80 text-slate-400 transition-all duration-200 cursor-pointer border-0;
+    }
+
+    .sidebar-collapse-btn:hover {
+        @apply bg-violet-100 text-violet-600;
+    }
+
+    /* Mobile - Hide collapse button properly */
+    @media (max-width: 1023px) {
+        .sidebar-collapse-btn {
+            @apply hidden;
+        }
     }
 
     .sidebar-nav {
@@ -98,7 +121,7 @@
     }
 
     .nav-section-title {
-        @apply text-[9px] uppercase tracking-widest text-slate-400 px-3 mb-2 font-semibold;
+        @apply text-[9px] uppercase tracking-widest text-slate-400 px-3 mb-2 font-semibold transition-opacity duration-200;
     }
 
     .nav-item {
@@ -124,7 +147,11 @@
     }
 
     .nav-link i {
-        @apply w-5 text-center text-sm;
+        @apply w-5 text-center text-sm flex-shrink-0;
+    }
+
+    .nav-link span {
+        @apply transition-opacity duration-200 whitespace-nowrap;
     }
 
     /* Sidebar Overlay (Mobile) */
@@ -139,7 +166,7 @@
 
     /* Sidebar Close Button */
     .sidebar-close {
-        @apply absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100/80 text-slate-500 transition-all duration-200 cursor-pointer border-0 z-[60] lg:hidden;
+        @apply w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100/80 text-slate-500 transition-all duration-200 cursor-pointer border-0 z-[60] lg:hidden flex-shrink-0 ml-auto;
     }
 
     .sidebar-close:hover {
@@ -155,6 +182,85 @@
     .main-content {
         @apply flex-1 ml-0 lg:ml-56 min-h-screen transition-[margin] duration-300;
         max-width: 100vw;
+    }
+
+    /* ========================================
+       SIDEBAR COLLAPSED STATE (Desktop Only)
+       ======================================== */
+    @media (min-width: 1024px) {
+        .sidebar-collapsed .sidebar {
+            @apply w-16;
+        }
+
+        .sidebar-collapsed .sidebar-brand-text {
+            @apply hidden;
+        }
+
+        .sidebar-collapsed .sidebar-collapse-btn {
+            @apply relative right-auto top-auto translate-y-0 ml-auto;
+        }
+
+        .sidebar-collapsed .sidebar-collapse-btn i {
+            @apply transform rotate-0;
+        }
+
+        .sidebar-collapsed .nav-section-title {
+            @apply opacity-0 h-0 mb-0 overflow-hidden;
+        }
+
+        .sidebar-collapsed .nav-link {
+            @apply justify-center px-0 bg-transparent;
+        }
+
+        .sidebar-collapsed .nav-link span {
+            @apply opacity-0 w-0 overflow-hidden;
+        }
+
+        .sidebar-collapsed .nav-link.active::before {
+            @apply left-0;
+        }
+
+        /* Tooltip on hover for collapsed items */
+        .sidebar-collapsed .nav-link {
+            @apply relative;
+        }
+
+        .sidebar-collapsed .nav-link::after {
+            content: attr(data-tooltip);
+            @apply absolute left-full ml-2 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg opacity-0 invisible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none;
+        }
+
+        .sidebar-collapsed .nav-link:hover::after {
+            @apply opacity-100 visible;
+        }
+
+        .sidebar-collapsed .nav-link:hover {
+            @apply bg-transparent;
+        }
+
+        .sidebar-collapsed .main-content {
+            @apply ml-16;
+        }
+
+        .sidebar-collapsed .sidebar-brand {
+            @apply flex-col justify-center items-center px-0 py-3 gap-2 mb-2;
+        }
+
+        .sidebar-collapsed .sidebar-brand-icon {
+            @apply w-9 h-9 text-lg;
+        }
+
+        .sidebar-collapsed .sidebar-collapse-btn {
+            @apply static translate-y-0 ml-0 w-8 h-8;
+        }
+
+        .sidebar-collapsed .nav-link.active {
+            @apply text-violet-600;
+        }
+
+        .sidebar-collapsed .nav-link.active::before {
+            @apply hidden;
+        }
     }
 
     /* Header - Floating Acrylic */
@@ -579,7 +685,7 @@
     .row {
         @apply flex flex-wrap -mx-2 sm:-mx-3;
     }
-    
+
     .col {
         @apply flex-1 px-2 sm:px-3 max-w-full;
     }
@@ -588,36 +694,74 @@
         @apply w-auto px-2 sm:px-3;
     }
 
-    .col-12 { @apply w-full px-2 sm:px-3; }
-    .col-6 { @apply w-1/2 px-2 sm:px-3; }
-    .col-4 { @apply w-1/3 px-2 sm:px-3; }
-    .col-3 { @apply w-1/4 px-2 sm:px-3; }
+    .col-12 {
+        @apply w-full px-2 sm:px-3;
+    }
+    .col-6 {
+        @apply w-1/2 px-2 sm:px-3;
+    }
+    .col-4 {
+        @apply w-1/3 px-2 sm:px-3;
+    }
+    .col-3 {
+        @apply w-1/4 px-2 sm:px-3;
+    }
 
     /* Small devices (tablets, 640px and up) */
     @media (min-width: 640px) {
-        .col-sm-12 { @apply w-full; }
-        .col-sm-6 { @apply w-1/2; }
-        .col-sm-4 { @apply w-1/3; }
-        .col-sm-3 { @apply w-1/4; }
+        .col-sm-12 {
+            @apply w-full;
+        }
+        .col-sm-6 {
+            @apply w-1/2;
+        }
+        .col-sm-4 {
+            @apply w-1/3;
+        }
+        .col-sm-3 {
+            @apply w-1/4;
+        }
     }
 
     /* Medium devices (desktops, 768px and up) */
     @media (min-width: 768px) {
-        .col-md-12 { @apply w-full; }
-        .col-md-6 { @apply w-1/2; }
-        .col-md-4 { @apply w-1/3; }
-        .col-md-3 { @apply w-1/4; }
-        .col-md-8 { @apply w-2/3; }
-        .col-md-9 { @apply w-3/4; }
+        .col-md-12 {
+            @apply w-full;
+        }
+        .col-md-6 {
+            @apply w-1/2;
+        }
+        .col-md-4 {
+            @apply w-1/3;
+        }
+        .col-md-3 {
+            @apply w-1/4;
+        }
+        .col-md-8 {
+            @apply w-2/3;
+        }
+        .col-md-9 {
+            @apply w-3/4;
+        }
     }
 
     /* Large devices (large desktops, 1024px and up) */
     @media (min-width: 1024px) {
-        .col-lg-12 { @apply w-full; }
-        .col-lg-6 { @apply w-1/2; }
-        .col-lg-4 { @apply w-1/3; }
-        .col-lg-3 { @apply w-1/4; }
-        .col-lg-2 { @apply w-1/6; }
+        .col-lg-12 {
+            @apply w-full;
+        }
+        .col-lg-6 {
+            @apply w-1/2;
+        }
+        .col-lg-4 {
+            @apply w-1/3;
+        }
+        .col-lg-3 {
+            @apply w-1/4;
+        }
+        .col-lg-2 {
+            @apply w-1/6;
+        }
     }
 }
 
@@ -713,7 +857,7 @@
     .grid-3 {
         @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5;
     }
-    
+
     .w-full-mobile {
         @apply w-full;
     }

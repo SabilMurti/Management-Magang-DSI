@@ -69,6 +69,9 @@
                     <h1>InternHub</h1>
                     <span>Management</span>
                 </div>
+                <button class="sidebar-collapse-btn hidden lg:flex" onclick="toggleSidebarCollapse()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
@@ -77,7 +80,8 @@
                     <ul class="space-y-0.5">
                         <li class="nav-item">
                             <a href="{{ route('dashboard') }}"
-                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                                data-tooltip="Dashboard">
                                 <i class="fas fa-home"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -86,7 +90,8 @@
                         @if(auth()->user()->canManage())
                             <li class="nav-item">
                                 <a href="{{ route('interns.index') }}"
-                                    class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}"
+                                    data-tooltip="Anggota Magang">
                                     <i class="fas fa-users"></i>
                                     <span>Anggota Magang</span>
                                 </a>
@@ -96,7 +101,8 @@
                         @if(auth()->user()->role === 'admin')
                             <li class="nav-item">
                                 <a href="{{ route('supervisors.index') }}"
-                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}"
+                                    data-tooltip="Pembimbing">
                                     <i class="fas fa-user-tie"></i>
                                     <span>Pembimbing</span>
                                 </a>
@@ -105,7 +111,8 @@
 
                         <li class="nav-item">
                             <a href="{{ route('tasks.index') }}"
-                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}"
+                                data-tooltip="Daftar Penugasan">
                                 <i class="fas fa-tasks"></i>
                                 <span>Daftar Penugasan</span>
                             </a>
@@ -114,7 +121,8 @@
                         @if(auth()->user()->canManage())
                             <li class="nav-item">
                                 <a href="{{ route('task-assignments.index') }}"
-                                    class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}"
+                                    data-tooltip="Daftar Tugas">
                                     <i class="fas fa-layer-group"></i>
                                     <span>Daftar Tugas</span>
                                 </a>
@@ -123,7 +131,8 @@
 
                         <li class="nav-item">
                             <a href="{{ route('attendances.index') }}"
-                                class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}"
+                                data-tooltip="Presensi">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Presensi</span>
                             </a>
@@ -131,7 +140,8 @@
 
                         <li class="nav-item">
                             <a href="{{ route('calendar') }}"
-                                class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}"
+                                data-tooltip="Kalender">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span>Kalender</span>
                             </a>
@@ -145,14 +155,16 @@
                         <ul class="space-y-0.5">
                             <li class="nav-item">
                                 <a href="{{ route('reports.index') }}"
-                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
+                                    data-tooltip="Laporan">
                                     <i class="fas fa-file-alt"></i>
                                     <span>Laporan</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('assessments.index') }}"
-                                    class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}"
+                                    data-tooltip="Penilaian">
                                     <i class="fas fa-star"></i>
                                     <span>Penilaian</span>
                                 </a>
@@ -167,7 +179,8 @@
                         <ul class="space-y-0.5">
                             <li class="nav-item">
                                 <a href="{{ route('settings.index') }}"
-                                    class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}"
+                                    data-tooltip="Pengaturan">
                                     <i class="fas fa-cog"></i>
                                     <span>Pengaturan</span>
                                 </a>
@@ -181,7 +194,8 @@
                     <ul class="space-y-0.5">
                         <li class="nav-item">
                             <a href="{{ route('profile.show') }}"
-                                class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+                                data-tooltip="Profil">
                                 <i class="fas fa-user-circle"></i>
                                 <span>Profil</span>
                             </a>
@@ -326,6 +340,28 @@
             overlay.classList.remove('active');
             document.body.classList.remove('sidebar-open');
         }
+
+        // Desktop Sidebar Collapse
+        function toggleSidebarCollapse() {
+            const appContainer = document.querySelector('.app-container');
+            const isCollapsed = appContainer.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed);
+            
+            // Update button icon
+            const btn = document.querySelector('.sidebar-collapse-btn i');
+            if (btn) {
+                btn.className = isCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+            }
+        }
+
+        // Restore sidebar state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.querySelector('.app-container').classList.add('sidebar-collapsed');
+                const btn = document.querySelector('.sidebar-collapse-btn i');
+                if (btn) btn.className = 'fas fa-chevron-right';
+            }
+        });
 
         // Close sidebar on nav link click (mobile)
         document.querySelectorAll('.nav-link').forEach(link => {
