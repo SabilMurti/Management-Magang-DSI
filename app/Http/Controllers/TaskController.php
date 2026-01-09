@@ -438,7 +438,8 @@ class TaskController extends Controller
         }
 
         $query = TaskAssignment::with(['assignedBy', 'tasks.intern.user'])
-            ->withCount('tasks');
+            ->withCount('tasks')
+            ->having('tasks_count', '>', 0); // Hanya tampilkan yang masih ada task
 
         // Search
         if ($request->search) {
