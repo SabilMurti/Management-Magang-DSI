@@ -83,20 +83,27 @@
 
     <!-- Table -->
     <div class="card p-0 overflow-hidden">
-        @if($interns->isEmpty())
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-users"></i>
+        {{-- Loading State --}}
+        <div wire:loading.delay.longer class="p-6">
+            <x-table-skeleton :rows="5" />
+        </div>
+
+        {{-- Content --}}
+        <div wire:loading.delay.longer.remove>
+            @if($interns->isEmpty())
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="empty-state-title">Belum Ada Anggota Magang</h4>
+                    <p class="empty-state-text">Mulai dengan menambahkan anggota magang baru.</p>
+                    <a href="{{ route('interns.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Tambah Anggota
+                    </a>
                 </div>
-                <h4 class="empty-state-title">Belum Ada Anggota Magang</h4>
-                <p class="empty-state-text">Mulai dengan menambahkan anggota magang baru.</p>
-                <a href="{{ route('interns.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Anggota
-                </a>
-            </div>
-        @else
-            <!-- Desktop Table View -->
-            <div class="hidden sm:block table-container">
+            @else
+                <!-- Desktop Table View -->
+                <div class="hidden sm:block table-container">
                 <table>
                     <thead>
                         <tr>
@@ -252,6 +259,7 @@
             <div class="pagination">
                 {{ $interns->links('vendor.livewire.simple-tailwind') }}
             </div>
-        @endif
+            @endif
+        </div>
     </div>
 </div>

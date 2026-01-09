@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Report;
 use App\Models\Intern;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
@@ -33,14 +34,14 @@ class ReportController extends Controller
         }
 
         $reports = $query->latest()->paginate(10);
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Cache::activeInterns(50);
 
         return view('reports.index', compact('reports', 'interns'));
     }
 
     public function create()
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Cache::activeInterns(50);
         return view('reports.create', compact('interns'));
     }
 
@@ -73,7 +74,7 @@ class ReportController extends Controller
 
     public function edit(Report $report)
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Cache::activeInterns(50);
         return view('reports.edit', compact('report', 'interns'));
     }
 

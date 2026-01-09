@@ -50,14 +50,14 @@ class TaskController extends Controller
         }
 
         $tasks = $query->orderBy('created_at', 'desc')->paginate(15);
-        $interns = $user->canManage() ? Intern::with('user')->where('status', 'active')->get() : collect();
+        $interns = $user->canManage() ? Intern::with('user')->where('status', 'active')->limit(50)->get() : collect();
 
         return view('tasks.index', compact('tasks', 'interns'));
     }
 
     public function create()
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Intern::with('user')->where('status', 'active')->limit(100)->get();
         return view('tasks.create', compact('interns'));
     }
 

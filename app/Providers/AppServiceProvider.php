@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +22,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Pagination\Paginator::useBootstrapFive();
+
+        // Query logging for development
+        if (app()->environment('local')) {
+            DB::listen(function ($query) {
+                // Log slow queries (over 500ms)
+                if ($query->time > 500) {
+                    \Illuminate\Support\Facades\Log::warning('Slow Query: ' . $query->sql . ' (' . $query->time . 'ms)');
+                }
+            });
+        }
+
+        // Register macro for cached active interns
+        Cache::macro('activeInterns', function ($limit = 50) {
+            return Cache::remember('active-interns-' . $limit, 3600, function () use ($limit) {
+                return \App\Models\Intern::with('user')
+                    ->where('status', 'active')
+                    ->limit($limit)
+                    ->get();
+            });
+        });
     }
 }
