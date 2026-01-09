@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\TaskAssignment;
 
 return new class extends Migration
 {
@@ -11,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->string('proof_file')->nullable()->after('notes');
-        });
+        // Delete orphaned task assignments with no tasks
+        TaskAssignment::doesntHave('tasks')->delete();
+        
+        // Delete specific task assignment if it exists
+        TaskAssignment::where('title', 'tes')->delete();
     }
 
     /**
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dropColumn('proof_file');
-        });
+        // Cannot restore deleted data
     }
 };

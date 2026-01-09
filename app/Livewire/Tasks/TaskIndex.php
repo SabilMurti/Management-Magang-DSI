@@ -119,7 +119,15 @@ class TaskIndex extends Component
 
     public function bulkDelete()
     {
-        $count = Task::whereIn('id', $this->selectedTasks)->delete();
+        // Load tasks individually so Observer is triggered for each deletion
+        $tasks = Task::whereIn('id', $this->selectedTasks)->get();
+        $count = 0;
+        
+        foreach ($tasks as $task) {
+            $task->delete(); // This triggers TaskObserver::deleted()
+            $count++;
+        }
+        
         session()->flash('success', "{$count} tugas berhasil dihapus!");
     }
 

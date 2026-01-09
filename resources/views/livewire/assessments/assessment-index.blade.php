@@ -25,20 +25,27 @@
 
     <!-- Table -->
     <div class="card p-0 overflow-hidden">
-        @if($assessments->isEmpty())
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-star"></i>
+        {{-- Loading State --}}
+        <div wire:loading.delay.longer class="p-6">
+            <x-table-skeleton :rows="5" />
+        </div>
+
+        {{-- Content --}}
+        <div wire:loading.delay.longer.remove>
+            @if($assessments->isEmpty())
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4 class="empty-state-title">Belum Ada Penilaian</h4>
+                    <p class="empty-state-text">Mulai dengan memberikan penilaian untuk siswa.</p>
+                    <a href="{{ route('assessments.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Tambah Penilaian
+                    </a>
                 </div>
-                <h4 class="empty-state-title">Belum Ada Penilaian</h4>
-                <p class="empty-state-text">Mulai dengan memberikan penilaian untuk siswa.</p>
-                <a href="{{ route('assessments.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Penilaian
-                </a>
-            </div>
-        @else
-            <!-- Mobile/Tablet View (Cards) -->
-            <div class="block lg:hidden space-y-4 p-4 bg-slate-50/50">
+            @else
+                <!-- Mobile/Tablet View (Cards) -->
+                <div class="block lg:hidden space-y-4 p-4 bg-slate-50/50">
                 @foreach($assessments as $assessment)
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                         <div class="flex items-start justify-between gap-4 mb-4">
@@ -200,6 +207,7 @@
             <div class="pagination">
                 {{ $assessments->links('vendor.livewire.simple-tailwind') }}
             </div>
-        @endif
+            @endif
+        </div>
     </div>
 </div>

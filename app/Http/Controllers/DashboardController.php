@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Report;
 use App\Models\Assessment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -25,18 +26,32 @@ class DashboardController extends Controller
     private function adminDashboard()
     {
         $totalInterns = Intern::where('status', 'active')->count();
-        $totalTasks = Task::count();
-        $completedTasks = Task::where('status', 'completed')->count();
-        $pendingTasks = Task::whereIn('status', ['pending', 'in_progress'])->count();
+        
+        // Batch all task statistics queries together
+        $taskStats = Task::selectRaw('
+            COUNT(*) as total,
+            SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status IN ("pending", "in_progress") THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = "completed" AND is_late = 0 THEN 1 ELSE 0 END) as completed_on_time,
+            SUM(CASE WHEN status = "completed" AND is_late = 1 THEN 1 ELSE 0 END) as completed_late
+        ')->first();
+        
+        $totalTasks = $taskStats->total;
+        $completedTasks = $taskStats->completed;
+        $pendingTasks = $taskStats->pending;
+        $completedOnTime = $taskStats->completed_on_time;
+        $completedLate = $taskStats->completed_late;
 
-        // Late vs On-time stats for admin
-        $completedOnTime = Task::where('status', 'completed')->where('is_late', false)->count();
-        $completedLate = Task::where('status', 'completed')->where('is_late', true)->count();
+        // Batch today's attendance statistics
+        $todayAttendanceStats = Attendance::selectRaw('
+            COUNT(*) as total,
+            SUM(CASE WHEN status IN ("present", "late") THEN 1 ELSE 0 END) as present
+        ')->whereDate('date', today())->first();
+        
+        $todayAttendance = $todayAttendanceStats->total ?? 0;
+        $presentToday = $todayAttendanceStats->present ?? 0;
 
-        $todayAttendance = Attendance::whereDate('date', today())->count();
-        $presentToday = Attendance::whereDate('date', today())
-            ->whereIn('status', ['present', 'late'])->count();
-
+        // Eager load recent records with relationships
         $recentTasks = Task::with(['intern.user'])
             ->latest()
             ->take(5)
@@ -51,28 +66,52 @@ class DashboardController extends Controller
         // Tasks waiting for review
         $submittedTasks = Task::with(['intern.user'])
             ->where('status', 'submitted')
-            ->orderBy('submitted_at', 'asc') // Oldest first
+            ->orderBy('submitted_at', 'asc')
             ->get();
 
-        $interns = Intern::with(['user', 'tasks', 'attendances', 'assessments'])->where('status', 'active')->get();
+        // Only load essential relationships, avoid loading all tasks/attendances/assessments
+        $interns = Intern::with(['user'])
+            ->where('status', 'active')
+            ->limit(100) // Add reasonable limit
+            ->get();
 
-        // Chart Data: Today's Attendance Breakdown
+        // Chart Data: Today's Attendance Breakdown (single query with aggregation)
+        $attendanceBreakdown = Attendance::selectRaw('
+            status,
+            COUNT(*) as count
+        ')->whereDate('date', today())
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
         $attendanceToday = [
-            'present' => Attendance::whereDate('date', today())->where('status', 'present')->count(),
-            'late' => Attendance::whereDate('date', today())->where('status', 'late')->count(),
-            'permission' => Attendance::whereDate('date', today())->where('status', 'permission')->count(),
-            'sick' => Attendance::whereDate('date', today())->where('status', 'sick')->count(),
-            'absent' => $totalInterns - Attendance::whereDate('date', today())->count(),
+            'present' => $attendanceBreakdown['present'] ?? 0,
+            'late' => $attendanceBreakdown['late'] ?? 0,
+            'permission' => $attendanceBreakdown['permission'] ?? 0,
+            'sick' => $attendanceBreakdown['sick'] ?? 0,
+            'absent' => $totalInterns - $todayAttendance,
         ];
 
-        // Chart Data: Monthly Attendance Trend (Last 7 days)
+        // Chart Data: Monthly Attendance Trend (Last 7 days) - Single optimized query
         $attendanceTrend = [];
+        $trendData = Attendance::selectRaw('
+            DATE_FORMAT(date, "%Y-%m-%d") as date_key,
+            SUM(CASE WHEN status IN ("present", "late") THEN 1 ELSE 0 END) as present
+        ')->whereBetween('date', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
+            ->groupBy('date_key')
+            ->orderBy('date_key', 'asc')
+            ->get()
+            ->keyBy('date_key');
+
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
+            $dateKey = $date->format('Y-m-d');
+            $present = isset($trendData[$dateKey]) ? (int) $trendData[$dateKey]->present : 0;
+            
             $attendanceTrend[] = [
                 'date' => $date->format('d M'),
-                'present' => Attendance::whereDate('date', $date)->whereIn('status', ['present', 'late'])->count(),
-                'absent' => $totalInterns - Attendance::whereDate('date', $date)->count(),
+                'present' => $present,
+                'absent' => $totalInterns - $present,
             ];
         }
 
@@ -107,9 +146,17 @@ class DashboardController extends Controller
         $attendances = $intern->attendances()->latest()->take(7)->get();
         $todayAttendance = $intern->attendances()->whereDate('date', today())->first();
 
-        $completedTasks = $intern->tasks()->where('status', 'completed')->count();
-        $pendingTasks = $intern->tasks()->whereIn('status', ['pending', 'in_progress'])->count();
-        $totalTasks = $intern->tasks()->count();
+        // Batch task statistics in a single query instead of multiple queries
+        $taskCounts = $intern->tasks()
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status IN ("pending", "in_progress") THEN 1 ELSE 0 END) as pending
+            ')->first();
+
+        $completedTasks = $taskCounts->completed ?? 0;
+        $pendingTasks = $taskCounts->pending ?? 0;
+        $totalTasks = $taskCounts->total ?? 0;
 
         // Task submission statistics
         $taskStats = $intern->getTaskStatistics();
@@ -124,24 +171,41 @@ class DashboardController extends Controller
         $officeLon = \App\Models\Setting::get('office_longitude', 110.469375);
         $maxDist = \App\Models\Setting::get('max_checkin_distance', 100);
 
-        // Chart Data: Weekly Attendance (Last 7 days)
+        // Chart Data: Weekly Attendance (Last 7 days) - Single optimized query
+        $weeklyAttendanceData = $intern->attendances()
+            ->selectRaw('DATE(date) as date, status')
+            ->whereBetween('date', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
+            ->orderBy('date', 'asc')
+            ->get()
+            ->keyBy(function ($item) {
+                return $item['date'];
+            });
+
         $weeklyAttendance = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $att = $intern->attendances()->whereDate('date', $date)->first();
+            $dateKey = $date->format('Y-m-d');
+            $att = $weeklyAttendanceData[$dateKey] ?? null;
+            
             $weeklyAttendance[] = [
                 'date' => $date->format('D'),
                 'status' => $att ? $att->status : 'absent',
             ];
         }
 
-        // Chart Data: Task Status Breakdown
+        // Chart Data: Task Status Breakdown - Single query instead of 5 separate queries
+        $taskBreakdownData = $intern->tasks()
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
         $taskBreakdown = [
-            'pending' => $intern->tasks()->where('status', 'pending')->count(),
-            'in_progress' => $intern->tasks()->where('status', 'in_progress')->count(),
-            'submitted' => $intern->tasks()->where('status', 'submitted')->count(),
-            'completed' => $intern->tasks()->where('status', 'completed')->count(),
-            'revision' => $intern->tasks()->where('status', 'revision')->count(),
+            'pending' => $taskBreakdownData['pending'] ?? 0,
+            'in_progress' => $taskBreakdownData['in_progress'] ?? 0,
+            'submitted' => $taskBreakdownData['submitted'] ?? 0,
+            'completed' => $taskBreakdownData['completed'] ?? 0,
+            'revision' => $taskBreakdownData['revision'] ?? 0,
         ];
 
         return view('dashboard.intern', compact(

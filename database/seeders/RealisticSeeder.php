@@ -200,12 +200,15 @@ class RealisticSeeder extends Seeder
 
         $this->command->info('✓ 20 Interns created');
 
-        // Create Task Assignments
-        $taskAssignments = [];
-        for ($i = 0; $i < 8; $i++) {
-            $deadline = Carbon::now()->addDays(rand(-14, 21));
+        // Create Task Assignments with proper intern assignments
+        $activeInterns = collect($interns)->filter(fn($i) => $i->status === 'active')->values();
+        $allStatuses = ['pending', 'in_progress', 'submitted', 'revision', 'completed'];
 
-            $taskAssignments[] = TaskAssignment::create([
+        for ($i = 0; $i < 8; $i++) {
+            $deadline = Carbon::now()->addDays(rand(-7, 21));
+            
+            // Create the TaskAssignment
+            $taskAssignment = TaskAssignment::create([
                 'title' => $this->taskTitles[$i],
                 'description' => $this->taskDescriptions[$i],
                 'assigned_by' => $admin->id,
@@ -214,35 +217,36 @@ class RealisticSeeder extends Seeder
                 'deadline_time' => sprintf('%02d:00', rand(14, 18)),
                 'estimated_hours' => rand(4, 24),
                 'submission_type' => ['github', 'file', 'both'][rand(0, 2)],
-                'assign_to_all' => rand(0, 1) === 1,
+                'assign_to_all' => $i < 2, // First 2 assignments are for all
             ]);
-        }
 
-        $this->command->info('✓ 8 Task Assignments created');
+            // Determine which interns to assign
+            if ($i < 2) {
+                // Assign to all active interns
+                $assignedInterns = $activeInterns;
+            } else {
+                // Assign to random subset (5-12 interns)
+                $numToAssign = min(rand(5, 12), $activeInterns->count());
+                $assignedInterns = $activeInterns->random($numToAssign);
+            }
 
-        // Create Individual Tasks for each intern
-        $allStatuses = ['pending', 'in_progress', 'submitted', 'revision', 'completed'];
+            // Attach interns to pivot table
+            $taskAssignment->interns()->attach($assignedInterns->pluck('id'));
 
-        foreach ($interns as $intern) {
-            // Each intern gets 3-7 tasks
-            $taskCount = rand(3, 7);
-            $shuffledTasks = $this->taskTitles;
-            shuffle($shuffledTasks);
-
-            for ($t = 0; $t < $taskCount; $t++) {
-                $taskAssignment = $taskAssignments[array_rand($taskAssignments)];
-                $deadline = Carbon::now()->addDays(rand(-14, 21));
+            // Create individual Task for each assigned intern
+            foreach ($assignedInterns as $intern) {
                 $status = $allStatuses[rand(0, 4)];
 
-                // Determine if late based on status and deadline
+                // Determine timing based on status
                 $isLate = false;
                 $completedAt = null;
                 $submittedAt = null;
                 $startedAt = null;
+                $approvedAt = null;
                 $score = null;
                 $feedback = null;
 
-                if (in_array($status, ['in_progress', 'submitted', 'completed'])) {
+                if (in_array($status, ['in_progress', 'submitted', 'revision', 'completed'])) {
                     $startedAt = $deadline->copy()->subDays(rand(3, 10));
                 }
 
@@ -254,6 +258,7 @@ class RealisticSeeder extends Seeder
                 if ($status === 'completed') {
                     $completedAt = Carbon::now()->subDays(rand(0, 7));
                     $submittedAt = $completedAt->copy()->subHours(rand(1, 24));
+                    $approvedAt = $completedAt->copy()->addHours(rand(1, 48));
                     $isLate = $submittedAt->isAfter($deadline);
                     $score = rand(70, 100);
                     $feedback = $score >= 85
@@ -268,28 +273,31 @@ class RealisticSeeder extends Seeder
 
                 Task::create([
                     'task_assignment_id' => $taskAssignment->id,
-                    'title' => $shuffledTasks[$t % count($shuffledTasks)],
-                    'description' => $this->taskDescriptions[$t % count($this->taskDescriptions)],
+                    'title' => $taskAssignment->title, // Same title as TaskAssignment
+                    'description' => $taskAssignment->description, // Same description
                     'intern_id' => $intern->id,
                     'assigned_by' => $admin->id,
-                    'priority' => ['low', 'medium', 'high'][rand(0, 2)],
+                    'priority' => $taskAssignment->priority, // Same priority
                     'status' => $status,
                     'deadline' => $deadline,
-                    'deadline_time' => sprintf('%02d:00', rand(14, 18)),
+                    'deadline_time' => $taskAssignment->deadline_time,
                     'started_at' => $startedAt,
                     'submitted_at' => $submittedAt,
                     'completed_at' => $completedAt,
+                    'approved_at' => $approvedAt,
                     'is_late' => $isLate,
-                    'estimated_hours' => rand(4, 16),
-                    'submission_type' => ['github', 'file', 'both'][rand(0, 2)],
+                    'estimated_hours' => $taskAssignment->estimated_hours,
+                    'submission_type' => $taskAssignment->submission_type,
                     'github_link' => $status !== 'pending' ? 'https://github.com/user/project-' . rand(100, 999) : null,
                     'score' => $score,
                     'admin_feedback' => $feedback,
                 ]);
             }
+
+            $this->command->info("  ✓ TaskAssignment '{$taskAssignment->title}' - {$assignedInterns->count()} interns assigned");
         }
 
-        $this->command->info('✓ Tasks created for all interns');
+        $this->command->info('✓ 8 Task Assignments with Tasks created');
 
         // Create Attendances (last 30 days)
         foreach ($interns as $intern) {

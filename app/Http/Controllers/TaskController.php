@@ -50,14 +50,14 @@ class TaskController extends Controller
         }
 
         $tasks = $query->orderBy('created_at', 'desc')->paginate(15);
-        $interns = $user->canManage() ? Intern::with('user')->where('status', 'active')->get() : collect();
+        $interns = $user->canManage() ? Intern::with('user')->where('status', 'active')->limit(50)->get() : collect();
 
         return view('tasks.index', compact('tasks', 'interns'));
     }
 
     public function create()
     {
-        $interns = Intern::with('user')->where('status', 'active')->get();
+        $interns = Intern::with('user')->where('status', 'active')->limit(100)->get();
         return view('tasks.create', compact('interns'));
     }
 
@@ -147,9 +147,20 @@ class TaskController extends Controller
     {
         $user = Auth::user();
 
-        // Check access
-        if ($user->isIntern() && $task->intern_id !== $user->intern?->id) {
-            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+        // Check access for intern
+        if ($user->isIntern()) {
+            // Load intern relationship if not loaded
+            $intern = $user->intern;
+
+            // If intern profile doesn't exist, deny access
+            if (!$intern) {
+                abort(403, 'Profil magang tidak ditemukan.');
+            }
+
+            // Check if task belongs to this intern
+            if ((int) $task->intern_id !== (int) $intern->id) {
+                abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+            }
         }
 
         $task->load(['intern.user', 'assignedBy', 'assessment', 'taskAssignment']);
@@ -266,8 +277,9 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Verify task belongs to intern
-        if ($task->intern_id !== $user->intern?->id) {
-            abort(403);
+        $intern = $user->intern;
+        if (!$intern || (int) $task->intern_id !== (int) $intern->id) {
+            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
         }
 
         // Validate based on submission type
@@ -311,7 +323,7 @@ class TaskController extends Controller
         if ($request->hasFile('submission_file')) {
             $file = $request->file('submission_file');
             $filename = time() . '_' . $task->id . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/submissions', $filename);
+            $file->storeAs('submissions', $filename, 'public');
             $data['submission_file'] = $filename;
         }
 
@@ -394,8 +406,11 @@ class TaskController extends Controller
         $user = Auth::user();
 
         // Verify task belongs to intern
-        if ($user->isIntern() && $task->intern_id !== $user->intern?->id) {
-            abort(403);
+        if ($user->isIntern()) {
+            $intern = $user->intern;
+            if (!$intern || (int) $task->intern_id !== (int) $intern->id) {
+                abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+            }
         }
 
         $request->validate([
@@ -423,7 +438,8 @@ class TaskController extends Controller
         }
 
         $query = TaskAssignment::with(['assignedBy', 'tasks.intern.user'])
-            ->withCount('tasks');
+            ->withCount('tasks')
+            ->having('tasks_count', '>', 0); // Hanya tampilkan yang masih ada task
 
         // Search
         if ($request->search) {
