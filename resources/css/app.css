@@ -81,19 +81,18 @@
     }
 
     .sidebar-brand-icon {
-        @apply w-10 h-10 rounded-xl flex items-center justify-center text-xl text-white shadow-lg flex-shrink-0;
+        @apply w-10 h-10 rounded-xl flex items-center justify-center text-xl text-white shadow-lg;
         background: var(--accent-gradient);
         box-shadow: 0 4px 12px -2px rgba(167, 139, 250, 0.4);
     }
 
     .sidebar-brand-text h1 {
-        @apply text-base font-extrabold bg-clip-text text-transparent tracking-tight flex-1;
+        @apply text-base font-extrabold bg-clip-text text-transparent tracking-tight;
         background-image: var(--accent-gradient);
     }
 
     .sidebar-brand-text span {
-        @apply text-[9px] text-slate-400 uppercase tracking-widest font-medium block;
-    }
+        @apply text-[9px] text-slate-400 uppercase tracking-widest font-medium;
     }
 
     /* Sidebar Collapse Button */
@@ -121,7 +120,7 @@
     }
 
     .nav-section-title {
-        @apply text-[9px] uppercase tracking-widest text-slate-400 px-3 mb-2 font-semibold transition-opacity duration-200;
+        @apply text-[9px] uppercase tracking-widest text-slate-400 px-3 mb-2 font-semibold;
     }
 
     .nav-item {
@@ -147,11 +146,7 @@
     }
 
     .nav-link i {
-        @apply w-5 text-center text-sm flex-shrink-0;
-    }
-
-    .nav-link span {
-        @apply transition-opacity duration-200 whitespace-nowrap;
+        @apply w-5 text-center text-sm;
     }
 
     /* Sidebar Overlay (Mobile) */
@@ -197,11 +192,7 @@
         }
 
         .sidebar-collapsed .sidebar-collapse-btn {
-            @apply relative right-auto top-auto translate-y-0 ml-auto;
-        }
-
-        .sidebar-collapsed .sidebar-collapse-btn i {
-            @apply transform rotate-0;
+            @apply static translate-y-0 ml-0 w-8 h-8;
         }
 
         .sidebar-collapsed .nav-section-title {
@@ -248,10 +239,6 @@
 
         .sidebar-collapsed .sidebar-brand-icon {
             @apply w-9 h-9 text-lg;
-        }
-
-        .sidebar-collapsed .sidebar-collapse-btn {
-            @apply static translate-y-0 ml-0 w-8 h-8;
         }
 
         .sidebar-collapsed .nav-link.active {
@@ -685,7 +672,7 @@
     .row {
         @apply flex flex-wrap -mx-2 sm:-mx-3;
     }
-
+    
     .col {
         @apply flex-1 px-2 sm:px-3 max-w-full;
     }
@@ -694,74 +681,36 @@
         @apply w-auto px-2 sm:px-3;
     }
 
-    .col-12 {
-        @apply w-full px-2 sm:px-3;
-    }
-    .col-6 {
-        @apply w-1/2 px-2 sm:px-3;
-    }
-    .col-4 {
-        @apply w-1/3 px-2 sm:px-3;
-    }
-    .col-3 {
-        @apply w-1/4 px-2 sm:px-3;
-    }
+    .col-12 { @apply w-full px-2 sm:px-3; }
+    .col-6 { @apply w-1/2 px-2 sm:px-3; }
+    .col-4 { @apply w-1/3 px-2 sm:px-3; }
+    .col-3 { @apply w-1/4 px-2 sm:px-3; }
 
     /* Small devices (tablets, 640px and up) */
     @media (min-width: 640px) {
-        .col-sm-12 {
-            @apply w-full;
-        }
-        .col-sm-6 {
-            @apply w-1/2;
-        }
-        .col-sm-4 {
-            @apply w-1/3;
-        }
-        .col-sm-3 {
-            @apply w-1/4;
-        }
+        .col-sm-12 { @apply w-full; }
+        .col-sm-6 { @apply w-1/2; }
+        .col-sm-4 { @apply w-1/3; }
+        .col-sm-3 { @apply w-1/4; }
     }
 
     /* Medium devices (desktops, 768px and up) */
     @media (min-width: 768px) {
-        .col-md-12 {
-            @apply w-full;
-        }
-        .col-md-6 {
-            @apply w-1/2;
-        }
-        .col-md-4 {
-            @apply w-1/3;
-        }
-        .col-md-3 {
-            @apply w-1/4;
-        }
-        .col-md-8 {
-            @apply w-2/3;
-        }
-        .col-md-9 {
-            @apply w-3/4;
-        }
+        .col-md-12 { @apply w-full; }
+        .col-md-6 { @apply w-1/2; }
+        .col-md-4 { @apply w-1/3; }
+        .col-md-3 { @apply w-1/4; }
+        .col-md-8 { @apply w-2/3; }
+        .col-md-9 { @apply w-3/4; }
     }
 
     /* Large devices (large desktops, 1024px and up) */
     @media (min-width: 1024px) {
-        .col-lg-12 {
-            @apply w-full;
-        }
-        .col-lg-6 {
-            @apply w-1/2;
-        }
-        .col-lg-4 {
-            @apply w-1/3;
-        }
-        .col-lg-3 {
-            @apply w-1/4;
-        }
-        .col-lg-2 {
-            @apply w-1/6;
-        }
+        .col-lg-12 { @apply w-full; }
+        .col-lg-6 { @apply w-1/2; }
+        .col-lg-4 { @apply w-1/3; }
+        .col-lg-3 { @apply w-1/4; }
+        .col-lg-2 { @apply w-1/6; }
     }
 }
 
@@ -857,7 +806,7 @@
     .grid-3 {
         @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5;
     }
-
+    
     .w-full-mobile {
         @apply w-full;
     }

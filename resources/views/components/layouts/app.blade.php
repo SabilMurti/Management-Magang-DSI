@@ -45,6 +45,66 @@
 
     @vite(["resources/css/app.css", "resources/js/app.js"])
 
+    <!-- Early sidebar state restoration (prevent flashing) -->
+    <script>
+        (function() {
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.documentElement.classList.add('sidebar-collapsed-init');
+            }
+        })();
+    </script>
+    <style>
+        @media (min-width: 1024px) {
+            html.sidebar-collapsed-init .sidebar {
+                width: 4rem;
+            }
+            html.sidebar-collapsed-init .sidebar-brand-text {
+                display: none;
+            }
+            html.sidebar-collapsed-init .nav-section-title {
+                opacity: 0;
+                height: 0;
+                margin-bottom: 0;
+                overflow: hidden;
+            }
+            html.sidebar-collapsed-init .nav-link {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            html.sidebar-collapsed-init .nav-link span {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+            }
+            html.sidebar-collapsed-init .main-content {
+                margin-left: 4rem;
+            }
+            html.sidebar-collapsed-init .sidebar-brand {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            html.sidebar-collapsed-init .sidebar-brand-icon {
+                width: 2.25rem;
+                height: 2.25rem;
+                font-size: 1.125rem;
+            }
+            html.sidebar-collapsed-init .sidebar-collapse-btn {
+                position: static;
+                transform: translateY(0);
+                margin-left: 0;
+                width: 2rem;
+                height: 2rem;
+            }
+            html.sidebar-collapsed-init .sidebar-collapse-btn i {
+                transform: rotate(0deg);
+            }
+        }
+    </style>
+
     @livewireStyles
     @stack('styles')
 </head>
@@ -80,8 +140,7 @@
                     <ul class="space-y-0.5">
                         <li class="nav-item">
                             <a href="{{ route('dashboard') }}"
-                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                                data-tooltip="Dashboard">
+                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                                 <i class="fas fa-home"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -90,8 +149,7 @@
                         @if(auth()->user()->canManage())
                             <li class="nav-item">
                                 <a href="{{ route('interns.index') }}"
-                                    class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}"
-                                    data-tooltip="Anggota Magang">
+                                    class="nav-link {{ request()->routeIs('interns.*') ? 'active' : '' }}">
                                     <i class="fas fa-users"></i>
                                     <span>Anggota Magang</span>
                                 </a>
@@ -101,8 +159,7 @@
                         @if(auth()->user()->role === 'admin')
                             <li class="nav-item">
                                 <a href="{{ route('supervisors.index') }}"
-                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}"
-                                    data-tooltip="Pembimbing">
+                                    class="nav-link {{ request()->routeIs('supervisors.*') ? 'active' : '' }}">
                                     <i class="fas fa-user-tie"></i>
                                     <span>Pembimbing</span>
                                 </a>
@@ -111,8 +168,7 @@
 
                         <li class="nav-item">
                             <a href="{{ route('tasks.index') }}"
-                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}"
-                                data-tooltip="Daftar Penugasan">
+                                class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
                                 <i class="fas fa-tasks"></i>
                                 <span>Daftar Penugasan</span>
                             </a>
@@ -121,8 +177,7 @@
                         @if(auth()->user()->canManage())
                             <li class="nav-item">
                                 <a href="{{ route('task-assignments.index') }}"
-                                    class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}"
-                                    data-tooltip="Daftar Tugas">
+                                    class="nav-link {{ request()->routeIs('task-assignments.*') ? 'active' : '' }}">
                                     <i class="fas fa-layer-group"></i>
                                     <span>Daftar Tugas</span>
                                 </a>
@@ -131,8 +186,7 @@
 
                         <li class="nav-item">
                             <a href="{{ route('attendances.index') }}"
-                                class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}"
-                                data-tooltip="Presensi">
+                                class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Presensi</span>
                             </a>
@@ -140,8 +194,7 @@
 
                         <li class="nav-item">
                             <a href="{{ route('calendar') }}"
-                                class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}"
-                                data-tooltip="Kalender">
+                                class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span>Kalender</span>
                             </a>
@@ -155,16 +208,14 @@
                         <ul class="space-y-0.5">
                             <li class="nav-item">
                                 <a href="{{ route('reports.index') }}"
-                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
-                                    data-tooltip="Laporan">
+                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                                     <i class="fas fa-file-alt"></i>
                                     <span>Laporan</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('assessments.index') }}"
-                                    class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}"
-                                    data-tooltip="Penilaian">
+                                    class="nav-link {{ request()->routeIs('assessments.*') ? 'active' : '' }}">
                                     <i class="fas fa-star"></i>
                                     <span>Penilaian</span>
                                 </a>
@@ -179,8 +230,7 @@
                         <ul class="space-y-0.5">
                             <li class="nav-item">
                                 <a href="{{ route('settings.index') }}"
-                                    class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}"
-                                    data-tooltip="Pengaturan">
+                                    class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                     <i class="fas fa-cog"></i>
                                     <span>Pengaturan</span>
                                 </a>
@@ -194,8 +244,7 @@
                     <ul class="space-y-0.5">
                         <li class="nav-item">
                             <a href="{{ route('profile.show') }}"
-                                class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
-                                data-tooltip="Profil">
+                                class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
                                 <i class="fas fa-user-circle"></i>
                                 <span>Profil</span>
                             </a>
@@ -344,7 +393,16 @@
         // Desktop Sidebar Collapse
         function toggleSidebarCollapse() {
             const appContainer = document.querySelector('.app-container');
+            const html = document.documentElement;
             const isCollapsed = appContainer.classList.toggle('sidebar-collapsed');
+            
+            // Also toggle on html for persistence
+            if (isCollapsed) {
+                html.classList.add('sidebar-collapsed-init');
+            } else {
+                html.classList.remove('sidebar-collapsed-init');
+            }
+            
             localStorage.setItem('sidebar-collapsed', isCollapsed);
             
             // Update button icon
