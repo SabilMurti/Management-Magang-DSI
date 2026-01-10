@@ -19,14 +19,12 @@ class Task extends Model
         'status',
         'deadline',
         'deadline_time',
+        'start_date',
         'started_at',
         'completed_at',
         'submitted_at',
         'is_late',
-        'estimated_hours',
-        'submission_type',
-        'github_link',
-        'submission_file',
+        'submission_links',
         'submission_notes',
         'score',
         'admin_feedback',
@@ -35,11 +33,13 @@ class Task extends Model
 
     protected $casts = [
         'deadline' => 'date',
+        'start_date' => 'date',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
         'is_late' => 'boolean',
+        'submission_links' => 'array',
     ];
 
     public function intern()
@@ -80,6 +80,7 @@ class Task extends Model
             'in_progress' => 'primary',
             'revision' => 'warning',
             'pending' => 'secondary',
+            'scheduled' => 'slate',
             default => 'secondary',
         };
     }
@@ -92,6 +93,7 @@ class Task extends Model
             'in_progress' => 'Dikerjakan',
             'revision' => 'Perlu Revisi',
             'pending' => 'Belum Mulai',
+            'scheduled' => 'Terjadwal',
             default => 'Unknown',
         };
 
@@ -127,12 +129,17 @@ class Task extends Model
         return $this->deadline->isPast();
     }
 
+    // Check if task is scheduled for future
+    public function isScheduled()
+    {
+        return $this->start_date && $this->start_date->isFuture();
+    }
+
     // Submit task and check if late
     public function submit()
     {
         $now = now();
         $this->submitted_at = $now;
-        // Don't set completed_at yet, only when approved
         $this->status = 'submitted';
 
         // Check if late
@@ -160,5 +167,15 @@ class Task extends Model
         $this->status = 'revision';
         $this->admin_feedback = $feedback;
         $this->save();
+    }
+
+    // Activate scheduled task
+    public function activate()
+    {
+        if ($this->status === 'scheduled') {
+            $this->status = 'pending';
+            $this->save();
+        }
+        return $this;
     }
 }

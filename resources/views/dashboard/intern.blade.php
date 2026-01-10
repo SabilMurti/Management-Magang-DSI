@@ -84,7 +84,7 @@
                                     @csrf
                                     <button type="submit"
                                         class="btn w-full py-3.5 text-base font-bold bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20 transition-all">
-                                        <i class="fas fa-sign-out-alt mr-2"></i> CHECK OUT SEKARANG
+                                        <i class="fas fa-sign-out-alt mr-2"></i> PRESENSI KELUAR SEKARANG
                                     </button>
                                 </form>
                             @else
@@ -404,7 +404,7 @@
                             class="flex-1 btn btn-secondary">Batal</button>
                         <button type="button" id="submitLateBtn"
                             class="flex-1 btn btn-primary bg-amber-500 hover:bg-amber-600 text-white border-transparent">Simpan
-                            & Check In</button>
+                            & Presensi Masuk</button>
                     </div>
                 </div>
             </div>
@@ -497,7 +497,7 @@
                                 // Remove indigo classes if present from initial state
                                 checkInBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-500/20');
 
-                                checkInBtn.innerHTML = '<i class="fas fa-fingerprint mr-2 animate-pulse"></i> CHECK IN SEKARANG';
+                                checkInBtn.innerHTML = '<i class="fas fa-fingerprint mr-2 animate-pulse"></i> PRESENSI MASUK SEKARANG';
 
                                 if (gpsStatus) {
                                     gpsStatus.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></div> Lokasi Valid';

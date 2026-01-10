@@ -29,6 +29,24 @@
             </p>
         </div>
 
+        <!-- Pending Registration Alert -->
+        @if(isset($pendingRegistrations) && $pendingRegistrations > 0)
+            <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6" style="background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.15) 100%); border: 2px solid rgba(251,191,36,0.4);">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+                        <i class="fas fa-user-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-amber-800 text-base">{{ $pendingRegistrations }} Pendaftaran Menunggu Approval</p>
+                        <p class="text-sm text-amber-600">Ada calon magang yang mendaftar dan membutuhkan persetujuan Anda.</p>
+                    </div>
+                </div>
+                <a href="{{ route('interns.index', ['status' => 'pending']) }}" class="btn bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/30 whitespace-nowrap">
+                    <i class="fas fa-eye"></i> Lihat & Approve
+                </a>
+            </div>
+        @endif
+
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Total Siswa -->

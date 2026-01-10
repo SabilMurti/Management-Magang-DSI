@@ -658,8 +658,8 @@
                 <tr>
                     <th style="width: 25%;">Tanggal</th>
                     <th style="width: 20%;">Status</th>
-                    <th style="width: 15%;">Check In</th>
-                    <th style="width: 15%;">Check Out</th>
+                    <th style="width: 15%;">Presensi Masuk</th>
+                    <th style="width: 15%;">Presensi Keluar</th>
                     <th style="width: 25%;">Catatan</th>
                 </tr>
             </thead>

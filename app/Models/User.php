@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(Intern::class, 'supervisor_id');
     }
 
+    public function supervisor()
+    {
+        return $this->hasOne(Supervisor::class);
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';

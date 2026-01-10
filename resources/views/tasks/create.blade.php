@@ -34,7 +34,7 @@
             </div>
         @endif
 
-        <form action="{{ route('tasks.store') }}" method="POST" x-data="{ assignType: 'all' }" class="space-y-8">
+        <form action="{{ route('tasks.store') }}" method="POST" x-data="taskForm()" class="space-y-8">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -131,36 +131,72 @@
                                     </label>
                                 </div>
 
-                                <!-- Intern List -->
+                                <!-- Intern Search & Selection -->
                                 <div x-show="assignType === 'selected'" 
                                      x-transition:enter="transition ease-out duration-300"
                                      x-transition:enter-start="opacity-0 -translate-y-2 scale-95"
                                      x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                                      class="mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-200/60 shadow-inner">
-                                    <div class="flex justify-between items-center mb-3">
-                                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Anggota</label>
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-400">Multiple Select</span>
+                                    
+                                    <!-- Search Bar -->
+                                    <div class="mb-4">
+                                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Cari Siswa</label>
+                                        <div class="relative">
+                                            <input type="text" x-model="searchQuery" @input.debounce.300ms="searchInterns()"
+                                                   class="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
+                                                   placeholder="Cari nama, sekolah, atau jurusan...">
+                                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                            <div x-show="isSearching" class="absolute right-3.5 top-1/2 -translate-y-1/2">
+                                                <i class="fas fa-spinner fa-spin text-indigo-500"></i>
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    <!-- Selected interns -->
+                                    <div x-show="selectedInterns.length > 0" class="mb-4">
+                                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">
+                                            Siswa Terpilih (<span x-text="selectedInterns.length"></span>)
+                                        </label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="intern in selectedInterns" :key="intern.id">
+                                                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
+                                                    <span x-text="intern.name"></span>
+                                                    <button type="button" @click="removeIntern(intern.id)" class="hover:text-indigo-900">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <input type="hidden" name="intern_ids[]" :value="intern.id">
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- Search Results -->
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                                        @foreach($interns as $intern)
-                                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 cursor-pointer transition-all hover:shadow-sm group">
+                                        <template x-for="intern in filteredInterns" :key="intern.id">
+                                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 cursor-pointer transition-all hover:shadow-sm group"
+                                                   :class="{'border-indigo-500 bg-indigo-50/50': isSelected(intern.id)}">
                                                 <div class="relative flex items-center justify-center w-5 h-5">
-                                                    <input type="checkbox" name="intern_ids[]" value="{{ $intern->id }}" 
+                                                    <input type="checkbox" :checked="isSelected(intern.id)" @change="toggleIntern(intern)"
                                                            class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-indigo-500 checked:border-indigo-500 transition-colors">
                                                     <i class="fas fa-check text-white text-[10px] absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity"></i>
                                                 </div>
                                                 <div class="flex items-center gap-3 min-w-0">
-                                                    <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0 border border-indigo-100">
-                                                        {{ strtoupper(substr($intern->user->name, 0, 1)) }}
-                                                    </div>
+                                                    <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0 border border-indigo-100"
+                                                         x-text="intern.name.charAt(0).toUpperCase()"></div>
                                                     <div class="truncate">
-                                                        <div class="font-bold text-slate-700 text-sm truncate group-hover:text-indigo-700 transition-colors">{{ $intern->user->name }}</div>
-                                                        <div class="text-[10px] text-slate-400 truncate">{{ $intern->department ?? 'Magang' }}</div>
+                                                        <div class="font-bold text-slate-700 text-sm truncate group-hover:text-indigo-700 transition-colors" x-text="intern.name"></div>
+                                                        <div class="text-[10px] text-slate-400 truncate" x-text="intern.school + ' - ' + intern.department"></div>
                                                     </div>
                                                 </div>
                                             </label>
-                                        @endforeach
+                                        </template>
                                     </div>
+                                    
+                                    <div x-show="filteredInterns.length === 0 && !isSearching" class="text-center py-4 text-slate-400 text-sm">
+                                        <i class="fas fa-search mb-2 text-lg"></i>
+                                        <p>Tidak ada siswa ditemukan</p>
+                                    </div>
+                                    
                                     @error('intern_ids')
                                         <p class="text-rose-500 text-xs mt-2 flex items-center gap-1"><i class="fas fa-times-circle"></i> {{ $message }}</p>
                                     @enderror
@@ -192,63 +228,6 @@
                                         </label>
                                     </div>
                                 </div>
-
-                            <!-- Submission Type (Full Width) -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-slate-700 mb-3">Metode Pengumpulan</label>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <!-- File Option -->
-                                    <label class="cursor-pointer group relative">
-                                        <input type="radio" name="submission_type" value="file" class="peer sr-only" {{ old('submission_type', 'file') == 'file' ? 'checked' : '' }}>
-                                        <div class="h-full p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-slate-50 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 peer-checked:ring-1 peer-checked:ring-indigo-500/20 shadow-sm flex flex-col items-center text-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0 transition-colors peer-checked:bg-blue-100 peer-checked:text-blue-700">
-                                                <i class="fas fa-file-upload text-lg"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-bold text-sm text-slate-700 peer-checked:text-indigo-800">Upload File</div>
-                                                <div class="text-[10px] text-slate-500 leading-tight mt-1">PDF, Gambar, ZIP</div>
-                                            </div>
-                                            <div class="absolute top-3 right-3 text-indigo-500 opacity-0 peer-checked:opacity-100 scale-75 peer-checked:scale-100 transition-all">
-                                                <i class="fas fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                    </label>
-
-                                    <!-- GitHub Option -->
-                                    <label class="cursor-pointer group relative">
-                                        <input type="radio" name="submission_type" value="github" class="peer sr-only" {{ old('submission_type') == 'github' ? 'checked' : '' }}>
-                                        <div class="h-full p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-slate-50 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 peer-checked:ring-1 peer-checked:ring-indigo-500/20 shadow-sm flex flex-col items-center text-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center shrink-0 transition-colors peer-checked:bg-slate-200 peer-checked:text-slate-900">
-                                                <i class="fab fa-github text-lg"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-bold text-sm text-slate-700 peer-checked:text-indigo-800">Repository</div>
-                                                <div class="text-[10px] text-slate-500 leading-tight mt-1">Link GitHub/GitLab</div>
-                                            </div>
-                                            <div class="absolute top-3 right-3 text-indigo-500 opacity-0 peer-checked:opacity-100 scale-75 peer-checked:scale-100 transition-all">
-                                                <i class="fas fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                    </label>
-
-                                    <!-- Combination Option -->
-                                    <label class="cursor-pointer group relative">
-                                        <input type="radio" name="submission_type" value="both" class="peer sr-only" {{ old('submission_type') == 'both' ? 'checked' : '' }}>
-                                        <div class="h-full p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-slate-50 transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 peer-checked:ring-1 peer-checked:ring-indigo-500/20 shadow-sm flex flex-col items-center text-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shrink-0 transition-colors peer-checked:bg-indigo-100 peer-checked:text-indigo-700">
-                                                <i class="fas fa-layer-group text-lg"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-bold text-sm text-slate-700 peer-checked:text-indigo-800">Kombinasi</div>
-                                                <div class="text-[10px] text-slate-500 leading-tight mt-1">File & Repository</div>
-                                            </div>
-                                            <div class="absolute top-3 right-3 text-indigo-500 opacity-0 peer-checked:opacity-100 scale-75 peer-checked:scale-100 transition-all">
-                                                <i class="fas fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
                             </div>
                         </div>
                     </div>
@@ -264,11 +243,27 @@
                             </div>
                             <div>
                                 <h3 class="font-bold text-slate-900 text-lg">Timeline</h3>
-                                <p class="text-xs text-slate-500">Batas waktu pengerjaan</p>
+                                <p class="text-xs text-slate-500">Jadwal penugasan</p>
                             </div>
                         </div>
 
                         <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 flex justify-between">
+                                    <span>Tanggal Mulai</span>
+                                    <span class="text-[10px] bg-blue-100 px-1.5 py-0.5 rounded text-blue-600">Jadwalkan</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="date" name="start_date" value="{{ old('start_date', date('Y-m-d')) }}" 
+                                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-sm"
+                                           min="{{ date('Y-m-d') }}">
+                                    <i class="fas fa-play-circle absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1">Notifikasi dikirim pada tanggal ini</p>
+                            </div>
+
+                            <hr class="border-slate-100">
+
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Tanggal Deadline</label>
                                 <div class="relative">
@@ -287,21 +282,18 @@
                                     <i class="fas fa-clock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <hr class="border-slate-100 my-2">
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 flex justify-between">
-                                    <span>Estimasi Jam</span>
-                                    <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-400">Opsional</span>
-                                </label>
-                                <div class="relative">
-                                    <input type="number" name="estimated_hours" value="{{ old('estimated_hours') }}" min="1" 
-                                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-sm" 
-                                           placeholder="Contoh: 8">
-                                    <i class="fas fa-hourglass-start absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Jam</div>
-                                </div>
+                    <!-- Info Card -->
+                    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                        <div class="flex gap-3">
+                            <div class="shrink-0 text-blue-500">
+                                <i class="fas fa-info-circle text-lg"></i>
+                            </div>
+                            <div class="text-sm text-blue-700">
+                                <p class="font-medium mb-1">Pengumpulan via Link</p>
+                                <p class="text-xs text-blue-600">Siswa dapat memasukkan beberapa link (repo, demo, dokumentasi, dll) saat mengumpulkan tugas.</p>
                             </div>
                         </div>
                     </div>
@@ -338,5 +330,58 @@
             background: #94a3b8;
         }
     </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+        function taskForm() {
+            return {
+                assignType: 'all',
+                searchQuery: '',
+                isSearching: false,
+                allInterns: @json($internsJson),
+                filteredInterns: [],
+                selectedInterns: [],
+                
+                init() {
+                    this.filteredInterns = this.allInterns.slice(0, 20);
+                },
+                
+                searchInterns() {
+                    if (!this.searchQuery) {
+                        this.filteredInterns = this.allInterns.slice(0, 20);
+                        return;
+                    }
+                    
+                    this.isSearching = true;
+                    const query = this.searchQuery.toLowerCase();
+                    
+                    this.filteredInterns = this.allInterns.filter(intern => {
+                        return intern.name.toLowerCase().includes(query) ||
+                               intern.school.toLowerCase().includes(query) ||
+                               intern.department.toLowerCase().includes(query);
+                    }).slice(0, 20);
+                    
+                    this.isSearching = false;
+                },
+                
+                isSelected(id) {
+                    return this.selectedInterns.some(i => i.id === id);
+                },
+                
+                toggleIntern(intern) {
+                    if (this.isSelected(intern.id)) {
+                        this.removeIntern(intern.id);
+                    } else {
+                        this.selectedInterns.push(intern);
+                    }
+                },
+                
+                removeIntern(id) {
+                    this.selectedInterns = this.selectedInterns.filter(i => i.id !== id);
+                }
+            }
+        }
+    </script>
     @endpush
 @endsection

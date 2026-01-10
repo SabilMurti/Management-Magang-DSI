@@ -37,12 +37,12 @@
             
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">Check In</label>
+                    <label class="form-label">Presensi Masuk</label>
                     <input type="time" name="check_in" class="form-control" value="{{ old('check_in') }}">
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Check Out</label>
+                    <label class="form-label">Presensi Keluar</label>
                     <input type="time" name="check_out" class="form-control" value="{{ old('check_out') }}">
                 </div>
             </div>

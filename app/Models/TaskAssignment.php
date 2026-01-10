@@ -16,13 +16,13 @@ class TaskAssignment extends Model
         'priority',
         'deadline',
         'deadline_time',
-        'estimated_hours',
-        'submission_type',
+        'start_date',
         'assign_to_all',
     ];
 
     protected $casts = [
         'deadline' => 'date',
+        'start_date' => 'date',
         'assign_to_all' => 'boolean',
     ];
 
