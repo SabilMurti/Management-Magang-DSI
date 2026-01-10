@@ -48,16 +48,29 @@
                 $hasEvents = isset($events[$day]) && count($events[$day]) > 0;
                 $dayEvents = $events[$day] ?? [];
                 $isClickable = $viewMode === 'attendance' && auth()->user()->canManage();
+                
+                // Check for holidays and Sundays
+                $isHoliday = isset($holidays[$day]);
+                $holidayName = $holidays[$day] ?? null;
+                $isSunday = \Carbon\Carbon::createFromDate($currentYear, $currentMonth, $day)->isSunday();
+                $isRedDate = $isHoliday || $isSunday;
                 @endphp
-                <div @if($isClickable) wire:click="openAttendanceModal({{ $day }})" @endif class="relative min-h-[80px] sm:min-h-[120px] p-1.5 sm:p-2 border rounded-xl transition-all flex flex-col gap-1
-                            {{ $isToday ? 'bg-indigo-50/50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100' }}
+                <div @if($isClickable) wire:click="openAttendanceModal({{ $day }})" @endif 
+                     @if($holidayName) title="{{ $holidayName }}" @endif
+                     class="relative min-h-[80px] sm:min-h-[120px] p-1.5 sm:p-2 border rounded-xl transition-all flex flex-col gap-1
+                            {{ $isToday ? 'bg-indigo-50/50 border-indigo-200 ring-1 ring-indigo-200' : ($isRedDate ? 'bg-rose-50/50 border-rose-100' : 'bg-white border-slate-100') }}
                             {{ $isClickable ? 'cursor-pointer hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5' : '' }}">
 
                     <!-- Day Number -->
                     <div class="flex justify-between items-start">
-                        <span class="text-sm sm:text-base font-semibold {{ $isToday ? 'text-indigo-600 bg-indigo-100 w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center' : 'text-slate-700 ml-1' }}">
+                        <span class="text-sm sm:text-base font-semibold {{ $isToday ? 'text-indigo-600 bg-indigo-100 w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center' : ($isRedDate ? 'text-rose-500 ml-1' : 'text-slate-700 ml-1') }}">
                             {{ $day }}
                         </span>
+                        @if($isHoliday)
+                        <span class="hidden sm:inline-block text-[9px] bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded font-medium leading-tight text-right" style="max-width: 85px; word-wrap: break-word;">
+                            {{ $holidayName }}
+                        </span>
+                        @endif
                         @if($hasEvents && $viewMode === 'attendance' && !auth()->user()->canManage())
                         @foreach($dayEvents as $event)
                         @if(isset($event['status']))
@@ -172,6 +185,9 @@
 
         <!-- Legend -->
         <div class="p-4 border-t border-slate-100 bg-slate-50/30 flex flex-wrap gap-4 text-xs">
+            <!-- Holiday Legend (always visible) -->
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-rose-50 border border-rose-200"></span> <span class="text-rose-500 font-medium">Libur/Minggu</span></div>
+            
             @if($viewMode === 'attendance')
             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-emerald-500"></span> Hadir</div>
             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-amber-500"></span> Terlambat</div>
@@ -193,6 +209,25 @@
             </div>
             @endif
         </div>
+        
+        <!-- Holiday List for Current Month -->
+        @if(count($holidays) > 0)
+        <div class="p-4 border-t border-slate-100 bg-white">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fas fa-calendar-day text-rose-400"></i> Hari Libur Nasional Bulan Ini
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                @foreach($holidays as $day => $holidayName)
+                <div class="flex items-center gap-3 p-2 bg-rose-50/50 rounded-lg border border-rose-100">
+                    <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center font-bold text-sm">
+                        {{ $day }}
+                    </span>
+                    <span class="text-sm text-slate-700 font-medium">{{ $holidayName }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Attendance Stats Modal -->

@@ -31,6 +31,8 @@ class Notification extends Model
     const TYPE_TASK_APPROVED = 'task_approved';
     const TYPE_TASK_REVISION = 'task_revision';
     const TYPE_TASK_SUBMITTED = 'task_submitted';
+    const TYPE_NEW_INTERN_REGISTRATION = 'new_intern_registration';
+    const TYPE_NEW_SUPERVISOR_REGISTRATION = 'new_supervisor_registration';
 
     public function user()
     {
@@ -60,6 +62,7 @@ class Notification extends Model
             self::TYPE_TASK_APPROVED => 'fas fa-check-circle text-success',
             self::TYPE_TASK_REVISION => 'fas fa-redo text-warning',
             self::TYPE_TASK_SUBMITTED => 'fas fa-paper-plane text-info',
+            self::TYPE_NEW_INTERN_REGISTRATION => 'fas fa-user-plus text-amber-500',
             default => 'fas fa-bell text-secondary',
         };
     }
@@ -72,6 +75,7 @@ class Notification extends Model
             self::TYPE_TASK_APPROVED => '#22c55e',
             self::TYPE_TASK_REVISION => '#f97316',
             self::TYPE_TASK_SUBMITTED => '#06b6d4',
+            self::TYPE_NEW_INTERN_REGISTRATION => '#f59e0b',
             default => '#6b7280',
         };
     }

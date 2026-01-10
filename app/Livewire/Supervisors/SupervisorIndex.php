@@ -3,6 +3,7 @@
 namespace App\Livewire\Supervisors;
 
 use App\Models\User;
+use App\Models\Supervisor;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -15,6 +16,7 @@ class SupervisorIndex extends Component
     use WithPagination;
 
     public $search = '';
+    public $status = '';
 
     // Bulk action properties
     public $selectedSupervisors = [];
@@ -23,9 +25,16 @@ class SupervisorIndex extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'status' => ['except' => ''],
     ];
 
     public function updatingSearch()
+    {
+        $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
+    public function updatingStatus()
     {
         $this->resetPage();
         $this->resetBulkSelection();
@@ -47,9 +56,29 @@ class SupervisorIndex extends Component
         $this->bulkAction = '';
     }
 
+    public function approveSupervisor($id)
+    {
+        $supervisor = Supervisor::findOrFail($id);
+        $supervisor->update(['status' => 'active']);
+        
+        session()->flash('success', 'Pendaftaran ' . $supervisor->user->name . ' berhasil disetujui!');
+    }
+
+    public function rejectSupervisor($id)
+    {
+        $supervisor = Supervisor::findOrFail($id);
+        $user = $supervisor->user;
+        $name = $user->name;
+        $supervisor->delete();
+        $user->delete();
+        
+        session()->flash('success', 'Pendaftaran ' . $name . ' ditolak dan dihapus.');
+    }
+
     public function deleteSupervisor($id)
     {
-        $user = User::findOrFail($id);
+        $supervisor = Supervisor::findOrFail($id);
+        $user = $supervisor->user;
 
         // Check if supervisor has any interns assigned
         if ($user->supervisedInterns()->count() > 0) {
@@ -57,6 +86,7 @@ class SupervisorIndex extends Component
             return;
         }
 
+        $supervisor->delete();
         $user->delete();
         session()->flash('success', 'Pembimbing berhasil dihapus!');
     }
@@ -72,6 +102,12 @@ class SupervisorIndex extends Component
             case 'delete':
                 $this->bulkDelete();
                 break;
+            case 'approve':
+                $this->bulkApprove();
+                break;
+            case 'reject':
+                $this->bulkReject();
+                break;
             default:
                 session()->flash('error', 'Pilih aksi yang valid!');
                 return;
@@ -80,18 +116,54 @@ class SupervisorIndex extends Component
         $this->resetBulkSelection();
     }
 
+    public function bulkApprove()
+    {
+        $count = Supervisor::whereIn('id', $this->selectedSupervisors)
+            ->where('status', 'pending')
+            ->update(['status' => 'active']);
+
+        session()->flash('success', "{$count} pendaftaran berhasil disetujui!");
+    }
+
+    public function bulkReject()
+    {
+        $supervisors = Supervisor::whereIn('id', $this->selectedSupervisors)
+            ->where('status', 'pending')
+            ->with('user')
+            ->get();
+        $count = $supervisors->count();
+
+        foreach ($supervisors as $supervisor) {
+            $user = $supervisor->user;
+            $supervisor->delete();
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        session()->flash('success', "{$count} pendaftaran ditolak dan dihapus!");
+    }
+
     public function bulkDelete()
     {
-        $supervisors = User::whereIn('id', $this->selectedSupervisors)->withCount('supervisedInterns')->get();
+        $supervisors = Supervisor::whereIn('id', $this->selectedSupervisors)
+            ->with(['user' => function($q) {
+                $q->withCount('supervisedInterns');
+            }])
+            ->get();
         $deleted = 0;
         $skipped = 0;
 
         foreach ($supervisors as $supervisor) {
-            if ($supervisor->supervised_interns_count > 0) {
+            if ($supervisor->user && $supervisor->user->supervised_interns_count > 0) {
                 $skipped++;
                 continue;
             }
+            $user = $supervisor->user;
             $supervisor->delete();
+            if ($user) {
+                $user->delete();
+            }
             $deleted++;
         }
 
@@ -102,16 +174,27 @@ class SupervisorIndex extends Component
         }
     }
 
+    public function getPendingCountProperty()
+    {
+        return Supervisor::where('status', 'pending')->count();
+    }
+
     private function getFilteredQuery()
     {
-        $query = User::where('role', 'pembimbing')
-            ->withCount('supervisedInterns');
+        $query = Supervisor::with(['user' => function($q) {
+            $q->withCount('supervisedInterns');
+        }]);
+
+        if ($this->status) {
+            $query->where('status', $this->status);
+        }
 
         if ($this->search) {
-            $query->where(function($q) {
+            $query->whereHas('user', function($q) {
                 $q->where('name', 'like', "%{$this->search}%")
                   ->orWhere('email', 'like', "%{$this->search}%");
-            });
+            })->orWhere('institution', 'like', "%{$this->search}%")
+              ->orWhere('nip', 'like', "%{$this->search}%");
         }
 
         return $query;

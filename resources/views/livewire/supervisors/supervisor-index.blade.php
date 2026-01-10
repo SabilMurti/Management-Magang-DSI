@@ -10,16 +10,60 @@
         </a>
     </div>
 
+    <!-- Pending Alert -->
+    @if($this->pendingCount > 0)
+        <div class="p-4 rounded-xl flex items-center justify-between gap-4" 
+            style="background: linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(251,191,36,0.1) 100%); border: 1px solid rgba(245,158,11,0.2);">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-slate-700">{{ $this->pendingCount }} pendaftaran pembimbing menunggu persetujuan</p>
+                    <p class="text-sm text-slate-500">Klik tombol untuk melihat dan menyetujui pendaftaran</p>
+                </div>
+            </div>
+            <a href="{{ route('supervisors.index', ['status' => 'pending']) }}" class="btn btn-warning whitespace-nowrap">
+                <i class="fas fa-eye"></i> Lihat & Approve
+            </a>
+        </div>
+    @endif
+
     <!-- Filter -->
     <div class="filter-bar">
         <div class="filter-group flex-[2]">
             <label>Cari</label>
             <div class="search-input">
                 <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
-                    placeholder="Nama atau email...">
+                    placeholder="Nama, email, NIP, atau instansi...">
                 <i class="fas fa-search"></i>
             </div>
         </div>
+        <div class="filter-group flex-1">
+            <label>Status</label>
+            <select wire:model.live="status" class="form-control">
+                <option value="">Semua Status</option>
+                <option value="pending">Menunggu Approval</option>
+                <option value="active">Aktif</option>
+            </select>
+        </div>
+        @if($status === 'pending')
+            <div class="filter-group">
+                <label class="invisible">Bulk</label>
+                <div class="flex gap-2">
+                    <select wire:model="bulkAction" class="form-control text-sm">
+                        <option value="">Pilih Aksi Massal...</option>
+                        <option value="approve">✓ Approve Terpilih</option>
+                        <option value="reject">✗ Tolak Terpilih</option>
+                    </select>
+                    <button wire:click="executeBulkAction" 
+                        wire:confirm="Yakin ingin menjalankan aksi ini untuk data terpilih?"
+                        class="btn btn-sm btn-primary" {{ empty($selectedSupervisors) ? 'disabled' : '' }}>
+                        Jalankan
+                    </button>
+                </div>
+            </div>
+        @endif
     </div>
 
     <!-- Table -->
@@ -41,54 +85,83 @@
                 <table>
                     <thead>
                         <tr>
+                            @if($status === 'pending')
+                                <th class="w-12">
+                                    <input type="checkbox" wire:model.live="selectAll" class="rounded border-slate-300">
+                                </th>
+                            @endif
                             <th>Nama</th>
                             <th class="hidden sm:table-cell">Email</th>
-                            <th>Siswa</th>
-                            <th class="hidden md:table-cell">Terdaftar</th>
+                            <th>Instansi</th>
+                            <th>Status</th>
+                            <th class="hidden md:table-cell">Siswa</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($supervisors as $supervisor)
                             <tr wire:key="supervisor-d-{{ $supervisor->id }}">
+                                @if($status === 'pending')
+                                    <td>
+                                        <input type="checkbox" wire:model.live="selectedSupervisors" 
+                                            value="{{ $supervisor->id }}" class="rounded border-slate-300">
+                                    </td>
+                                @endif
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="user-avatar w-10 h-10">
-                                            {{ strtoupper(substr($supervisor->name, 0, 1)) }}
+                                            {{ strtoupper(substr($supervisor->user->name ?? 'X', 0, 1)) }}
                                         </div>
                                         <div>
-                                            <div class="font-semibold text-slate-700 text-sm">{{ $supervisor->name }}</div>
-                                            <div class="text-slate-400 text-[11px] flex items-center gap-1">
-                                                <i class="fas fa-user-tie"></i> Pembimbing
-                                            </div>
+                                            <div class="font-semibold text-slate-700 text-sm">{{ $supervisor->user->name ?? '-' }}</div>
+                                            @if($supervisor->nip)
+                                                <div class="text-slate-400 text-[11px]">NIP: {{ $supervisor->nip }}</div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
-                                <td class="hidden sm:table-cell text-sm text-slate-500">{{ $supervisor->email }}</td>
+                                <td class="hidden sm:table-cell text-sm text-slate-500">{{ $supervisor->user->email ?? '-' }}</td>
+                                <td class="text-sm text-slate-600">{{ $supervisor->institution ?? '-' }}</td>
                                 <td>
-                                    <span
-                                        class="badge {{ $supervisor->supervised_interns_count > 0 ? 'badge-info' : 'badge-secondary' }}">
-                                        <i class="fas fa-users mr-1"></i> {{ $supervisor->supervised_interns_count }}
+                                    @if($supervisor->status === 'pending')
+                                        <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i> Pending</span>
+                                    @else
+                                        <span class="badge badge-success"><i class="fas fa-check mr-1"></i> Aktif</span>
+                                    @endif
+                                </td>
+                                <td class="hidden md:table-cell">
+                                    <span class="badge {{ ($supervisor->user->supervised_interns_count ?? 0) > 0 ? 'badge-info' : 'badge-secondary' }}">
+                                        <i class="fas fa-users mr-1"></i> {{ $supervisor->user->supervised_interns_count ?? 0 }}
                                     </span>
                                 </td>
-                                <td class="hidden md:table-cell text-sm text-slate-400">
-                                    {{ $supervisor->created_at->format('d M Y') }}</td>
                                 <td>
                                     <div class="flex gap-1.5">
-                                        <a href="{{ route('supervisors.edit', $supervisor) }}" class="btn btn-sm btn-warning"
-                                            title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        @if($supervisor->supervised_interns_count == 0)
-                                            <button wire:click="deleteSupervisor({{ $supervisor->id }})"
-                                                wire:confirm="Yakin ingin menghapus?" class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="fas fa-trash"></i>
+                                        @if($supervisor->status === 'pending')
+                                            <button wire:click="approveSupervisor({{ $supervisor->id }})"
+                                                class="btn btn-sm btn-success" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button wire:click="rejectSupervisor({{ $supervisor->id }})"
+                                                wire:confirm="Yakin ingin menolak pendaftaran ini? Data akan dihapus."
+                                                class="btn btn-sm btn-danger" title="Tolak">
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         @else
-                                            <button class="btn btn-sm btn-secondary opacity-50 cursor-not-allowed" disabled
-                                                title="Memiliki siswa">
-                                                <i class="fas fa-lock"></i>
-                                            </button>
+                                            <a href="{{ route('supervisors.edit', $supervisor) }}" class="btn btn-sm btn-warning"
+                                                title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if(($supervisor->user->supervised_interns_count ?? 0) == 0)
+                                                <button wire:click="deleteSupervisor({{ $supervisor->id }})"
+                                                    wire:confirm="Yakin ingin menghapus?" class="btn btn-sm btn-danger" title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @else
+                                                <button class="btn btn-sm btn-secondary opacity-50 cursor-not-allowed" disabled
+                                                    title="Memiliki siswa">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -106,42 +179,60 @@
                         <div class="p-5">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-12 h-12 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-lg font-bold">
-                                        {{ strtoupper(substr($supervisor->name, 0, 1)) }}
+                                    <div class="w-12 h-12 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-lg font-bold">
+                                        {{ strtoupper(substr($supervisor->user->name ?? 'X', 0, 1)) }}
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-slate-800">{{ $supervisor->name }}</h4>
-                                        <p class="text-xs text-slate-400">{{ $supervisor->email }}</p>
+                                        <h4 class="font-bold text-slate-800">{{ $supervisor->user->name ?? '-' }}</h4>
+                                        <p class="text-xs text-slate-400">{{ $supervisor->user->email ?? '-' }}</p>
                                     </div>
                                 </div>
-                                <span
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold {{ $supervisor->supervised_interns_count > 0 ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-500' }}">
-                                    <i class="fas fa-users"></i> {{ $supervisor->supervised_interns_count }}
-                                </span>
+                                @if($supervisor->status === 'pending')
+                                    <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i> Pending</span>
+                                @else
+                                    <span class="badge badge-success"><i class="fas fa-check mr-1"></i> Aktif</span>
+                                @endif
                             </div>
 
-                            <div class="text-xs text-slate-400 mb-4 flex items-center gap-2">
-                                <i class="far fa-calendar-alt"></i> Terdaftar sejak
-                                {{ $supervisor->created_at->format('d M Y') }}
+                            <div class="text-xs text-slate-500 space-y-1 mb-4">
+                                @if($supervisor->nip)
+                                    <div><i class="fas fa-id-badge mr-2"></i> NIP: {{ $supervisor->nip }}</div>
+                                @endif
+                                @if($supervisor->institution)
+                                    <div><i class="fas fa-building mr-2"></i> {{ $supervisor->institution }}</div>
+                                @endif
+                                @if($supervisor->phone)
+                                    <div><i class="fas fa-phone mr-2"></i> {{ $supervisor->phone }}</div>
+                                @endif
                             </div>
 
                             <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
-                                <a href="{{ route('supervisors.edit', $supervisor) }}"
-                                    class="btn bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 justify-center">
-                                    <i class="fas fa-edit mr-2"></i> Edit
-                                </a>
-
-                                @if($supervisor->supervised_interns_count == 0)
-                                    <button wire:click="deleteSupervisor({{ $supervisor->id }})" wire:confirm="Yakin ingin menghapus?"
+                                @if($supervisor->status === 'pending')
+                                    <button wire:click="approveSupervisor({{ $supervisor->id }})"
+                                        class="btn bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-0 justify-center">
+                                        <i class="fas fa-check mr-2"></i> Approve
+                                    </button>
+                                    <button wire:click="rejectSupervisor({{ $supervisor->id }})" 
+                                        wire:confirm="Yakin ingin menolak?"
                                         class="btn bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 justify-center">
-                                        <i class="fas fa-trash mr-2"></i> Hapus
+                                        <i class="fas fa-times mr-2"></i> Tolak
                                     </button>
                                 @else
-                                    <button class="btn bg-slate-100 text-slate-400 border-0 justify-center cursor-not-allowed opacity-70"
-                                        disabled>
-                                        <i class="fas fa-lock mr-2"></i> Terkunci
-                                    </button>
+                                    <a href="{{ route('supervisors.edit', $supervisor) }}"
+                                        class="btn bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 justify-center">
+                                        <i class="fas fa-edit mr-2"></i> Edit
+                                    </a>
+                                    @if(($supervisor->user->supervised_interns_count ?? 0) == 0)
+                                        <button wire:click="deleteSupervisor({{ $supervisor->id }})" wire:confirm="Yakin ingin menghapus?"
+                                            class="btn bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 justify-center">
+                                            <i class="fas fa-trash mr-2"></i> Hapus
+                                        </button>
+                                    @else
+                                        <button class="btn bg-slate-100 text-slate-400 border-0 justify-center cursor-not-allowed opacity-70"
+                                            disabled>
+                                            <i class="fas fa-lock mr-2"></i> Terkunci
+                                        </button>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -154,4 +245,5 @@
             </div>
         @endif
     </div>
+
 </div>

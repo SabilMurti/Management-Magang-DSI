@@ -93,6 +93,13 @@
                 <button type="submit" class="btn btn-primary w-full py-3 text-sm">
                     <i class="fas fa-sign-in-alt"></i> Masuk
                 </button>
+
+                <p class="text-center text-sm text-slate-500 mt-5">
+                    Belum punya akun? 
+                    <a href="{{ route('register') }}" class="text-violet-500 hover:text-violet-600 font-medium">
+                        Daftar Magang
+                    </a>
+                </p>
             </form>
         </div>
     </div>

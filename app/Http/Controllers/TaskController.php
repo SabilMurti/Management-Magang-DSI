@@ -10,7 +10,6 @@ use App\Services\TaskNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -27,6 +26,8 @@ class TaskController extends Controller
                 return redirect()->route('dashboard')->with('error', 'Profil magang tidak ditemukan.');
             }
             $query->where('intern_id', $intern->id);
+            // Hide scheduled tasks from interns
+            $query->where('status', '!=', 'scheduled');
         }
 
         // Search
@@ -58,7 +59,48 @@ class TaskController extends Controller
     public function create()
     {
         $interns = Intern::with('user')->where('status', 'active')->limit(100)->get();
-        return view('tasks.create', compact('interns'));
+        
+        // Pre-format for JavaScript
+        $internsJson = $interns->map(function($intern) {
+            return [
+                'id' => $intern->id,
+                'name' => $intern->user->name ?? 'Unknown',
+                'school' => $intern->school ?? '',
+                'department' => $intern->department ?? '',
+            ];
+        })->values();
+        
+        return view('tasks.create', compact('interns', 'internsJson'));
+    }
+
+    // API endpoint for intern search
+    public function searchInterns(Request $request)
+    {
+        $search = $request->get('q', '');
+        
+        $query = Intern::with('user')->where('status', 'active');
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($u) use ($search) {
+                    $u->where('name', 'like', "%{$search}%");
+                })
+                ->orWhere('school', 'like', "%{$search}%")
+                ->orWhere('department', 'like', "%{$search}%");
+            });
+        }
+        
+        $interns = $query->limit(20)->get()->map(function($intern) {
+            return [
+                'id' => $intern->id,
+                'name' => $intern->user->name ?? 'Unknown',
+                'school' => $intern->school ?? '',
+                'department' => $intern->department ?? '',
+                'label' => ($intern->user->name ?? 'Unknown') . ' - ' . ($intern->school ?? 'N/A') . ' (' . ($intern->department ?? 'N/A') . ')',
+            ];
+        });
+        
+        return response()->json($interns);
     }
 
     public function store(Request $request)
@@ -67,14 +109,17 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority' => 'required|in:low,medium,high',
+            'start_date' => 'nullable|date',
             'deadline' => 'nullable|date',
             'deadline_time' => 'nullable|date_format:H:i',
-            'estimated_hours' => 'nullable|integer|min:1',
-            'submission_type' => 'required|in:github,file,both',
             'assign_to' => 'required|in:all,selected',
             'intern_ids' => 'required_if:assign_to,selected|array',
             'intern_ids.*' => 'exists:interns,id',
         ]);
+
+        // Default start_date to today if not provided
+        $startDate = $request->start_date ?: now()->toDateString();
+        $isScheduled = $startDate > now()->toDateString();
 
         DB::beginTransaction();
         try {
@@ -84,10 +129,9 @@ class TaskController extends Controller
                 'description' => $request->description,
                 'assigned_by' => Auth::id(),
                 'priority' => $request->priority,
+                'start_date' => $startDate,
                 'deadline' => $request->deadline,
                 'deadline_time' => $request->deadline_time,
-                'estimated_hours' => $request->estimated_hours,
-                'submission_type' => $request->submission_type,
                 'assign_to_all' => $request->assign_to === 'all',
             ]);
 
@@ -110,30 +154,36 @@ class TaskController extends Controller
                     'intern_id' => $intern->id,
                     'assigned_by' => Auth::id(),
                     'priority' => $request->priority,
+                    'start_date' => $startDate,
                     'deadline' => $request->deadline,
                     'deadline_time' => $request->deadline_time,
-                    'estimated_hours' => $request->estimated_hours,
-                    'submission_type' => $request->submission_type,
-                    'status' => 'pending',
+                    'status' => $isScheduled ? 'scheduled' : 'pending',
                 ]);
 
-                // Send notification to intern (in-app + email)
-                Notification::notify(
-                    $intern->user_id,
-                    Notification::TYPE_TASK_ASSIGNED,
-                    'Tugas Baru: ' . $request->title,
-                    'Anda mendapat tugas baru dari ' . Auth::user()->name . '. Deadline: ' . ($request->deadline ? \Carbon\Carbon::parse($request->deadline)->format('d M Y') : 'Tidak ada'),
-                    route('tasks.show', $task),
-                    ['task_id' => $task->id]
-                );
+                // Only send notification if not scheduled for future
+                if (!$isScheduled) {
+                    // Send notification to intern (in-app + email)
+                    Notification::notify(
+                        $intern->user_id,
+                        Notification::TYPE_TASK_ASSIGNED,
+                        'Tugas Baru: ' . $request->title,
+                        'Anda mendapat tugas baru dari ' . Auth::user()->name . '. Deadline: ' . ($request->deadline ? \Carbon\Carbon::parse($request->deadline)->format('d M Y') : 'Tidak ada'),
+                        route('tasks.show', $task),
+                        ['task_id' => $task->id]
+                    );
 
-                // Send email notification
-                TaskNotificationService::notifyTaskAssigned($task);
+                    // Send email notification
+                    TaskNotificationService::notifyTaskAssigned($task);
+                }
             }
 
             DB::commit();
 
             $count = $interns->count();
+            if ($isScheduled) {
+                return redirect()->route('tasks.index')
+                    ->with('success', "Tugas terjadwal untuk {$count} siswa! Notifikasi akan dikirim pada tanggal mulai.");
+            }
             return redirect()->route('tasks.index')
                 ->with('success', "Tugas berhasil diberikan kepada {$count} siswa!");
 
@@ -192,10 +242,9 @@ class TaskController extends Controller
                 'intern_id' => $firstIntern->id,
                 'priority' => $request->priority,
                 'status' => $request->status,
+                'start_date' => $request->start_date,
                 'deadline' => $request->deadline,
                 'deadline_time' => $request->deadline_time,
-                'estimated_hours' => $request->estimated_hours,
-                'submission_type' => $request->submission_type,
             ]);
 
             // Create copies for remaining interns
@@ -207,10 +256,9 @@ class TaskController extends Controller
                     'assigned_by' => $task->assigned_by,
                     'priority' => $request->priority,
                     'status' => 'pending', // New copies start as pending
+                    'start_date' => $request->start_date,
                     'deadline' => $request->deadline,
                     'deadline_time' => $request->deadline_time,
-                    'estimated_hours' => $request->estimated_hours,
-                    'submission_type' => $request->submission_type,
                     'task_assignment_id' => $task->task_assignment_id,
                 ]);
             }
@@ -225,15 +273,14 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'intern_id' => 'nullable|exists:interns,id',
             'priority' => 'required|in:low,medium,high',
-            'status' => 'required|in:pending,in_progress,completed,revision',
+            'status' => 'required|in:pending,in_progress,completed,revision,scheduled',
+            'start_date' => 'nullable|date',
             'deadline' => 'nullable|date',
             'deadline_time' => 'nullable|date_format:H:i',
-            'estimated_hours' => 'nullable|integer|min:1',
-            'submission_type' => 'nullable|in:github,file,both',
             'admin_feedback' => 'nullable|string',
         ]);
 
-        $data = $request->only(['title', 'description', 'intern_id', 'priority', 'status', 'deadline', 'deadline_time', 'estimated_hours', 'submission_type', 'admin_feedback']);
+        $data = $request->only(['title', 'description', 'intern_id', 'priority', 'status', 'start_date', 'deadline', 'deadline_time', 'admin_feedback']);
 
         // Handle empty intern_id (set to null)
         if (empty($data['intern_id'])) {
@@ -271,7 +318,7 @@ class TaskController extends Controller
             ->with('success', 'Tugas berhasil dihapus!');
     }
 
-    // Submit task by intern
+    // Submit task by intern - Links only
     public function submit(Request $request, Task $task)
     {
         $user = Auth::user();
@@ -282,50 +329,35 @@ class TaskController extends Controller
             abort(403, 'Anda tidak memiliki akses ke tugas ini.');
         }
 
-        // Validate based on submission type
-        $rules = ['submission_notes' => 'nullable|string|max:1000'];
+        // Validate links array
+        $request->validate([
+            'submission_notes' => 'nullable|string|max:1000',
+            'links' => 'required|array|min:1',
+            'links.*.label' => 'required|string|max:100',
+            'links.*.url' => 'required|url',
+        ], [
+            'links.required' => 'Minimal masukkan satu link!',
+            'links.min' => 'Minimal masukkan satu link!',
+            'links.*.label.required' => 'Label link wajib diisi!',
+            'links.*.url.required' => 'URL link wajib diisi!',
+            'links.*.url.url' => 'Format URL tidak valid!',
+        ]);
 
-        if (in_array($task->submission_type, ['github', 'both'])) {
-            $rules['github_link'] = 'nullable|url|regex:/github\.com/i';
-        }
+        // Clean and prepare links
+        $links = collect($request->links)->filter(function($link) {
+            return !empty($link['url']) && !empty($link['label']);
+        })->values()->toArray();
 
-        if (in_array($task->submission_type, ['file', 'both'])) {
-            $rules['submission_file'] = 'nullable|file|max:51200'; // 50MB max
-        }
-
-        $request->validate($rules);
-
-        // Check if at least one submission is provided
-        if ($task->submission_type === 'github' && empty($request->github_link)) {
-            return back()->with('error', 'Link GitHub wajib diisi!');
-        }
-
-        if ($task->submission_type === 'file' && !$request->hasFile('submission_file')) {
-            return back()->with('error', 'File wajib diupload!');
-        }
-
-        if ($task->submission_type === 'both' && empty($request->github_link) && !$request->hasFile('submission_file')) {
-            return back()->with('error', 'Minimal isi link GitHub atau upload file!');
+        if (empty($links)) {
+            return back()->with('error', 'Minimal masukkan satu link yang valid!');
         }
 
         $data = [
             'status' => 'submitted',
             'submitted_at' => now(),
             'submission_notes' => $request->submission_notes,
+            'submission_links' => $links,
         ];
-
-        // Save GitHub link
-        if ($request->github_link) {
-            $data['github_link'] = $request->github_link;
-        }
-
-        // Save file
-        if ($request->hasFile('submission_file')) {
-            $file = $request->file('submission_file');
-            $filename = time() . '_' . $task->id . '_' . $file->getClientOriginalName();
-            $file->storeAs('submissions', $filename, 'public');
-            $data['submission_file'] = $filename;
-        }
 
         // Check if late
         $deadlineDatetime = $task->deadline_datetime;
@@ -482,6 +514,7 @@ class TaskController extends Controller
             'in_progress' => $taskAssignment->tasks->where('status', 'in_progress'),
             'revision' => $taskAssignment->tasks->where('status', 'revision'),
             'pending' => $taskAssignment->tasks->where('status', 'pending'),
+            'scheduled' => $taskAssignment->tasks->where('status', 'scheduled'),
         ];
 
         return view('task-assignments.show', compact('taskAssignment', 'stats', 'tasksByStatus'));
@@ -503,6 +536,7 @@ class TaskController extends Controller
                 'in_progress' => 0,
                 'revision' => 0,
                 'pending' => 0,
+                'scheduled' => 0,
                 'progress_percentage' => 0,
                 'average_score' => 0,
             ];
@@ -515,6 +549,7 @@ class TaskController extends Controller
         $inProgress = $tasks->where('status', 'in_progress')->count();
         $revision = $tasks->where('status', 'revision')->count();
         $pending = $tasks->where('status', 'pending')->count();
+        $scheduled = $tasks->where('status', 'scheduled')->count();
 
         $scores = $tasks->where('status', 'completed')->whereNotNull('score')->pluck('score');
         $averageScore = $scores->count() > 0 ? round($scores->avg(), 1) : 0;
@@ -528,6 +563,7 @@ class TaskController extends Controller
             'in_progress' => $inProgress,
             'revision' => $revision,
             'pending' => $pending,
+            'scheduled' => $scheduled,
             'progress_percentage' => round(($completed / $total) * 100),
             'average_score' => $averageScore,
         ];
