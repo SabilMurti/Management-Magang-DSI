@@ -22,7 +22,7 @@
                     @csrf
 
                     <div class="form-group">
-                        <label class="form-label">Jam Masuk (Check In)</label>
+                        <label class="form-label">Jam Masuk (Presensi Masuk)</label>
                         <div class="d-flex align-center gap-2">
                             <input type="time" name="office_start_time" class="form-control"
                                 value="{{ $settings->get('office_start_time')?->value ?? '08:00' }}">
@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Jam Pulang (Check Out)</label>
+                        <label class="form-label">Jam Pulang (Presensi Keluar)</label>
                         <div class="d-flex align-center gap-2">
                             <input type="time" name="office_end_time" class="form-control"
                                 value="{{ $settings->get('office_end_time')?->value ?? '17:00' }}">

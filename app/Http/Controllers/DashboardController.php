@@ -26,6 +26,7 @@ class DashboardController extends Controller
     private function adminDashboard()
     {
         $totalInterns = Intern::where('status', 'active')->count();
+        $pendingRegistrations = Intern::where('status', 'pending')->count();
         
         // Batch all task statistics queries together
         $taskStats = Task::selectRaw('
@@ -117,6 +118,7 @@ class DashboardController extends Controller
 
         return view('dashboard.admin', compact(
             'totalInterns',
+            'pendingRegistrations',
             'totalTasks',
             'completedTasks',
             'pendingTasks',

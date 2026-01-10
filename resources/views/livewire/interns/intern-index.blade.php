@@ -46,16 +46,35 @@
                 <i class="fas fa-search"></i>
             </div>
         </div>
-        <div class="filter-group max-w-[160px]">
+        <div class="filter-group max-w-[180px]">
             <label>Status</label>
             <select wire:model.live="status" class="form-control">
                 <option value="">Semua Status</option>
+                <option value="pending">⏳ Menunggu Approval {{ $this->pendingCount > 0 ? '(' . $this->pendingCount . ')' : '' }}</option>
                 <option value="active">Aktif</option>
                 <option value="completed">Selesai</option>
                 <option value="cancelled">Dibatalkan</option>
             </select>
         </div>
     </div>
+
+    <!-- Pending Alert -->
+    @if($this->pendingCount > 0 && $status !== 'pending')
+        <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.1) 100%); border: 1px solid rgba(251,191,36,0.3);">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-amber-800">{{ $this->pendingCount }} Pendaftaran Menunggu Persetujuan</p>
+                    <p class="text-sm text-amber-600">Klik tombol di samping untuk mereview pendaftaran baru.</p>
+                </div>
+            </div>
+            <button wire:click="$set('status', 'pending')" class="btn bg-amber-500 text-white hover:bg-amber-600">
+                <i class="fas fa-eye"></i> Lihat Pendaftaran
+            </button>
+        </div>
+    @endif
 
     <!-- Bulk Actions -->
     @if(count($selectedInterns) > 0)
@@ -66,10 +85,15 @@
             <div class="flex gap-2 flex-1">
                 <select wire:model="bulkAction" class="form-control max-w-[180px]" style="background: white;">
                     <option value="">-- Pilih Aksi --</option>
-                    <option value="delete">🗑️ Hapus</option>
-                    <option value="activate">✅ Set Aktif</option>
-                    <option value="complete">🎓 Set Selesai</option>
-                    <option value="cancel">❌ Set Dibatalkan</option>
+                    @if($status === 'pending')
+                        <option value="approve">✅ Approve Semua</option>
+                        <option value="reject">❌ Tolak Semua</option>
+                    @else
+                        <option value="delete">🗑️ Hapus</option>
+                        <option value="activate">✅ Set Aktif</option>
+                        <option value="complete">🎓 Set Selesai</option>
+                        <option value="cancel">❌ Set Dibatalkan</option>
+                    @endif
                 </select>
                 <button wire:click="executeBulkAction" wire:confirm="Yakin ingin melakukan aksi ini?" class="btn bg-white text-violet-600 hover:bg-violet-50">
                     <i class="fas fa-play"></i> Jalankan
@@ -150,7 +174,9 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if($intern->status === 'active')
+                                    @if($intern->status === 'pending')
+                                        <span class="badge badge-warning">Menunggu</span>
+                                    @elseif($intern->status === 'active')
                                         <span class="badge badge-success">Aktif</span>
                                     @elseif($intern->status === 'completed')
                                         <span class="badge badge-primary">Selesai</span>
@@ -160,23 +186,32 @@
                                 </td>
                                 <td>
                                     <div class="flex gap-1.5">
-                                        <a href="{{ route('interns.show', $intern) }}" class="btn btn-sm btn-info" title="Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('interns.edit', $intern) }}" class="btn btn-sm btn-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ route('interns.downloadReport', $intern) }}" class="btn btn-sm btn-success hidden sm:inline-flex" title="PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                        @if($intern->status === 'completed')
-                                            <a href="{{ route('interns.certificate', $intern) }}" class="btn btn-sm btn-primary hidden sm:inline-flex" title="Sertifikat" target="_blank">
-                                                <i class="fas fa-certificate"></i>
+                                        @if($intern->status === 'pending')
+                                            <button wire:click="approveIntern({{ $intern->id }})" wire:confirm="Approve pendaftaran {{ $intern->user->name }}?" class="btn btn-sm btn-success" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button wire:click="rejectIntern({{ $intern->id }})" wire:confirm="Tolak dan hapus pendaftaran {{ $intern->user->name }}?" class="btn btn-sm btn-danger" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        @else
+                                            <a href="{{ route('interns.show', $intern) }}" class="btn btn-sm btn-info" title="Detail">
+                                                <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="{{ route('interns.edit', $intern) }}" class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ route('interns.downloadReport', $intern) }}" class="btn btn-sm btn-success hidden sm:inline-flex" title="PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            @if($intern->status === 'completed')
+                                                <a href="{{ route('interns.certificate', $intern) }}" class="btn btn-sm btn-primary hidden sm:inline-flex" title="Sertifikat" target="_blank">
+                                                    <i class="fas fa-certificate"></i>
+                                                </a>
+                                            @endif
+                                            <button wire:click="deleteIntern({{ $intern->id }})" wire:confirm="Yakin ingin menghapus?" class="btn btn-sm btn-danger" title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
-                                        <button wire:click="deleteIntern({{ $intern->id }})" wire:confirm="Yakin ingin menghapus?" class="btn btn-sm btn-danger" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -212,7 +247,9 @@
                                         <p class="text-xs text-slate-400">{{ $intern->user->email }}</p>
                                     </div>
                                 </div>
-                                @if($intern->status === 'active')
+                                @if($intern->status === 'pending')
+                                    <span class="badge badge-warning">Menunggu</span>
+                                @elseif($intern->status === 'active')
                                     <span class="badge badge-success">Aktif</span>
                                 @elseif($intern->status === 'completed')
                                     <span class="badge badge-primary">Selesai</span>
@@ -241,15 +278,24 @@
 
                             <!-- Actions -->
                             <div class="flex gap-2 pt-3 border-t border-slate-100">
-                                <a href="{{ route('interns.show', $intern) }}" class="flex-1 btn btn-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100">
-                                    <i class="fas fa-eye mr-1"></i> Detail
-                                </a>
-                                <a href="{{ route('interns.edit', $intern) }}" class="flex-1 btn btn-sm bg-amber-50 text-amber-600 hover:bg-amber-100">
-                                    <i class="fas fa-edit mr-1"></i> Edit
-                                </a>
-                                <button wire:click="deleteIntern({{ $intern->id }})" wire:confirm="Yakin ingin menghapus?" class="btn btn-sm bg-rose-50 text-rose-600 hover:bg-rose-100 w-8">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                @if($intern->status === 'pending')
+                                    <button wire:click="approveIntern({{ $intern->id }})" wire:confirm="Approve pendaftaran {{ $intern->user->name }}?" class="flex-1 btn btn-sm bg-emerald-50 text-emerald-600 hover:bg-emerald-100">
+                                        <i class="fas fa-check mr-1"></i> Approve
+                                    </button>
+                                    <button wire:click="rejectIntern({{ $intern->id }})" wire:confirm="Tolak dan hapus pendaftaran {{ $intern->user->name }}?" class="flex-1 btn btn-sm bg-rose-50 text-rose-600 hover:bg-rose-100">
+                                        <i class="fas fa-times mr-1"></i> Tolak
+                                    </button>
+                                @else
+                                    <a href="{{ route('interns.show', $intern) }}" class="flex-1 btn btn-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100">
+                                        <i class="fas fa-eye mr-1"></i> Detail
+                                    </a>
+                                    <a href="{{ route('interns.edit', $intern) }}" class="flex-1 btn btn-sm bg-amber-50 text-amber-600 hover:bg-amber-100">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </a>
+                                    <button wire:click="deleteIntern({{ $intern->id }})" wire:confirm="Yakin ingin menghapus?" class="btn btn-sm bg-rose-50 text-rose-600 hover:bg-rose-100 w-8">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>

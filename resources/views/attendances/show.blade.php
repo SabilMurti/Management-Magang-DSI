@@ -73,14 +73,14 @@
                     </div>
 
                     <div>
-                        <label class="text-muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Check In</label>
+                        <label class="text-muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Presensi Masuk</label>
                         <div class="fw-bold" style="margin-top: 4px; font-size: 24px; color: var(--success);">
                             {{ $attendance->check_in ?? '-' }}
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Check Out</label>
+                        <label class="text-muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Presensi Keluar</label>
                         <div class="fw-bold" style="margin-top: 4px; font-size: 24px; color: var(--info);">
                             {{ $attendance->check_out ?? '-' }}
                         </div>

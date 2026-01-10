@@ -127,7 +127,7 @@
 
                          <div class="grid grid-cols-2 gap-3 mb-4">
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center text-center">
-                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Check In</span>
+                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Presensi Masuk</span>
                                  <div class="text-sm font-black text-slate-700">
                                     @if($attendance->check_in)
                                         <span class="text-emerald-600">{{ $attendance->check_in->format('H:i') }}</span>
@@ -137,7 +137,7 @@
                                  </div>
                             </div>
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center text-center">
-                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Check Out</span>
+                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Presensi Keluar</span>
                                  <div class="text-sm font-black text-slate-700">
                                     @if($attendance->check_out)
                                         <span class="text-rose-600">{{ $attendance->check_out->format('H:i') }}</span>
@@ -202,8 +202,8 @@
                                 <th>Siswa</th>
                             @endif
                             <th>Tanggal</th>
-                            <th>Check In</th>
-                            <th class="hidden sm:table-cell">Check Out</th>
+                            <th>Presensi Masuk</th>
+                            <th class="hidden sm:table-cell">Presensi Keluar</th>
                             <th>Status</th>
                             <th class="hidden md:table-cell">Keterangan</th>
                             <th>Aksi</th>

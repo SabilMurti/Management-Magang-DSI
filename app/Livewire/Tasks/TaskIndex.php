@@ -171,9 +171,10 @@ class TaskIndex extends Component
         $user = auth()->user();
         $query = Task::with(['intern.user', 'assignedBy']);
 
-        // If user is intern, only show their tasks
+        // If user is intern, only show their tasks (exclude scheduled)
         if ($user->isIntern()) {
-            $query->where('intern_id', $user->intern->id);
+            $query->where('intern_id', $user->intern->id)
+                  ->where('status', '!=', 'scheduled');
         }
 
         if ($this->search) {

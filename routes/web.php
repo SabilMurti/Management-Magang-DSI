@@ -18,6 +18,8 @@ Route::get('/', function () {
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
@@ -40,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     // Tasks (accessible by all authenticated users) - Index uses Livewire
     Route::get('/tasks', \App\Livewire\Tasks\TaskIndex::class)->name('tasks.index');
     Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+    Route::get('/tasks/search-interns', [TaskController::class, 'searchInterns'])->name('tasks.searchInterns');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
