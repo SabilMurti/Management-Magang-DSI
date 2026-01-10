@@ -20,36 +20,42 @@ class ProfileController extends Controller
         $assessmentData = [];
         
         if ($intern) {
-            $intern->load(['supervisor', 'tasks', 'attendances', 'assessments']);
+            $intern->load(['supervisor']);
             
+            // Load limited task relationships
+            $intern->load(['tasks' => function($q) { $q->latest()->limit(100); }]);
+            $intern->load(['attendances' => function($q) { $q->latest()->limit(100); }]);
+            $intern->load(['assessments' => function($q) { $q->latest()->limit(5); }]);
+            
+            // Use database queries for counting instead of in-memory operations
             $stats = [
-                'totalTasks' => $intern->tasks->count(),
-                'completedTasks' => $intern->tasks->where('status', 'completed')->count(),
-                'pendingTasks' => $intern->tasks->whereIn('status', ['pending', 'in_progress'])->count(),
+                'totalTasks' => $intern->tasks()->count(),
+                'completedTasks' => $intern->tasks()->where('status', 'completed')->count(),
+                'pendingTasks' => $intern->tasks()->whereIn('status', ['pending', 'in_progress'])->count(),
                 'attendancePercentage' => $intern->getAttendancePercentage(),
                 'averageSpeed' => $intern->getAverageSpeed(),
                 'overallScore' => $intern->getOverallScore(),
             ];
 
-            // Task status pie chart data
+            // Task status pie chart data - use database queries
             $taskStatusData = [
-                'Selesai' => $intern->tasks->where('status', 'completed')->count(),
-                'Dalam Proses' => $intern->tasks->where('status', 'in_progress')->count(),
-                'Menunggu' => $intern->tasks->where('status', 'pending')->count(),
-                'Revisi' => $intern->tasks->where('status', 'revision')->count(),
+                'Selesai' => $intern->tasks()->where('status', 'completed')->count(),
+                'Dalam Proses' => $intern->tasks()->where('status', 'in_progress')->count(),
+                'Menunggu' => $intern->tasks()->where('status', 'pending')->count(),
+                'Revisi' => $intern->tasks()->where('status', 'revision')->count(),
             ];
 
-            // Attendance pie chart data
+            // Attendance pie chart data - use database queries
             $attendanceData = [
-                'Hadir' => $intern->attendances->where('status', 'present')->count(),
-                'Terlambat' => $intern->attendances->where('status', 'late')->count(),
-                'Tidak Hadir' => $intern->attendances->where('status', 'absent')->count(),
-                'Sakit' => $intern->attendances->where('status', 'sick')->count(),
-                'Izin' => $intern->attendances->where('status', 'permission')->count(),
+                'Hadir' => $intern->attendances()->where('status', 'present')->count(),
+                'Terlambat' => $intern->attendances()->where('status', 'late')->count(),
+                'Tidak Hadir' => $intern->attendances()->where('status', 'absent')->count(),
+                'Sakit' => $intern->attendances()->where('status', 'sick')->count(),
+                'Izin' => $intern->attendances()->where('status', 'permission')->count(),
             ];
 
-            // Assessment radar chart data
-            $latestAssessments = $intern->assessments()->latest()->take(5)->get();
+            // Assessment radar chart data - using limited loaded assessments
+            $latestAssessments = $intern->assessments;
             if ($latestAssessments->isNotEmpty()) {
                 $assessmentData = [
                     'Kualitas' => round($latestAssessments->avg('quality_score'), 1),

@@ -74,7 +74,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="form-group mb-0">
-                        <label class="form-label">NIS (Nomor Induk Siswa)</label>
+                        <label class="form-label">NISN / NIM</label>
                         <input type="text" wire:model="nis" class="form-control @error('nis') !border-rose-400 @enderror" placeholder="Nomor Induk">
                         @error('nis') <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
@@ -98,7 +98,7 @@
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label">Jurusan</label>
+                        <label class="form-label">Jurusan / Bidang Studi</label>
                         <div class="search-input">
                             <input type="text" wire:model="department" class="form-control @error('department') !border-rose-400 @enderror" placeholder="Contoh: RPL, TKJ">
                             <i class="fas fa-graduation-cap"></i>
@@ -107,8 +107,8 @@
                     </div>
 
                     <div class="form-group mb-0 md:col-span-2">
-                        <label class="form-label">Alamat Domisili</label>
-                        <textarea wire:model="address" class="form-control @error('address') !border-rose-400 @enderror" rows="2" placeholder="Alamat lengkap tempat tinggal sekarang"></textarea>
+                        <label class="form-label">Alamat</label>
+                        <textarea wire:model="address" class="form-control @error('address') !border-rose-400 @enderror" rows="2" placeholder="Alamat tempat tinggal saat ini"></textarea>
                         @error('address') <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>

@@ -130,17 +130,16 @@
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                <!-- Est. Time Card -->
-                                <div class="p-4 rounded-2xl border border-slate-200 bg-white group hover:border-violet-200 transition-colors">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Estimasi Pengerjaan</label>
+                            <!-- Start Date Card -->
+                                <div class="p-4 rounded-2xl border border-slate-200 bg-white group hover:border-blue-200 transition-colors">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Tanggal Mulai</label>
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
-                                            <i class="fas fa-stopwatch text-xl"></i>
+                                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                            <i class="fas fa-play-circle text-xl"></i>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-slate-700 text-base">{{ $task->estimated_hours ?? '-' }}</div>
-                                            <div class="text-xs text-slate-400">Jam Kerja</div>
+                                            <div class="font-bold text-slate-700 text-sm">{{ $task->start_date ? $task->start_date->format('d M Y') : 'Langsung' }}</div>
+                                            <div class="text-xs text-slate-400">{{ $task->status === 'scheduled' ? 'Terjadwal' : 'Aktif' }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -150,25 +149,14 @@
                                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Metode Pengumpulan</label>
                                     <div class="flex items-center gap-4">
                                         <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center shrink-0">
-                                            @if($task->submission_type === 'github') <i class="fab fa-github text-xl"></i>
-                                            @elseif($task->submission_type === 'file') <i class="fas fa-file-upload text-xl"></i>
-                                            @else <i class="fas fa-layer-group text-xl"></i>
-                                            @endif
+                                            <i class="fas fa-link text-xl"></i>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-slate-700 text-sm">
-                                                @if($task->submission_type === 'github') Link Repository
-                                                @elseif($task->submission_type === 'file') Upload File
-                                                @else Fleksibel
-                                                @endif
-                                            </div>
-                                            <div class="text-xs text-slate-400">
-                                                @if($task->submission_type === 'both') Github / File @else Wajib @endif
-                                            </div>
+                                            <div class="font-bold text-slate-700 text-sm">Multiple Links</div>
+                                            <div class="text-xs text-slate-400">Repo, Demo, Dokumentasi</div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -291,7 +279,7 @@
 
         <!-- Submission Section for Interns -->
         @if(auth()->user()->isIntern() && ($task->status !== 'completed' && $task->status !== 'submitted'))
-            <div class="card p-0 overflow-hidden">
+            <div class="card p-0 overflow-hidden" x-data="linksForm()">
                 <div class="p-6 border-b border-slate-100">
                     <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                         <i class="fas fa-paper-plane text-violet-500"></i>
@@ -307,31 +295,43 @@
                 @endif
 
                 <div class="p-6">
-                    <form action="{{ route('tasks.submit', $task) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <form action="{{ route('tasks.submit', $task) }}" method="POST" class="space-y-6">
                         @csrf
 
-                        @if(in_array($task->submission_type, ['github', 'both']))
-                            <div class="form-group mb-0">
-                                <label class="form-label">
-                                    <i class="fab fa-github"></i> Link GitHub Repository
-                                    @if($task->submission_type === 'github') <span class="text-rose-500">*</span> @endif
+                        <!-- Multiple Links Section -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <label class="form-label mb-0">
+                                    <i class="fas fa-link"></i> Links Pengumpulan <span class="text-rose-500">*</span>
                                 </label>
-                                <input type="url" name="github_link" class="form-control"
-                                    value="{{ old('github_link', $task->github_link) }}"
-                                    placeholder="https://github.com/username/repository" {{ $task->submission_type === 'github' ? 'required' : '' }}>
+                                <button type="button" @click="addLink()" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-plus mr-1"></i> Tambah Link
+                                </button>
                             </div>
-                        @endif
-
-                        @if(in_array($task->submission_type, ['file', 'both']))
-                            <div class="form-group mb-0">
-                                <label class="form-label">
-                                    <i class="fas fa-upload"></i> Upload File
-                                    @if($task->submission_type === 'file') <span class="text-rose-500">*</span> @endif
-                                </label>
-                                <input type="file" name="submission_file" class="form-control" {{ $task->submission_type === 'file' ? 'required' : '' }}>
-                                <p class="text-xs text-slate-400 mt-1.5">Format: ZIP, RAR, PDF, DOC. Max 50MB.</p>
+                            
+                            <div class="space-y-3">
+                                <template x-for="(link, index) in links" :key="index">
+                                    <div class="flex gap-3 items-start p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                        <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div>
+                                                <input type="text" :name="'links[' + index + '][label]'" x-model="link.label"
+                                                    class="form-control text-sm" placeholder="Label (misal: Repository)" required>
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <input type="url" :name="'links[' + index + '][url]'" x-model="link.url"
+                                                    class="form-control text-sm" placeholder="https://..." required>
+                                            </div>
+                                        </div>
+                                        <button type="button" @click="removeLink(index)" x-show="links.length > 1"
+                                            class="btn btn-icon btn-sm text-rose-500 hover:bg-rose-50">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
-                        @endif
+                            
+                            <p class="text-xs text-slate-400">Masukkan link repository, demo, dokumentasi, atau file di cloud storage.</p>
+                        </div>
 
                         <div class="form-group mb-0">
                             <label class="form-label"><i class="fas fa-comment"></i> Catatan Pengumpulan</label>
@@ -346,6 +346,30 @@
                     </form>
                 </div>
             </div>
+
+            <script>
+                function linksForm() {
+                    return {
+                        links: @json($task->submission_links ?? [['label' => '', 'url' => '']]),
+                        
+                        init() {
+                            if (this.links.length === 0) {
+                                this.links = [{label: '', url: ''}];
+                            }
+                        },
+                        
+                        addLink() {
+                            this.links.push({label: '', url: ''});
+                        },
+                        
+                        removeLink(index) {
+                            if (this.links.length > 1) {
+                                this.links.splice(index, 1);
+                            }
+                        }
+                    }
+                }
+            </script>
         @endif
 
         <!-- Admin Review Form -->
@@ -469,30 +493,23 @@
                 </div>
 
                 <div class="p-6 bg-white space-y-6">
-                    @if($task->github_link)
+                    @if($task->submission_links && count($task->submission_links) > 0)
                     <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">GitHub Repository</span>
-                        <a href="{{ $task->github_link }}" target="_blank" class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group">
-                            <i class="fab fa-github text-2xl text-slate-700"></i>
-                            <span class="font-medium text-slate-700 text-sm truncate flex-1">{{ $task->github_link }}</span>
-                            <i class="fas fa-external-link-alt text-slate-400 group-hover:text-slate-600"></i>
-                        </a>
-                    </div>
-                    @endif
-
-                    @if($task->submission_file)
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">File Upload</span>
-                        <a href="{{ Storage::url('submissions/' . $task->submission_file) }}" target="_blank" class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group">
-                            <div class="w-8 h-8 bg-sky-100 text-sky-600 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-slate-700 text-sm">Download File</div>
-                                <div class="text-xs text-slate-400 truncate">{{ $task->submission_file }}</div>
-                            </div>
-                            <i class="fas fa-download text-slate-400 group-hover:text-slate-600"></i>
-                        </a>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Links Pengumpulan</span>
+                        <div class="space-y-2">
+                            @foreach($task->submission_links as $link)
+                                <a href="{{ $link['url'] }}" target="_blank" class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group">
+                                    <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-link"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-slate-700 text-sm">{{ $link['label'] }}</div>
+                                        <div class="text-xs text-slate-400 truncate">{{ $link['url'] }}</div>
+                                    </div>
+                                    <i class="fas fa-external-link-alt text-slate-400 group-hover:text-slate-600"></i>
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
                     @endif
 

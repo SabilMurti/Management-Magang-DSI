@@ -119,7 +119,15 @@ class TaskIndex extends Component
 
     public function bulkDelete()
     {
-        $count = Task::whereIn('id', $this->selectedTasks)->delete();
+        // Load tasks individually so Observer is triggered for each deletion
+        $tasks = Task::whereIn('id', $this->selectedTasks)->get();
+        $count = 0;
+        
+        foreach ($tasks as $task) {
+            $task->delete(); // This triggers TaskObserver::deleted()
+            $count++;
+        }
+        
         session()->flash('success', "{$count} tugas berhasil dihapus!");
     }
 
@@ -163,9 +171,10 @@ class TaskIndex extends Component
         $user = auth()->user();
         $query = Task::with(['intern.user', 'assignedBy']);
 
-        // If user is intern, only show their tasks
+        // If user is intern, only show their tasks (exclude scheduled)
         if ($user->isIntern()) {
-            $query->where('intern_id', $user->intern->id);
+            $query->where('intern_id', $user->intern->id)
+                  ->where('status', '!=', 'scheduled');
         }
 
         if ($this->search) {

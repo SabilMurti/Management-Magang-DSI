@@ -23,6 +23,8 @@ return new class extends Migration
             $table->date('end_date');
             $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
             $table->foreignId('supervisor_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('certificate_number')->nullable()->unique();
+            $table->date('certificate_issued_at')->nullable();
             $table->timestamps();
         });
     }

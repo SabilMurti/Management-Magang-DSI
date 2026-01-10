@@ -3,6 +3,7 @@
 namespace App\Livewire\Interns;
 
 use App\Models\Intern;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -65,6 +66,25 @@ class InternIndex extends Component
         session()->flash('success', 'Anggota magang berhasil dihapus!');
     }
 
+    public function approveIntern($id)
+    {
+        $intern = Intern::findOrFail($id);
+        $intern->update(['status' => 'active']);
+
+        session()->flash('success', 'Pendaftaran ' . $intern->user->name . ' berhasil disetujui!');
+    }
+
+    public function rejectIntern($id)
+    {
+        $intern = Intern::findOrFail($id);
+        $user = $intern->user;
+        $name = $user->name;
+        $intern->delete();
+        $user->delete();
+
+        session()->flash('success', 'Pendaftaran ' . $name . ' ditolak dan dihapus.');
+    }
+
     public function executeBulkAction()
     {
         if (empty($this->selectedInterns)) {
@@ -75,6 +95,12 @@ class InternIndex extends Component
         switch ($this->bulkAction) {
             case 'delete':
                 $this->bulkDelete();
+                break;
+            case 'approve':
+                $this->bulkApprove();
+                break;
+            case 'reject':
+                $this->bulkReject();
                 break;
             case 'activate':
                 $this->bulkUpdateStatus('active');
@@ -91,6 +117,33 @@ class InternIndex extends Component
         }
 
         $this->resetBulkSelection();
+    }
+
+    public function bulkApprove()
+    {
+        $count = Intern::whereIn('id', $this->selectedInterns)
+            ->where('status', 'pending')
+            ->update(['status' => 'active']);
+
+        session()->flash('success', "{$count} pendaftaran berhasil disetujui!");
+    }
+
+    public function bulkReject()
+    {
+        $interns = Intern::whereIn('id', $this->selectedInterns)
+            ->where('status', 'pending')
+            ->get();
+        $count = $interns->count();
+
+        foreach ($interns as $intern) {
+            $user = $intern->user;
+            $intern->delete();
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        session()->flash('success', "{$count} pendaftaran ditolak dan dihapus!");
     }
 
     public function bulkDelete()
@@ -121,6 +174,11 @@ class InternIndex extends Component
         $label = $statusLabels[$status] ?? $status;
 
         session()->flash('success', "{$count} anggota magang berhasil diubah ke status {$label}!");
+    }
+
+    public function getPendingCountProperty()
+    {
+        return Intern::where('status', 'pending')->count();
     }
 
     private function getFilteredQuery()

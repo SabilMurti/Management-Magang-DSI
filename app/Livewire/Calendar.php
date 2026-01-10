@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\Intern;
+use App\Helpers\IndonesianHoliday;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -19,6 +20,7 @@ class Calendar extends Component
     public $currentYear;
     public $days = [];
     public $events = [];
+    public $holidays = []; // Indonesian national holidays
     public $viewMode = 'attendance'; // 'attendance' or 'tasks'
 
     // Modal state
@@ -46,6 +48,9 @@ class Calendar extends Component
 
         $this->days = [];
         $this->events = [];
+        
+        // Load Indonesian national holidays
+        $this->holidays = IndonesianHoliday::getMonthHolidays($this->currentYear, $this->currentMonth);
 
         // Add empty slots for days before the start of month
         for ($i = 0; $i < $startDayOfWeek; $i++) {
